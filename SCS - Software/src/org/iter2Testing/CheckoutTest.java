@@ -324,18 +324,30 @@ public class CheckoutTest {
     	Checkout.addToTotalCost(new BigDecimal(5)); //Add $5 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
+<<<<<<< HEAD
     	//$4 in coins to pay before adding another item
     	Coin[] coins = { toonie, toonie};
     	//$5 in coins to pay remaining balance
+=======
+    	//Create a list of coins equal to the total cost of all items
+    	Coin[] coins = { toonie, toonie}; //, loonie, quarter, quarter, quarter};
+>>>>>>> 2b8278a85e9661b9c7a41df5d6a2c77c7d43d3e9
     	Coin[] coins2 = { toonie, toonie, loonie }; 
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
     	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
+<<<<<<< HEAD
     	//Scan an item after 4.5 seconds
     	scheduler.schedule(new ScanItemRunnable(this.Station.mainScanner, cornFlakes), 4500, TimeUnit.MILLISECONDS);
     	//Put item on scale after 5.5 seconds    	
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
     	//Pay remaining balance after 9.5 seconds
+=======
+    	
+    	scheduler.schedule(new ScanItemRunnable(this.Station.mainScanner, cornFlakes), 4500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
+    	
+>>>>>>> 2b8278a85e9661b9c7a41df5d6a2c77c7d43d3e9
     	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCoins();

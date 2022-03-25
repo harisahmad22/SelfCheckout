@@ -21,6 +21,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	private BarcodeLookup lookup;
 	private ElectronicScale scale;
 	private TouchScreen touchScreen;
+	private Checkout checkout;
 	private double targetWeight;
 	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(false);
@@ -52,13 +53,14 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		
 		6) Done
 	 */
-	
-	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen) 
+
+	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen, Checkout checkout) 
 	{
 		this.scanner = scanner;
 		this.lookup = lookup;
 		this.scale = scale;
 		this.touchScreen = touchScreen;
+		this.checkout = checkout;
 	}
 
 	@Override
@@ -90,43 +92,10 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 				
 				Checkout.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
 			}
-			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
 			try {
-				double weightBefore = scale.getCurrentWeight(); // In grams
-				targetWeight = weightBefore + scannedItemWeight; // What we expect the scale to read after placing the item on it
-				
-				waitingForWeightChangeEvent.set(true); //Signal Scale observer that we are waiting for an weight change after scanning
-				
-				//Wait for 3 seconds
-				TimeUnit.SECONDS.sleep(3);
-
-				// Check if the weight has increased by approximately the weight of the scanned item since we last checked
-				if (waitingForWeightChangeEvent.get())
-				{	// We are still waiting for a weight change event, signal screen that Item must be put in bagging area
-					handleItemNotPlacedInBaggingArea();
-					return;
-				}
-				else
-				{	//A weight change event has occurred, check if it is valid (matches approx target weight)
-					
-					if (weightValid.get())
-					{
-						//Weight change is valid with the scanned item, we are done
-						
-						// Reset weight change flags
-						resetWeightFlags();
-						return;
-					}
-					else
-					{
-						//Weight change is not valid, need to inform relevant observers and 
-						//block input/scanning from user until issue is corrected
-						handleInvalidWeight();
-						return;
-					}
-				}
+				waitForWeightChange(scannedItemWeight);
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -149,6 +118,48 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		}
 	}
 	
+	private void waitForWeightChange(double scannedItemWeight) throws OverloadException, InterruptedException {
+		double weightBefore = scale.getCurrentWeight(); // In grams
+		targetWeight = weightBefore + scannedItemWeight; // What we expect the scale to read after placing the item on it
+		
+		waitingForWeightChangeEvent.set(true); //Signal Scale observer that we are waiting for an weight change after scanning
+		
+		if (checkout.isInCheckout())
+		{
+			checkout.setExpectedWeight(targetWeight);
+		}
+		
+		//Wait for 3 seconds
+		TimeUnit.SECONDS.sleep(3);
+
+		// Check if the weight has increased by approximately the weight of the scanned item since we last checked
+		if (waitingForWeightChangeEvent.get())
+		{	// We are still waiting for a weight change event, signal screen that Item must be put in bagging area
+			handleItemNotPlacedInBaggingArea();
+			return;
+		}
+		else
+		{	//A weight change event has occurred, check if it is valid (matches approx target weight)
+			
+			if (weightValid.get())
+			{
+				//Weight change is valid with the scanned item, we are done
+				
+				// Reset weight change flags
+				resetWeightFlags();
+				return;
+			}
+			else
+			{
+				//Weight change is not valid, need to inform relevant observers and 
+				//block input/scanning from user until issue is corrected
+				handleInvalidWeight();
+				return;
+			}
+		}
+		
+	}
+
 	private void resetWeightFlags()
 	{
 		// Reset weight change flags
