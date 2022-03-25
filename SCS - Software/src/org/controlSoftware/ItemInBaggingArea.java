@@ -16,6 +16,7 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 	private Checkout checkout;
 	private double weightAtLastEvent = 0;
 	private double personalBagsWeight = 0;
+	private double weightVariablity = 25;
 
 	/*
 	 * (Shufan) DONT HAVE TO WORRY ABOUT: - the graphical user interface - products
@@ -58,14 +59,19 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
+		double scannerExpectedWeight = scannerObserver.getTargetWeight(); // set to weight in observer
+		double checkoutExpectedWeight = checkout.getExpectedWeight();
+		double weightOnScale = weightInGrams;
 
 		if (!isOverloaded) {
 			if (scannerObserver.isWaitingForWeightChange()) {
-				scannerObserver.setWeightValid(true);
-				scannerObserver.setWaitingForWeightChange(false);
-			} else {
-				scannerObserver.setWeightValid(false);
-				scannerObserver.setWaitingForWeightChange(false);
+				if (Math.abs(scannerExpectedWeight - weightOnScale) <= weightVariablity) {
+					scannerObserver.setWeightValid(true);
+					scannerObserver.setWaitingForWeightChange(false);
+				} else {
+					scannerObserver.setWeightValid(false);
+					scannerObserver.setWaitingForWeightChange(false);
+				}
 			}
 
 			if (checkout.isInCheckout()) { // Weight is not supposed to change during checkout, unless during cleanup or
@@ -80,20 +86,19 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 						personalBagsWeight = 0;
 					}
 				} else if (checkout.isUsingOwnBags()) {
-					display.usingOwnBagsPrompt();
-					personalBagsWeight = BAG_WEIGHT * (double) (display.getNumberOfPersonalBags());
 
-					if (personalBagsWeight == weightInGrams) {
-						checkout.setWeightValid(true);
-					} else {
+					if (checkoutExpectedWeight != weightOnScale) {
 						checkout.setWeightValid(false);
 					}
 				} else {
-					if (weightAtLastEvent != weightInGrams) {
-						checkout.setWeightValid(false);
-					} else {
-						checkout.setWeightValid(true);
-					}
+					checkout.setWeightValid(true);
+				}
+			} else {
+				if (Math.abs(checkoutExpectedWeight - weightOnScale) > weightVariablity) { // Weight cannot change more
+																							// than defined tolerance
+					checkout.setWeightValid(false);
+				} else {
+					checkout.setWeightValid(true);
 				}
 			}
 		}
