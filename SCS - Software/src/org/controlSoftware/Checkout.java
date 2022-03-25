@@ -26,7 +26,7 @@ public class Checkout {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
-	private static final double BAG_WEIGHT = 5; //Should have this be configurable
+	private static final double BAG_WEIGHT = 50; //Should have this be configurable
 
 	public Checkout(TouchScreen touchScreen, BarcodeScanner scanner, BanknoteSlot banknoteSlot, CoinSlot coinSlot,
 			ElectronicScale scale) {
