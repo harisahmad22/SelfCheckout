@@ -38,7 +38,8 @@ public class ItemInBaggingAreaTest {
 		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
 															this.lookup, 
 															this.Station.baggingArea, 
-															touchScreen);
+															touchScreen,
+															checkout);
 		//Attach the scanner observer to the scanner
 		this.Station.mainScanner.attach(customScannerObserver);
 		
