@@ -82,23 +82,17 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 						checkout.setWeightValid(false);
 					} else {
 						checkout.setWeightValid(true);
-						weightAtLastEvent = 0;
-						personalBagsWeight = 0;
+//						weightAtLastEvent = 0; // Will be set after anyways
+//						personalBagsWeight = 0; //I Dont need we need to reset bag weight?
 					}
-				} else if (checkout.isUsingOwnBags()) {
-
-					if (checkoutExpectedWeight != weightOnScale) {
+				} 
+				else {
+					if (Math.abs(checkoutExpectedWeight - weightOnScale) <= weightVariablity) { // Weight cannot change more
+												    		    // than defined tolerance
+						checkout.setWeightValid(true);
+					} else {
 						checkout.setWeightValid(false);
 					}
-				} else {
-					checkout.setWeightValid(true);
-				}
-			} else {
-				if (Math.abs(checkoutExpectedWeight - weightOnScale) > weightVariablity) { // Weight cannot change more
-																							// than defined tolerance
-					checkout.setWeightValid(false);
-				} else {
-					checkout.setWeightValid(true);
 				}
 			}
 		}
