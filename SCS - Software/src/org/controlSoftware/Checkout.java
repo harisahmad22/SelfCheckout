@@ -1,9 +1,11 @@
 //Brody Long - 30022870 
-//Kamrul Ahsan Noor- 30078754
+//Shufan Zhai - 30117333
 
 package org.controlSoftware;
 
 import java.math.BigDecimal;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
@@ -26,7 +28,7 @@ public class Checkout {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
-	private static final double BAG_WEIGHT = 50; //Should have this be configurable
+	private double bagWeight = 50; // Should have this be configurable
 
 	public Checkout(TouchScreen touchScreen, BarcodeScanner scanner, BanknoteSlot banknoteSlot, CoinSlot coinSlot,
 			ElectronicScale scale) {
@@ -50,19 +52,20 @@ public class Checkout {
 
 		// First Disable scanner
 		scanner.disable();
-		
-		//-------------Brody------------------
-		
-		//TouchScreen method that will ask user if they have their own bags
-		//and how many if they do. If user does not have bags they will enter 0 bags
+
+		// -------------Brody------------------
+
+		// TouchScreen method that will ask user if they have their own bags
+		// and how many if they do. If user does not have bags they will enter 0 bags
 		touchScreen.usingOwnBagsPrompt();
-		expectedWeight += (touchScreen.getNumberOfPersonalBags() * BAG_WEIGHT); // If user selcts 0 bags expected does not change
-		//If the user has bags to add, the weight of all their bags will be added to expectedWeight, which will then
-		//be checked for validity after the user chooses payment options
-		
-		//-------------Brody------------------
-		
-		
+		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does
+																				// not change
+		// If the user has bags to add, the weight of all their bags will be added to
+		// expectedWeight, which will then
+		// be checked for validity after the user chooses payment options
+
+		// -------------Brody------------------
+
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
 		touchScreen.showPaymentOption();
@@ -295,5 +298,19 @@ public class Checkout {
 
 	public boolean isUsingOwnBags() {
 		return usingOwnBags.get();
+	}
+	
+	public void configureBagWeight() {
+	
+			try (Scanner weightInput = new Scanner(System.in)) {
+				System.out.println("Enter new weight of bags");
+				bagWeight = weightInput.nextDouble();
+				// configure new weight of bags
+				if (bagWeight < 0) {
+					throw new NegativeNumberException();
+				}
+			} catch (InputMismatchException e) {
+				System.out.println("Must enter a valid weight for bags!");
+			}	
 	}
 }
