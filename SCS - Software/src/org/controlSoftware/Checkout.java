@@ -26,6 +26,7 @@ public class Checkout {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
+	private static final double BAG_WEIGHT = 5; //Should have this be configurable
 
 	public Checkout(TouchScreen touchScreen, BarcodeScanner scanner, BanknoteSlot banknoteSlot, CoinSlot coinSlot,
 			ElectronicScale scale) {
@@ -49,7 +50,19 @@ public class Checkout {
 
 		// First Disable scanner
 		scanner.disable();
-
+		
+		//-------------Brody------------------
+		
+		//TouchScreen method that will ask user if they have their own bags
+		//and how many if they do. If user does have bags this method returns true
+		//false otherwise
+		if (touchScreen.usingOwnBagsPrompt()) { expectedWeight += (touchScreen.getNumberOfPersonalBags() * BAG_WEIGHT); }
+		//If the user has bags to add, the weight of all their bags will be added to expectedWeight, which will then
+		//be checked for validity after the user chooses payment options
+		
+		//-------------Brody------------------
+		
+		
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
 		touchScreen.showPaymentOption();
