@@ -8,12 +8,14 @@ import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 public class ItemInBaggingArea implements ElectronicScaleObserver {
+	private static final double BAG_WEIGHT = 5;
 	private boolean isOverloaded = false;
 	private ElectronicScale scale;
 	private ProcessScannedItem scannerObserver;
 	private TouchScreen display;
 	private Checkout checkout;
 	private double weightAtLastEvent = 0;
+	private double personalBagsWeight = 0;
 
 	/*
 	 * (Shufan) DONT HAVE TO WORRY ABOUT: - the graphical user interface - products
@@ -59,24 +61,35 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 
 		if (!isOverloaded) {
 			if (scannerObserver.isWaitingForWeightChange()) {
-					scannerObserver.setWeightValid(true);
-					scannerObserver.setWaitingForWeightChange(false);
-				} else {
-					scannerObserver.setWeightValid(false);
-					scannerObserver.setWaitingForWeightChange(false);
-				}
-			
-			if (checkout.isInCheckout()) { // Weight is not supposed to change during checkout, unless during cleanup
+				scannerObserver.setWeightValid(true);
+				scannerObserver.setWaitingForWeightChange(false);
+			} else {
+				scannerObserver.setWeightValid(false);
+				scannerObserver.setWaitingForWeightChange(false);
+			}
+
+			if (checkout.isInCheckout()) { // Weight is not supposed to change during checkout, unless during cleanup or
+											// customer uses own bags
 											// where all items on the scale need to be removed
 				if (checkout.isInCleanup()) {
 					if (weightInGrams != 0) {
 						checkout.setWeightValid(false);
 					} else {
 						checkout.setWeightValid(true);
+						weightAtLastEvent = 0;
+						personalBagsWeight = 0;
+					}
+				} else if (checkout.isUsingOwnBags()) {
+					display.usingOwnBagsPrompt();
+					personalBagsWeight = BAG_WEIGHT * (double) (display.getNumberOfPersonalBags());
+
+					if (personalBagsWeight == weightInGrams) {
+						checkout.setWeightValid(true);
+					} else {
+						checkout.setWeightValid(false);
 					}
 				} else {
-					if (weightAtLastEvent != weightInGrams)
-					{
+					if (weightAtLastEvent != weightInGrams) {
 						checkout.setWeightValid(false);
 					} else {
 						checkout.setWeightValid(true);
