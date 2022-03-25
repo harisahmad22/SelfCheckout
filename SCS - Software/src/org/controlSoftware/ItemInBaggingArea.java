@@ -65,40 +65,48 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 
 		if (!isOverloaded) {
 			if (scannerObserver.isWaitingForWeightChange()) {
-				if (Math.abs(scannerExpectedWeight - weightOnScale) <= weightVariablity) {
-					scannerObserver.setWeightValid(true);
-					scannerObserver.setWaitingForWeightChange(false);
-				} else {
-					scannerObserver.setWeightValid(false);
-					scannerObserver.setWaitingForWeightChange(false);
-				}
+				handleScannerWeightEvent(weightOnScale, scannerExpectedWeight);
 			}
-
-			if (checkout.isInCheckout()) { // Weight is not supposed to change during checkout, unless during cleanup or
-											// customer uses own bags
-											// where all items on the scale need to be removed
-				if (checkout.isInCleanup()) {
-					if (weightInGrams != 0) {
-						checkout.setWeightValid(false);
-					} else {
-						checkout.setWeightValid(true);
-//						weightAtLastEvent = 0; // Will be set after anyways
-//						personalBagsWeight = 0; //I Dont need we need to reset bag weight?
-					}
-				} 
-				else {
-					if (Math.abs(checkoutExpectedWeight - weightOnScale) <= weightVariablity) { // Weight cannot change more
-												    		    // than defined tolerance
-						checkout.setWeightValid(true);
-					} else {
-						checkout.setWeightValid(false);
-					}
-				}
+			if (checkout.isInCheckout()){ 
+				handleCheckoutWeightEvent(weightOnScale, checkoutExpectedWeight);
 			}
 		}
 		weightAtLastEvent = weightInGrams; // Done handling weight change, store scale weight for next event
 	}
-
+	
+	private void handleScannerWeightEvent(double weightOnScale, double scannerExpectedWeight) {
+		if (Math.abs(scannerExpectedWeight - weightOnScale) <= weightVariablity) {
+			scannerObserver.setWeightValid(true);
+			scannerObserver.setWaitingForWeightChange(false);
+		} else {
+			scannerObserver.setWeightValid(false);
+			scannerObserver.setWaitingForWeightChange(false);
+		}
+		
+	}
+	
+	private void handleCheckoutWeightEvent(double weightOnScale, double checkoutExpectedWeight) {
+	// Weight is not supposed to change during checkout, unless during cleanup
+	  // where all items on the scale need to be removed
+		if (checkout.isInCleanup())
+		{
+			if (weightOnScale != 0) 
+			{
+				checkout.setWeightValid(false);
+			}
+			else { checkout.setWeightValid(true); }
+		}
+		else
+		{	
+			if (Math.abs(checkoutExpectedWeight - weightOnScale) <= weightVariablity) // Weight cannot change more than defined tolerance 
+			{
+				checkout.setWeightValid(true);
+			}
+			else { checkout.setWeightValid(false); }
+		}
+		
+	}
+	
 	@Override
 	public void overload(ElectronicScale scale) {
 		this.isOverloaded = true;
