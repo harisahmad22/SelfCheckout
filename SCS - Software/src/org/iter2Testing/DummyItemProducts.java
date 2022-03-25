@@ -41,7 +41,7 @@ public class DummyItemProducts {
 		ItemProduct IP3 = DummyBarcodeLookup.createItemProduct(barcode3,
 				750,
 				"Corn Flakes Cereal",
-				2.99);
+				4);
 		BarcodeList.add(barcode3);
 		IPList.add(IP3);
 		// ItemProduct 3

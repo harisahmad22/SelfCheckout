@@ -32,7 +32,7 @@ public class CheckoutTest {
 	private SelfCheckoutStation Station;
 	private TouchScreen touchScreen;
 	private Checkout checkout;
-	private ScheduledExecutorService addItemsToScaleScheduler;
+	private ScheduledExecutorService scheduler;
 	private PayWithBanknote customBanknoteValidatorObserver;
 	private PayWithCoin customCoinDispenserObserver;
 	private ItemInBaggingArea customScaleObserver;
@@ -54,6 +54,7 @@ public class CheckoutTest {
 	private static Coin invalidCoin = new Coin(DummySelfCheckoutStation.getCurrency(), new BigDecimal(0.75));
 	
 	private BarcodedItem milkJug;
+	private BarcodedItem cornFlakes;
 
 	//Initialize
 	@Before
@@ -69,12 +70,14 @@ public class CheckoutTest {
 									 this.Station.baggingArea);
 		
 		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();
+		cornFlakes = lookup.get(itemProducts.BarcodeList.get(2)).getItem();
 		
 		//Initialize a new custom Barcode scanner observer
 		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
 													 this.lookup, 
 													 this.Station.baggingArea, 
-													 touchScreen); 
+													 touchScreen, 
+													 checkout); 
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customScannerObserver);
 		
 		//Initialize a new custom scale observer
@@ -97,7 +100,7 @@ public class CheckoutTest {
 			this.Station.coinDispensers.get(dispenser).attach((CoinDispenserObserver) customCoinDispenserObserver);
 		}
 		
-		addItemsToScaleScheduler =  Executors.newScheduledThreadPool(4);
+		scheduler =  Executors.newScheduledThreadPool(5);
 	}
 
     @Test
@@ -136,9 +139,9 @@ public class CheckoutTest {
     @Test
     public void verifyWeightIssueDetectedWhenStartingCheckout() throws InterruptedException, OverloadException {
     	//Put a milk jug on the scale 1.5 seconds after starting checkout
-    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 1500, TimeUnit.MILLISECONDS);
     	//Remove the milk jug 5 seconds after starting checkout
-    	addItemsToScaleScheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5000, TimeUnit.MILLISECONDS);
         checkout.startCheckout();
         
         //Touch screen should have been informed of the item being added during checkout
@@ -160,7 +163,7 @@ public class CheckoutTest {
     	Banknote[] banknotes = { twentyDollarBanknote, tenDollarBanknote, tenDollarBanknote, fiveDollarBanknote, fiveDollarBanknote };
     	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each banknote insertion.
-    	addItemsToScaleScheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes), 1500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithBanknotes();
     	
@@ -184,7 +187,7 @@ public class CheckoutTest {
     	Banknote[] banknotes = { twentyDollarBanknote, twentyDollarBanknote, twentyDollarBanknote };
     	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each banknote insertion.
-    	addItemsToScaleScheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes), 1500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithBanknotes();
     	
@@ -215,13 +218,13 @@ public class CheckoutTest {
     	//After putting the jug back on the scale, pay the rest
     	Banknote[] banknotes2 = { fiveDollarBanknote, fiveDollarBanknote };
     	
-    	addItemsToScaleScheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 6500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 4500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 6500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 4500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5500, TimeUnit.MILLISECONDS);
     	
     	//Take the milk off the scale during cleanup
-    	addItemsToScaleScheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 11500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 11500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithBanknotes();
     	
@@ -244,7 +247,7 @@ public class CheckoutTest {
     	Coin[] coins = { toonie, toonie, loonie, loonie, quarter, quarter, quarter};
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
-    	addItemsToScaleScheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCoins();
     	
@@ -269,7 +272,7 @@ public class CheckoutTest {
     	
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
-    	addItemsToScaleScheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCoins();
     	
@@ -298,11 +301,11 @@ public class CheckoutTest {
     	//After putting the jug back on the scale, pay the rest
     	Coin[] coins2 = { toonie, quarter, quarter, quarter };
     	
-    	addItemsToScaleScheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins1), 1500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 6500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 4500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5500, TimeUnit.MILLISECONDS);
-    	addItemsToScaleScheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 12500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins1), 1500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 6500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 4500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 12500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCoins();
     	
@@ -312,5 +315,35 @@ public class CheckoutTest {
     	//Successful cleanup and reset
     	assertTrue(touchScreen.resetSuccessful.get());
     }    
+    
+    @Test
+    public void testPayingWithCoinsAddItemMidPayment() throws InterruptedException, OverloadException {
+    	//Change will not be given out
+    	//Weight does not change during payment
+    	//Cleanup will be tested in here also
+    	Checkout.addToTotalCost(new BigDecimal(5)); //Add $5 to total cost
+    	//Bypass startCheckout method
+    	checkout.setInCheckout(true);
+    	//Create a list of coins equal to the total cost of all items
+    	Coin[] coins = { toonie, toonie}; //, loonie, quarter, quarter, quarter};
+    	Coin[] coins2 = { toonie, toonie, loonie }; 
+    	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each coin insertion.
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
+    	
+    	scheduler.schedule(new ScanItemRunnable(this.Station.mainScanner, cornFlakes), 4500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
+    	
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
+    	
+    	checkout.payWithCoins();
+    	
+    	//Touch screen should not have been informed of change being dispensed
+    	assertFalse(touchScreen.changeDispensed.get());
+    	//Should no longer be in checkout mode
+    	assertFalse(checkout.isInCheckout());
+    	//Touch screen should have reset to the welcome screen
+    	assertTrue(touchScreen.resetSuccessful.get());
+    }
 }
 

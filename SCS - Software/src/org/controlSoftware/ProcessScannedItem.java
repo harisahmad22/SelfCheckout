@@ -21,6 +21,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	private BarcodeLookup lookup;
 	private ElectronicScale scale;
 	private TouchScreen touchScreen;
+	private Checkout checkout;
 	private double targetWeight;
 	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(false);
@@ -52,13 +53,14 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		
 		6) Done
 	 */
-	
-	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen) 
+
+	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen, Checkout checkout) 
 	{
 		this.scanner = scanner;
 		this.lookup = lookup;
 		this.scale = scale;
 		this.touchScreen = touchScreen;
+		this.checkout = checkout;
 	}
 
 	@Override
@@ -90,7 +92,6 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 				
 				Checkout.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
 			}
-			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
 			try {
@@ -122,6 +123,11 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		targetWeight = weightBefore + scannedItemWeight; // What we expect the scale to read after placing the item on it
 		
 		waitingForWeightChangeEvent.set(true); //Signal Scale observer that we are waiting for an weight change after scanning
+		
+		if (checkout.isInCheckout())
+		{
+			checkout.setExpectedWeight(targetWeight);
+		}
 		
 		//Wait for 3 seconds
 		TimeUnit.SECONDS.sleep(3);

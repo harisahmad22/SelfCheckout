@@ -70,7 +70,8 @@ public class ProcessScannedItemTest {
 		this.customObserver = new ProcessScannedItem(this.Station.mainScanner,
 													 this.lookup, 
 													 this.Station.baggingArea, 
-													 touchScreen); 
+													 touchScreen,
+													 checkout); 
 		//Attach the custom observer to the relevant device
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customObserver);
 		
