@@ -71,6 +71,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	}
 	@Override
 	public void barcodeScanned(BarcodeScanner barcodeScanner, Barcode barcode) {
+		barcodeScanner.disable(); //Disable scanning while we process this item
 		// Lookup Barcode in out lookup
 		ItemProduct scannedItem = lookup.get(barcode);
 		if (scannedItem != null)
@@ -96,6 +97,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 			// Not sure if this is the best way to handle it VVV
 			try {
 				waitForWeightChange(scannedItemWeight);
+				barcodeScanner.enable(); //Re-enable scanning 
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -113,7 +115,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 			//Report Error to touchscreen
 			System.out.println("Informing Touch Screen of invalid barcode.");
 			touchScreen.invalidBarcodeScanned();
-			
+			barcodeScanner.enable(); //Re-enable scanning 
 			return;
 		}
 	}
