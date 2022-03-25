@@ -51,7 +51,7 @@ public class Checkout {
 		expectedWeight = scale.getCurrentWeight();
 
 		// First Disable scanner
-		scanner.disable();
+//		scanner.disable();
 
 		// -------------Brody------------------
 

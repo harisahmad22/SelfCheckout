@@ -328,19 +328,22 @@ public class CheckoutTest {
     	Coin[] coins = { toonie, toonie};
     	//$5 in coins to pay remaining balance
     	Coin[] coins2 = { toonie, toonie, loonie }; 
+    
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
     	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
+    	
     	//Scan an item after 4.5 seconds
     	scheduler.schedule(new ScanItemRunnable(this.Station.mainScanner, cornFlakes), 4500, TimeUnit.MILLISECONDS);
+    	
     	//Put item on scale after 5.5 seconds    	
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
+    	
     	//Pay remaining balance after 9.5 seconds
-    	
-    	scheduler.schedule(new ScanItemRunnable(this.Station.mainScanner, cornFlakes), 4500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
-    	
     	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
+    	
+    	
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCoins();
     	
