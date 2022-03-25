@@ -142,6 +142,8 @@ public class TouchScreen implements TouchScreenObserver {
 			System.out.println("How many bags did you bring today?");
 			numberOfPersonalBags = bagInput.nextInt();
 			// determine # of bags customer brought
+			
+			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI
 		} catch (InputMismatchException inputMismatchExcpetion) {
 			System.out.println("Sorry, please try again!");
 		}
