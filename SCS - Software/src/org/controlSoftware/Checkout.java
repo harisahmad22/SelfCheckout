@@ -1,10 +1,11 @@
 //Brody Long - 30022870 
-//Kamrul Ahsan Noor- 30078754
+//Shufan Zhai - 30117333
 
 package org.controlSoftware;
 
 import java.math.BigDecimal;
-import java.util.concurrent.TimeUnit;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
@@ -12,7 +13,6 @@ import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.OverloadException;
-
 
 public class Checkout {
 
@@ -24,15 +24,14 @@ public class Checkout {
 	private CoinSlot coinSlot;
 	private ElectronicScale scale;
 	private AtomicBoolean inCheckout = new AtomicBoolean(false);
+	private AtomicBoolean usingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
+	private double bagWeight = 50; // Should have this be configurable
 
-	public Checkout(TouchScreen touchScreen, 
-					BarcodeScanner scanner, 
-					BanknoteSlot banknoteSlot, 
-					CoinSlot coinSlot,
-					ElectronicScale scale) {
+	public Checkout(TouchScreen touchScreen, BarcodeScanner scanner, BanknoteSlot banknoteSlot, CoinSlot coinSlot,
+			ElectronicScale scale) {
 
 		this.touchScreen = touchScreen;
 		this.scanner = scanner;
@@ -44,21 +43,37 @@ public class Checkout {
 
 	public void startCheckout() throws InterruptedException, OverloadException {
 		// User has begun checkout
-		inCheckout.set(true); // Could use this as a signal to scale observer that weight is not allowed to change
-		
-		//Set our expected Weight to the current scale weight
-		//Allows scale observer to set weightValid
+		inCheckout.set(true); // Could use this as a signal to scale observer that weight is not allowed to
+								// change
+
+		// Set our expected Weight to the current scale weight
+		// Allows scale observer to set weightValid
 		expectedWeight = scale.getCurrentWeight();
-		
+
 		// First Disable scanner
 		scanner.disable();
-		
+
+		// -------------Brody------------------
+
+		// TouchScreen method that will ask user if they have their own bags
+		// and how many if they do. If user does not have bags they will enter 0 bags
+		touchScreen.usingOwnBagsPrompt();
+		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does
+																				// not change
+		// If the user has bags to add, the weight of all their bags will be added to
+		// expectedWeight, which will then
+		// be checked for validity after the user chooses payment options
+
+		// -------------Brody------------------
+
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
 		touchScreen.showPaymentOption();
-		
+
 		// Check if weight is still valid after waiting for user input
-		if (!weightValid.get()) { handleInvalidWeight(); }
+		if (!weightValid.get()) {
+			handleInvalidWeight();
+		}
 		// Done
 		return;
 	}
@@ -71,9 +86,11 @@ public class Checkout {
 		banknoteSlot.disable();
 
 		while (compareTotals() < 0) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
-			
-			if (!weightValid.get()) { handleInvalidWeight(); }
-			
+
+			if (!weightValid.get()) {
+				handleInvalidWeight();
+			}
+
 			// CoinValidator observer will handle updating the total paid, just need to keep
 			// checking
 		}
@@ -90,14 +107,15 @@ public class Checkout {
 		touchScreen.askToPrintReceipt();
 
 		// method call to handler that deals with waiting for all items in
-		// bagging area to be picked up before reseting system to be ready for a new user
+		// bagging area to be picked up before reseting system to be ready for a new
+		// user
 		handlePostPaymentCleanup();
-		
+
 		// Maybe Re-enable devices here?
 		enableDevices();
 
 		inCheckout.set(false);
-		touchScreen.resetToWelcomeScreen();		
+		touchScreen.resetToWelcomeScreen();
 		return;
 	}
 
@@ -108,9 +126,11 @@ public class Checkout {
 		// Maybe disable coin slot?
 
 		while (compareTotals() < 0) { // compareTotals returns -1 if less than, 0 if equal, and 1 if greater than
-			
-			if (!weightValid.get()) { handleInvalidWeight(); }
-			
+
+			if (!weightValid.get()) {
+				handleInvalidWeight();
+			}
+
 			// BanknoteValidator observer will handle updating the total paid, just need to
 			// keep checking
 		}
@@ -127,74 +147,70 @@ public class Checkout {
 		touchScreen.askToPrintReceipt();
 
 		// method call to handler that deals with waiting for all items in
-		// bagging area to be picked up before reseting system to be ready for a new user
+		// bagging area to be picked up before reseting system to be ready for a new
+		// user
 		handlePostPaymentCleanup();
-		
+
 		// Maybe Re-enable devices here?
 		enableDevices();
-		
+
 		inCheckout.set(false);
 		touchScreen.resetToWelcomeScreen();
 		return;
 	}
-	
+
 	private void handlePostPaymentCleanup() throws InterruptedException, OverloadException {
-		
-		
-		
-		inCleanup.set(true); //Notify Scale that we are waiting for all items on the scale to be removed (weight == 0)
+
+		inCleanup.set(true); // Notify Scale that we are waiting for all items on the scale to be removed
+								// (weight == 0)
 		resetCheckoutTotals();
 		touchScreen.takeItemsNotification();
-		if (scale.getCurrentWeight() > 0)
-		{
+		if (scale.getCurrentWeight() > 0) {
 			weightValid.set(false);
-			while(!weightValid.get())
-			{
+			while (!weightValid.get()) {
 //				TimeUnit.SECONDS.sleep(1); //Check every second
 			}
-			//Weight on scale is now equal to 0		
+			// Weight on scale is now equal to 0
 		}
-		
-		inCleanup.set(false); 
+
+		inCleanup.set(false);
 	}
-	
+
 	private void handleInvalidWeight() throws InterruptedException {
-		
+
 //		waitingForWeightChangeEvent.compareAndSet(false, true);
-		
+
 		disablePaymentDevices();
 		touchScreen.invalidWeightInCheckout();
 		// Loop until scale observer reports a valid weight
-		while (!weightValid.get())
-		{
+		while (!weightValid.get()) {
 //			waitingForWeightChangeEvent.compareAndSet(false, true);
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
-		
+
 		// Weight is now valid, unblock and remove touchscreen message
 		enablePaymentDevices();
-		touchScreen.validWeightInCheckout();		
+		touchScreen.validWeightInCheckout();
 	}
-	
-	
+
 	private void resetWeightFlags() {
 		// Reset weight change flags
 //		waitingForWeightChangeEvent.set(false);
 		weightValid.set(false);
 	}
-	
+
 	private void disablePaymentDevices() {
 		// TODO Auto-generated method stub
 		coinSlot.disable();
 		banknoteSlot.disable();
 	}
-	
+
 	private void enablePaymentDevices() {
 		// TODO Auto-generated method stub
 		coinSlot.enable();
 		banknoteSlot.enable();
 	}
-	
+
 	// Disable all devices associated with this observer
 	private void disableDevices() {
 		scale.disable();
@@ -208,11 +224,11 @@ public class Checkout {
 		scanner.enable();
 		enablePaymentDevices();
 	}
-	
+
 	public boolean isWeightValid() {
 		return weightValid.get();
 	}
-	
+
 	public void setWeightValid(boolean validity) {
 		weightValid.set(validity);
 	}
@@ -230,7 +246,7 @@ public class Checkout {
 		totalMoneyPaid = totalMoneyPaid.add(amount);
 
 	}
-	
+
 	public static void setTotalCost(BigDecimal cost) {
 		totalCost = cost;
 
@@ -240,30 +256,28 @@ public class Checkout {
 		totalMoneyPaid = paid;
 
 	}
-	
+
 	public void setInCheckout(boolean bool) {
 		inCheckout.set(bool);
 
-	}	
+	}
 
 	public boolean isInCheckout() {
 		return inCheckout.get();
 	}
-	
-	public BigDecimal getTotalMoneyPaid()
-	{
+
+	public BigDecimal getTotalMoneyPaid() {
 		return totalMoneyPaid;
 	}
-	
-	public BigDecimal getTotalCost()
-	{
+
+	public BigDecimal getTotalCost() {
 		return totalCost;
 	}
 
 	public boolean isInCleanup() {
 		return inCleanup.get();
 	}
-	
+
 	public void setInCleanup(boolean bool) {
 		inCleanup.set(bool);
 	}
@@ -280,6 +294,23 @@ public class Checkout {
 
 	public void setExpectedWeight(double weight) {
 		expectedWeight = weight;
-		
+	}
+
+	public boolean isUsingOwnBags() {
+		return usingOwnBags.get();
+	}
+	
+	public void configureBagWeight() {
+	
+			try (Scanner weightInput = new Scanner(System.in)) {
+				System.out.println("Enter new weight of bags");
+				bagWeight = weightInput.nextDouble();
+				// configure new weight of bags
+				if (bagWeight < 0) {
+					throw new NegativeNumberException();
+				}
+			} catch (InputMismatchException e) {
+				System.out.println("Must enter a valid weight for bags!");
+			}	
 	}
 }
