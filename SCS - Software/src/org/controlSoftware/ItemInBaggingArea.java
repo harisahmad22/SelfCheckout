@@ -9,14 +9,11 @@ import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 public class ItemInBaggingArea implements ElectronicScaleObserver {
 	private boolean isOverloaded = false;
-	private double weightVariablity = 25; // The maximum weight in grams that the ProcessedScannedItem observer weight
-											// can differ from the scale weight
 	private ElectronicScale scale;
 	private ProcessScannedItem scannerObserver;
 	private TouchScreen display;
 	private Checkout checkout;
 	private double weightAtLastEvent = 0;
-	
 
 	/*
 	 * (Shufan) DONT HAVE TO WORRY ABOUT: - the graphical user interface - products
@@ -34,7 +31,8 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 	 * 4) Done
 	 */
 
-	public ItemInBaggingArea(ElectronicScale scale, ProcessScannedItem scanner, TouchScreen display, Checkout checkout) {
+	public ItemInBaggingArea(ElectronicScale scale, ProcessScannedItem scanner, TouchScreen display,
+			Checkout checkout) {
 		this.scale = scale;
 		this.scannerObserver = scanner;
 		this.display = display;
@@ -58,38 +56,31 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-		double scannerExpectedWeight = scannerObserver.getTargetWeight(); // set to weight in observer
-		double checkoutExpectedWeight = checkout.getExpectedWeight();
-		double weightOnScale = weightInGrams;
 
 		if (!isOverloaded) {
 			if (scannerObserver.isWaitingForWeightChange()) {
-				if (Math.abs(scannerExpectedWeight - weightOnScale) <= weightVariablity) {
 					scannerObserver.setWeightValid(true);
 					scannerObserver.setWaitingForWeightChange(false);
 				} else {
 					scannerObserver.setWeightValid(false);
 					scannerObserver.setWaitingForWeightChange(false);
 				}
-			}
-			if (checkout.isInCheckout()) 
-			{ // Weight is not supposed to change during checkout, unless during cleanup
-			  // where all items on the scale need to be removed
-				if (checkout.isInCleanup())
-				{
-					if (weightOnScale != 0) 
+			
+			if (checkout.isInCheckout()) { // Weight is not supposed to change during checkout, unless during cleanup
+											// where all items on the scale need to be removed
+				if (checkout.isInCleanup()) {
+					if (weightInGrams != 0) {
+						checkout.setWeightValid(false);
+					} else {
+						checkout.setWeightValid(true);
+					}
+				} else {
+					if (weightAtLastEvent != weightInGrams)
 					{
 						checkout.setWeightValid(false);
+					} else {
+						checkout.setWeightValid(true);
 					}
-					else { checkout.setWeightValid(true); }
-				}
-				else
-				{	
-					if (Math.abs(checkoutExpectedWeight - weightOnScale) > weightVariablity) // Weight cannot change more than defined tolerance 
-					{
-						checkout.setWeightValid(false);
-					}
-					else { checkout.setWeightValid(true); }
 				}
 			}
 		}
