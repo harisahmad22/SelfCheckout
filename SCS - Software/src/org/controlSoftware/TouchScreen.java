@@ -35,7 +35,7 @@ public class TouchScreen implements TouchScreenObserver {
 	public AtomicBoolean resetSuccessful = new AtomicBoolean(false);
 	public AtomicBoolean invalidBarcodeDetected = new AtomicBoolean(false);
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
-	public int numberOfPersonalBags;
+	public int numberOfPersonalBags = 0;
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
