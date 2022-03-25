@@ -54,9 +54,9 @@ public class Checkout {
 		//-------------Brody------------------
 		
 		//TouchScreen method that will ask user if they have their own bags
-		//and how many if they do. If user does have bags this method returns true
-		//false otherwise
-		if (touchScreen.usingOwnBagsPrompt()) { expectedWeight += (touchScreen.getNumberOfPersonalBags() * BAG_WEIGHT); }
+		//and how many if they do. If user does not have bags they will enter 0 bags
+		touchScreen.usingOwnBagsPrompt();
+		expectedWeight += (touchScreen.getNumberOfPersonalBags() * BAG_WEIGHT); // If user selcts 0 bags expected does not change
 		//If the user has bags to add, the weight of all their bags will be added to expectedWeight, which will then
 		//be checked for validity after the user chooses payment options
 		
