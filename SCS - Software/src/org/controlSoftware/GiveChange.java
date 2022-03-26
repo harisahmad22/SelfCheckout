@@ -39,16 +39,27 @@ public class GiveChange {
     public void dispense() throws EmptyException, DisabledException, OverloadException{
         for (int i = 0; i < banknoteDenominations.length; i++){         
             BigDecimal temp = new BigDecimal(banknoteDenominations[i]);     //denomination as BigDecimal
-            while (temp.compareTo(changeDue) >= 0){
-                banknoteDispensers.get(banknoteDenominations[i]).emit();    //calls the dispenser for respective denomination to emit()
-                changeDue.subtract(temp);
+            while (temp.compareTo(changeDue) <= 0){
+                try {
+                    banknoteDispensers.get(banknoteDenominations[i]).emit();    //calls the dispenser for respective denomination to emit()
+                    changeDue.subtract(temp);
+                }
+                catch(EmptyException e){    //if dispenser is empty, go to next lower denomination
+                    break;
+                }
             }
         }
 
         for (int i = 0; i < coinDenominations.size(); i++){         
-            while (coinDenominations.get(i).compareTo(changeDue) >= 0){
-                coinDispensers.get(coinDenominations.get(i)).emit();    //calls the dispenser for respective denomination to emit()
-                changeDue.subtract(coinDenominations.get(i));
+            BigDecimal temp = coinDenominations.get(i);     //denomination as BigDecimal
+            while (temp.compareTo(changeDue) <= 0){
+                try {
+                    coinDispensers.get(temp).emit();    //calls the dispenser for respective denomination to emit()
+                    changeDue.subtract(temp);
+                }
+                catch(EmptyException e){    //if dispenser is empty, go to next lower denomination
+                    break;
+                }
             }
         }
 
