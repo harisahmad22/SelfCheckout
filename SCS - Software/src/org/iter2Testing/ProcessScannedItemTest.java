@@ -59,6 +59,7 @@ public class ProcessScannedItemTest {
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
+									 this.Station,
 									 this.receiptHandler);
 		
 		//Get some barcoded items with their prices

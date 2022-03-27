@@ -95,7 +95,7 @@ public class TouchScreen implements TouchScreenObserver {
 	}
 
 	public void showPaymentOption() throws InterruptedException {
-		System.out.println("How would you like to pay? Coins or Banknotes.");
+		System.out.println("How would you like to pay? Cash or Card? (Not Implemented yet!)");
 		paymentOptionsDisplayed.set(true);
 		TimeUnit.SECONDS.sleep(3); // Sleep for 3 seconds to simulate user selecting option
 	}
@@ -145,7 +145,8 @@ public class TouchScreen implements TouchScreenObserver {
 	public void usingOwnBagsPrompt() {
 		try (Scanner bagInput = new Scanner(System.in)) {
 			System.out.println("How many bags did you bring today?");
-			numberOfPersonalBags = bagInput.nextInt();
+//			numberOfPersonalBags = bagInput.nextInt();
+			if (numberOfPersonalBags < 0 || numberOfPersonalBags > 10) { throw new InputMismatchException(); }
 			// determine # of bags customer brought
 			
 			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI

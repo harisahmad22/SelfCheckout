@@ -72,6 +72,7 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 			}
 		}
 		weightAtLastEvent = weightInGrams; // Done handling weight change, store scale weight for next event
+		System.out.println("Scale Weight: " + weightInGrams);
 	}
 	
 	private void handleScannerWeightEvent(double weightOnScale, double scannerExpectedWeight) {
@@ -89,7 +90,7 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 	// Weight is not supposed to change during checkout, unless during cleanup
 	  // where all items on the scale need to be removed
 		if (checkout.isInCleanup())
-		{
+		{ 
 			if (weightOnScale != 0) 
 			{
 				checkout.setWeightValid(false);

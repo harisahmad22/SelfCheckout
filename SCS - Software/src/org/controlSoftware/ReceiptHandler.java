@@ -29,27 +29,26 @@ public class ReceiptHandler {
 			char[] productCharArray = productInfo.toCharArray();
 			
 			printChars(productCharArray);
+		}	
+		//Now All scanned items will have been printed on the receipt
+		//Print membership ID followed by points
+		if (!membershipID.equals("null\n"))
+		{
+			char[] id = ("Membership ID: " + membershipID).toCharArray();
+			char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
 			
-			//Now All scanned items will have been printed on the receipt
-			//Print membership ID followed by points
-			if (!membershipID.equals("null\n"))
-			{
-				char[] id = ("Membership ID: " + membershipID).toCharArray();
-				char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
-				
-				printChars(id);
-				printChars(points);
-			}
-			
-			//Now print the total cost of all items, and if any change was given back
-			char[] total = ("Total: " + finalTotal).toCharArray();
-			char[] change = ("Change: " + finalChange).toCharArray();
-			printChars(total);
-			printChars(change);
-			
-			//Done printing receipt, cut paper so user can take
-			printer.cutPaper(); 
+			printChars(id);
+			printChars(points);
 		}
+		
+		//Now print the total cost of all items, and if any change was given back
+		char[] total = ("Total: " + finalTotal).toCharArray();
+		char[] change = ("Change: " + finalChange).toCharArray();
+		printChars(total);
+		printChars(change);
+		
+		//Done printing receipt, cut paper so user can take
+		printer.cutPaper(); 
 	}
 	
 	
