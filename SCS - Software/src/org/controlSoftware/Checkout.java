@@ -11,13 +11,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.CoinSlot;
+import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
+import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation; // needed for GiveChange
 
 public class Checkout {
 
 	private static BigDecimal totalCost = BigDecimal.ZERO;
 	private static BigDecimal totalMoneyPaid = BigDecimal.ZERO;
+    private SelfCheckoutStation station; //needed for GiveChange
 	private TouchScreen touchScreen;
 	private BarcodeScanner scanner;
 	private BanknoteSlot banknoteSlot;
@@ -28,12 +32,18 @@ public class Checkout {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
-	private double bagWeight = 50; // Should have this be configurable
+  private double bagWeight = 50; // Should have this be configurable
 	private ReceiptHandler receiptHandler;
-	
-	public Checkout(TouchScreen touchScreen, BarcodeScanner scanner, BanknoteSlot banknoteSlot, CoinSlot coinSlot,
-			ElectronicScale scale, ReceiptHandler receiptHandler) {
 
+	public Checkout(TouchScreen touchScreen, 
+					BarcodeScanner scanner, 
+					BanknoteSlot banknoteSlot, 
+					CoinSlot coinSlot,
+					ElectronicScale scale,
+          SelfCheckoutStation station, //needed for GiveChange
+          ReceiptHandler receiptHandler) { 
+
+    this.station = station; //needed for GiveChange
 		this.touchScreen = touchScreen;
 		this.scanner = scanner;
 		this.banknoteSlot = banknoteSlot;
@@ -83,29 +93,30 @@ public class Checkout {
 	// This method will be called by the GUI after prompting user to select a
 	// payment method,
 	// We will just call it directly when testing to simulate the GUI interaction
-	public void payWithCoins() throws InterruptedException, OverloadException {
-		// Maybe disable Banknote slot?
-		banknoteSlot.disable();
+	public void payWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+        
+        // Maybe disable Banknote slot?
+		//banknoteSlot.disable();
 
 		while (compareTotals() < 0) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
-
-			if (!weightValid.get()) {
-				handleInvalidWeight();
-			}
-
-			// CoinValidator observer will handle updating the total paid, just need to keep
+			
+			if (!weightValid.get()) { handleInvalidWeight(); }
+			
+			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
 			// checking
 		}
 
 		// Out of while loop so we can assume user has paid, may need change but
 		// worry about that for next iteration
 		BigDecimal changeAmount = totalMoneyPaid.subtract(totalCost);
-		
-		ReceiptHandler.setFinalTotal(totalCost.toString());
+    
+    ReceiptHandler.setFinalTotal(totalCost.toString());
 		ReceiptHandler.setFinalChange(changeAmount.toString());
 		
-		if (changeAmount.compareTo(new BigDecimal(0)) == 1) {
+		if (changeAmount.compareTo(new BigDecimal(0)) > 0) {                
 			// Handle giving out change here
+            GiveChange someChange = new GiveChange(station, changeAmount);
+            someChange.dispense();
 			touchScreen.informChangeDispensed();
 		}
 
@@ -124,47 +135,7 @@ public class Checkout {
 		touchScreen.resetToWelcomeScreen();
 		return;
 	}
-
-	// This method will be called by the GUI after prompting user to select a
-	// payment method,
-	// We will just call it directly when testing to simulate the GUI interaction
-	public void payWithBanknotes() throws InterruptedException, OverloadException {
-		// Maybe disable coin slot?
-
-		while (compareTotals() < 0) { // compareTotals returns -1 if less than, 0 if equal, and 1 if greater than
-
-			if (!weightValid.get()) {
-				handleInvalidWeight();
-			}
-
-			// BanknoteValidator observer will handle updating the total paid, just need to
-			// keep checking
-		}
-
-		// Out of while loop so we can assume user has paid, may need change but
-		// worry about that for next iteration
-		BigDecimal changeAmount = totalMoneyPaid.subtract(totalCost);
-		if (changeAmount.compareTo(new BigDecimal(0)) == 1) {
-			// Handle giving out change here
-			touchScreen.informChangeDispensed();
-		}
-
-		// Prompt touch screen to ask user if they would like a receipt
-		touchScreen.askToPrintReceipt(receiptHandler);
-
-		// method call to handler that deals with waiting for all items in
-		// bagging area to be picked up before reseting system to be ready for a new
-		// user
-		handlePostPaymentCleanup();
-
-		// Maybe Re-enable devices here?
-		enableDevices();
-
-		inCheckout.set(false);
-		touchScreen.resetToWelcomeScreen();
-		return;
-	}
-
+  
 	private void handlePostPaymentCleanup() throws InterruptedException, OverloadException {
 
 		inCleanup.set(true); // Notify Scale that we are waiting for all items on the scale to be removed
