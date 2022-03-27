@@ -27,10 +27,11 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
 
 
     public PayWithCash(SelfCheckoutStation aStation){
-        station = aStation;
-        banknoteValidator = station.banknoteValidator;
-        coinValidator = station.coinValidator;
-        this.coinDispensers = station.coinDispensers;
+        this.station = aStation;
+        this.banknoteValidator = this.station.banknoteValidator;
+        this.coinValidator = this.station.coinValidator;
+        this.coinDispensers = this.station.coinDispensers;
+        this.coinStorageUnit = this.station.coinStorage;
 
         //unless done in driver
 		banknoteValidator.attach(this);

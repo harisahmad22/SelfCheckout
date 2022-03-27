@@ -70,8 +70,8 @@ public class Checkout {
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
 		touchScreen.usingOwnBagsPrompt();
-		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does
-																				// not change
+		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change
+		System.out.println("test: " + Math.floor(scale.getCurrentWeight()));      
 		// If the user has bags to add, the weight of all their bags will be added to
 		// expectedWeight, which will then
 		// be checked for validity after the user chooses payment options
@@ -110,7 +110,7 @@ public class Checkout {
 		// worry about that for next iteration
 		BigDecimal changeAmount = totalMoneyPaid.subtract(totalCost);
     
-    ReceiptHandler.setFinalTotal(totalCost.toString());
+		ReceiptHandler.setFinalTotal(totalCost.toString());
 		ReceiptHandler.setFinalChange(changeAmount.toString());
 		
 		if (changeAmount.compareTo(new BigDecimal(0)) > 0) {                
@@ -142,13 +142,13 @@ public class Checkout {
 								// (weight == 0)
 		resetCheckoutTotals();
 		touchScreen.takeItemsNotification();
-		if (scale.getCurrentWeight() > 0) {
-			weightValid.set(false);
-			while (!weightValid.get()) {
-//				TimeUnit.SECONDS.sleep(1); //Check every second
+		if (this.scale.getCurrentWeight() <= 0.0) { weightValid.set(false); } //should always evaluate true
+		else { weightValid.set(true); }
+			while (!weightValid.get()) 
+			{
+	//			TimeUnit.SECONDS.sleep(1); //Check every second
 			}
 			// Weight on scale is now equal to 0
-		}
 
 		inCleanup.set(false);
 	}

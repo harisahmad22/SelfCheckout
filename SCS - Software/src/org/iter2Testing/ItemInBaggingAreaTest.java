@@ -36,6 +36,7 @@ public class ItemInBaggingAreaTest {
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
+									 this.Station,
 									 this.receiptHandler);
 		//Initialize a new custom Barcode scanner observer
 		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
