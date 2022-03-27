@@ -17,6 +17,7 @@ public class PayWithCoinsRunnable implements Runnable {
 	{
 		this.coins = coins;
 		this.coinSlot = coinSlot;
+		this.coinSlot.enable();
 	}
 	@Override
 	public void run() {

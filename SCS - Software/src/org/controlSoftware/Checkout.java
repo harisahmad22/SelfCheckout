@@ -33,7 +33,7 @@ public class Checkout {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
-  private double bagWeight = 50; // Should have this be configurable
+	private double bagWeight = 50; // Should have this be configurable
 	private ReceiptHandler receiptHandler;
 
 	public Checkout(TouchScreen touchScreen, 
@@ -64,7 +64,7 @@ public class Checkout {
 		expectedWeight = scale.getCurrentWeight();
 
 		// First Disable scanner
-//		scanner.disable();
+		scanner.disable();
 
 
 		// TouchScreen method that will ask user if they have their own bags
@@ -110,9 +110,8 @@ public class Checkout {
 	// We will just call it directly when testing to simulate the GUI interaction
 	public void payWithCash(BigDecimal paymentAmount) throws InterruptedException, OverloadException, EmptyException, DisabledException {
         
-        // Maybe disable Banknote slot?
-		//banknoteSlot.disable();
-
+		scanner.enable();
+		
 		while (totalMoneyPaid.compareTo(paymentAmount) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
 			
 			if (!weightValid.get()) { handleInvalidWeight(); }

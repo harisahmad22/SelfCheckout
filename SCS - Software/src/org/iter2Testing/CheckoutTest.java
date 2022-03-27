@@ -116,14 +116,6 @@ public class CheckoutTest {
 		
 		scheduler =  Executors.newScheduledThreadPool(5);
 	}
-
-    @Test
-    public void verifyInCheckoutAfterStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-        // start checkout
-        checkout.startCheckout();
-        // verify device is disabled or not
-        assertTrue(checkout.isInCheckout());
-    }
 	
 //    @Test
 //    public void verifyScannerIsDisabledAfterStartingCheckout() throws InterruptedException, OverloadException {

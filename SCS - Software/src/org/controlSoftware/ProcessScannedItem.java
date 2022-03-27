@@ -77,6 +77,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		barcodeScanner.disable(); //Disable scanning while we process this item
 		// Lookup Barcode in out lookup
 		ItemProduct scannedItem = lookup.get(barcode);
+		System.out.println(scannedItem.getProductDescription() + " has just been scanned in!");
 		if (scannedItem != null)
 		{ //Item found in lookup, proceed
 			BigDecimal scannedItemPrice = scannedItem.getPrice();
