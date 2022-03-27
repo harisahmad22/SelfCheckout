@@ -10,8 +10,9 @@ public class ReceiptHandler {
 	private static ArrayList<String> scannedProductList = new ArrayList<String>();
 	private static String membershipID = "null\n"; //Default to null, change when membership card is scanned in
 	private static String membershipPoints = "0\n";
-	private static String finalTotal = "0.0\n";
-	private static String finalChange = "0.0\n";
+	private static String finalTotal = "$0.0\n";
+	private static String finalChange = "$0.0\n";
+	private static String moneyPaid;
 	private ReceiptPrinter printer;
 	
 	public ReceiptHandler(ReceiptPrinter printer)
@@ -43,8 +44,10 @@ public class ReceiptHandler {
 		
 		//Now print the total cost of all items, and if any change was given back
 		char[] total = ("Total: " + finalTotal).toCharArray();
+		char[] paid = ("Paid: " + moneyPaid).toCharArray();
 		char[] change = ("Change: " + finalChange).toCharArray();
 		printChars(total);
+		printChars(paid);
 		printChars(change);
 		
 		//Done printing receipt, cut paper so user can take
@@ -106,6 +109,10 @@ public class ReceiptHandler {
 	}
 	public static void setFinalChange(String finalChange) {
 		ReceiptHandler.finalChange = "$" + finalChange + "\n";
+	}
+
+	public static void setMoneyPaid(String moneyPaid) {
+		ReceiptHandler.moneyPaid = "$" + moneyPaid + "\n";
 	}
 	
 	

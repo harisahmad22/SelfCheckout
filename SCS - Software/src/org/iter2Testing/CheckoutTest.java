@@ -118,7 +118,7 @@ public class CheckoutTest {
 	}
 
     @Test
-    public void verifyInCheckoutAfterStartingCheckout() throws InterruptedException, OverloadException {
+    public void verifyInCheckoutAfterStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
         // start checkout
         checkout.startCheckout();
         // verify device is disabled or not
@@ -134,7 +134,7 @@ public class CheckoutTest {
 //    }
 //    
     @Test
-    public void verifyExpectedWeightWhenStartingCheckout() throws InterruptedException, OverloadException {
+    public void verifyExpectedWeightWhenStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
         // start checkout 
     	this.Station.baggingArea.add(milkJug); //Weighs 4000 grams
         checkout.startCheckout();
@@ -143,7 +143,7 @@ public class CheckoutTest {
     }
     
     @Test
-    public void verifyAskedForPaymentOptionsWhenStartingCheckout() throws InterruptedException, OverloadException {
+    public void verifyAskedForPaymentOptionsWhenStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
         // start checkout
         checkout.startCheckout();
         // verify device is disabled or not
@@ -151,7 +151,7 @@ public class CheckoutTest {
     }
     
     @Test
-    public void verifyWeightIssueDetectedWhenStartingCheckout() throws InterruptedException, OverloadException {
+    public void verifyWeightIssueDetectedWhenStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	//Put a milk jug on the scale 1.5 seconds after starting checkout
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 1500, TimeUnit.MILLISECONDS);
     	//Remove the milk jug 5 seconds after starting checkout
@@ -194,7 +194,8 @@ public class CheckoutTest {
     	//Change will be given out
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
-    	Checkout.addToTotalCost(new BigDecimal(50)); //Add $50 to total cost
+    	BigDecimal total = new BigDecimal("50");
+    	Checkout.addToTotalCost(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	//Create a list of banknotes exceeding the total cost of all items
@@ -212,7 +213,7 @@ public class CheckoutTest {
     	
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 3500, TimeUnit.MILLISECONDS);
         	
-    	checkout.payWithCash();
+    	checkout.payWithCash(total);
 
 		String finalReceipt = this.Station.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);
@@ -235,10 +236,10 @@ public class CheckoutTest {
     	//Weight DOES change during payment
     	//Must be corrected before software can continue
     	//Cleanup will be tested in here also
-    	
+    	BigDecimal total = new BigDecimal("50");
     	//Add a milk jug to the scale
     	this.Station.baggingArea.add(milkJug);
-    	Checkout.addToTotalCost(new BigDecimal(50)); //Add $50 to total cost
+    	Checkout.addToTotalCost(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	checkout.setExpectedWeight(4000);
@@ -256,7 +257,7 @@ public class CheckoutTest {
     	//Take the milk off the scale during cleanup
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 11500, TimeUnit.MILLISECONDS);
     	
-    	checkout.payWithCash();
+    	checkout.payWithCash(total);
 
 		String finalReceipt = this.Station.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);
@@ -323,9 +324,9 @@ public class CheckoutTest {
     	//Weight DOES change during payment
     	//Must be corrected before software can continue
     	//Cleanup will be tested in here also
-    	
+    	BigDecimal total = new BigDecimal("6.75");
     	this.Station.baggingArea.add(milkJug);
-    	Checkout.addToTotalCost(new BigDecimal(6.75)); //Add $50 to total cost
+    	Checkout.addToTotalCost(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	checkout.setExpectedWeight(4000);
@@ -340,7 +341,7 @@ public class CheckoutTest {
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5500, TimeUnit.MILLISECONDS);
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 12500, TimeUnit.MILLISECONDS);
     	
-    	checkout.payWithCash();
+    	checkout.payWithCash(total);
     	
     	//Touch screen should have been informed of the weight issue, and its correction
     	assertTrue(touchScreen.invalidWeightInCheckoutDetected.get());
@@ -354,13 +355,14 @@ public class CheckoutTest {
     	//Change will not be given out
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
-    	Checkout.addToTotalCost(new BigDecimal(5)); //Add $5 to total cost
+    	BigDecimal total = new BigDecimal("5");
+    	Checkout.addToTotalCost(total); //Add $5 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	//$4 in coins to pay before adding another item
     	Coin[] coins = { toonie, toonie};
     	//$5 in coins to pay remaining balance
-    	Coin[] coins2 = { toonie, toonie, loonie }; 
+//    	Coin[] coins2 = { toonie, toonie, loonie }; 
     
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
@@ -373,12 +375,12 @@ public class CheckoutTest {
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
     	
     	//Pay remaining balance after 9.5 seconds
-    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
+//    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
     	
     	
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
     	
-    	checkout.payWithCash();
+    	checkout.payWithCash(total);
     	
 		String finalReceipt = this.Station.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);

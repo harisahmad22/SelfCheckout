@@ -2,7 +2,9 @@
 
 package org.controlSoftware;
 
+import java.math.BigDecimal;
 import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -94,10 +96,17 @@ public class TouchScreen implements TouchScreenObserver {
 		
 	}
 
-	public void showPaymentOption() throws InterruptedException {
+	public int showPaymentOption() throws InterruptedException {
 		System.out.println("How would you like to pay? Cash or Card? (Not Implemented yet!)");
 		paymentOptionsDisplayed.set(true);
-		TimeUnit.SECONDS.sleep(3); // Sleep for 3 seconds to simulate user selecting option
+		TimeUnit.SECONDS.sleep(2); // Sleep for 2 seconds to simulate user selecting option
+		
+		//Random values for testing
+//		Random rand = new Random();
+//		int choice = rand.nextInt(3);
+//		return choice; //0 = Cash, 1 = Credit, 2 = Debt
+		
+		return 0; //For now always default to cash
 	}
 
 	public void informChangeDispensed() {
@@ -157,5 +166,29 @@ public class TouchScreen implements TouchScreenObserver {
 
 	public int getNumberOfPersonalBags() {
 		return numberOfPersonalBags;
+	}
+
+	public BigDecimal choosePaymentAmount(BigDecimal totalDue) {
+		System.out.println("Would you like you make a partial payment?");
+		Random rand = new Random();
+		int choice = rand.nextInt(2);
+		BigDecimal partialPaymentAmount = new BigDecimal("27.35"); //Test value
+		if (choice == 0)
+		{ //Simulate choosing partial
+			System.out.println("Partial Payment");
+			if (partialPaymentAmount.compareTo(BigDecimal.ZERO) <= 0)
+			{ //For now if user chooses to pay <= $0, default to full payment
+				return totalDue;
+			}
+			else if (partialPaymentAmount.compareTo(totalDue) == 1)
+			{ //If user enters in more than totalDue, default to full payment
+				return totalDue;
+			}
+			return partialPaymentAmount;
+		}
+		else 
+		{//Simulate paying full amount
+			return totalDue; 
+		}
 	}
 }

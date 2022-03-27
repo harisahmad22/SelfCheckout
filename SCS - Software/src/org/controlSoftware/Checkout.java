@@ -6,6 +6,7 @@ package org.controlSoftware;
 import java.math.BigDecimal;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
@@ -19,7 +20,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation; // needed for GiveChan
 
 public class Checkout {
 
-	private static BigDecimal totalCost = BigDecimal.ZERO;
+	private static BigDecimal totalDue = BigDecimal.ZERO;
 	private static BigDecimal totalMoneyPaid = BigDecimal.ZERO;
     private SelfCheckoutStation station; //needed for GiveChange
 	private TouchScreen touchScreen;
@@ -53,7 +54,7 @@ public class Checkout {
 
 	}
 
-	public void startCheckout() throws InterruptedException, OverloadException {
+	public void startCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 		// User has begun checkout
 		inCheckout.set(true); // Could use this as a signal to scale observer that weight is not allowed to
 								// change
@@ -65,7 +66,6 @@ public class Checkout {
 		// First Disable scanner
 //		scanner.disable();
 
-		// -------------Brody------------------
 
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
@@ -76,44 +76,65 @@ public class Checkout {
 		// expectedWeight, which will then
 		// be checked for validity after the user chooses payment options
 
-		// -------------Brody------------------
+		//Ask user if they would like to pay partial or full
+		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(totalDue);
 
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
-		touchScreen.showPaymentOption();
+		// Returns an int: 0 = Cash, 1 = Credit, 2 = Debt
+		int paymentMethod = touchScreen.showPaymentOption(); 
 
 		// Check if weight is still valid after waiting for user input
 		if (!weightValid.get()) {
 			handleInvalidWeight();
 		}
-		// Done
-		return;
+		
+		if (paymentMethod == 1) 
+		{ 
+//			payWithCreditCard(); 
+		}
+		else if (paymentMethod == 2) 
+		{ 
+//			payWithDebtCard(); 
+		}
+		else { payWithCash(paymentAmount); }
+		
+		//Need to handle when they pay partially, maybe payWithCash etc returns a boolean informing us
+		//if more payments are required (false when we need to pay more, true when we dont)
+		//Would have to move post payment logic to this method, but only reset system back to the 
+		//Welcome screen if payWithCash etc returns true. 
 	}
 
 	// This method will be called by the GUI after prompting user to select a
 	// payment method,
 	// We will just call it directly when testing to simulate the GUI interaction
-	public void payWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+	public void payWithCash(BigDecimal paymentAmount) throws InterruptedException, OverloadException, EmptyException, DisabledException {
         
         // Maybe disable Banknote slot?
 		//banknoteSlot.disable();
 
-		while (compareTotals() < 0) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
+		while (totalMoneyPaid.compareTo(paymentAmount) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
 			
 			if (!weightValid.get()) { handleInvalidWeight(); }
-			
+ 
 			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
 			// checking
+			
+			TimeUnit.MILLISECONDS.sleep(50); 
 		}
 
-		// Out of while loop so we can assume user has paid, may need change but
-		// worry about that for next iteration
-		BigDecimal changeAmount = totalMoneyPaid.subtract(totalCost);
+		// Out of while loop so we can assume user has paid, may need change
+		BigDecimal changeAmount = BigDecimal.ZERO;
+		if (totalMoneyPaid.compareTo(totalDue) >= 0)
+		{ //Payment has reached or exceeded totalDue, get the change amount
+			changeAmount = totalMoneyPaid.subtract(totalDue);
+		}//Otherwise change is defaulted to 0 when a partial payment is completed
     
-		ReceiptHandler.setFinalTotal(totalCost.toString());
+		ReceiptHandler.setFinalTotal(totalDue.toString());
+		ReceiptHandler.setMoneyPaid(paymentAmount.toString());
 		ReceiptHandler.setFinalChange(changeAmount.toString());
 		
-		if (changeAmount.compareTo(new BigDecimal(0)) > 0) {                
+		if (changeAmount.compareTo(BigDecimal.ZERO) > 0) {                
 			// Handle giving out change here
             GiveChange someChange = new GiveChange(station, changeAmount);
             someChange.dispense();
@@ -210,12 +231,8 @@ public class Checkout {
 		weightValid.set(validity);
 	}
 
-	public static int compareTotals() {
-		return totalMoneyPaid.compareTo(totalCost);
-	}
-
 	public static void addToTotalCost(BigDecimal scannedItemPrice) {
-		totalCost = totalCost.add(scannedItemPrice);
+		totalDue = totalDue.add(scannedItemPrice);
 
 	}
 
@@ -225,7 +242,7 @@ public class Checkout {
 	}
 
 	public static void setTotalCost(BigDecimal cost) {
-		totalCost = cost;
+		totalDue = cost;
 
 	}
 
@@ -248,7 +265,7 @@ public class Checkout {
 	}
 
 	public BigDecimal getTotalCost() {
-		return totalCost;
+		return totalDue;
 	}
 
 	public boolean isInCleanup() {
@@ -261,7 +278,7 @@ public class Checkout {
 
 	public static void resetCheckoutTotals() {
 		totalMoneyPaid = BigDecimal.ZERO;
-		totalCost = BigDecimal.ZERO;
+		totalDue = BigDecimal.ZERO;
 	}
 
 	public double getExpectedWeight() {
