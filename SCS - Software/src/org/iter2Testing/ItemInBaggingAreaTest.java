@@ -21,6 +21,7 @@ public class ItemInBaggingAreaTest {
 	private ProcessScannedItem customScannerObserver;
 	private DummyBarcodeLookup lookup;
 	private DummyItemProducts itemProducts;
+	private ReceiptHandler receiptHandler;
 
 	//Initialize
 	@Before
@@ -29,17 +30,20 @@ public class ItemInBaggingAreaTest {
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreen();
+		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
-									 this.Station.baggingArea);
+									 this.Station.baggingArea,
+									 this.receiptHandler);
 		//Initialize a new custom Barcode scanner observer
 		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
 															this.lookup, 
 															this.Station.baggingArea, 
 															touchScreen,
-															checkout);
+															checkout,
+															this.receiptHandler);
 		//Attach the scanner observer to the scanner
 		this.Station.mainScanner.attach(customScannerObserver);
 		

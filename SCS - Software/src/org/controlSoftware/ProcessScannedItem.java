@@ -12,6 +12,7 @@ import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.OverloadException;
+import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 
@@ -53,14 +54,16 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		
 		6) Done
 	 */
+	private ReceiptHandler receiptHandler;
 
-	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen, Checkout checkout) 
+	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen, Checkout checkout, ReceiptHandler receiptHandler) 
 	{
 		this.scanner = scanner;
 		this.lookup = lookup;
 		this.scale = scale;
 		this.touchScreen = touchScreen;
 		this.checkout = checkout;
+		this.receiptHandler = receiptHandler;
 	}
 
 	@Override
@@ -93,6 +96,10 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 				
 				Checkout.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
 			}
+			
+			//Add product info to the receipt handler list
+			ReceiptHandler.addProductToReceipt(scannedItem.getProductDescription(), scannedItemPrice.toString());
+			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
 			try {

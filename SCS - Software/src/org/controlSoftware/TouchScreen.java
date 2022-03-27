@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lsmr.selfcheckout.devices.AbstractDevice;
+import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
 
@@ -84,9 +85,13 @@ public class TouchScreen implements TouchScreenObserver {
 		overloadDetected.set(false);
 	}
 
-	public void askToPrintReceipt() {
+	public void askToPrintReceipt(ReceiptHandler receipt) {
 		System.out.println("Would You like to print a receipt?");
 		askedToPrintReceipt.set(true);
+		
+		//Until GUI is implemented, for testing purposes we will print the receipt here
+		receipt.printReceipt();
+		
 	}
 
 	public void showPaymentOption() throws InterruptedException {

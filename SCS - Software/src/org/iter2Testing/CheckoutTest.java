@@ -55,6 +55,7 @@ public class CheckoutTest {
 	
 	private BarcodedItem milkJug;
 	private BarcodedItem cornFlakes;
+	private ReceiptHandler receiptHandler;
 
 	//Initialize
 	@Before
@@ -63,21 +64,30 @@ public class CheckoutTest {
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreen();
+		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
-									 this.Station.baggingArea);
+									 this.Station.baggingArea,
+									 receiptHandler);
 		
 		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();
 		cornFlakes = lookup.get(itemProducts.BarcodeList.get(2)).getItem();
+		
+		//Setup receipt printer
+		this.Station.printer.addInk(2500);
+		this.Station.printer.addPaper(512);
+		//Setup receipt printer
+		
 		
 		//Initialize a new custom Barcode scanner observer
 		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
 													 this.lookup, 
 													 this.Station.baggingArea, 
 													 touchScreen, 
-													 checkout); 
+													 checkout, 
+													 receiptHandler); 
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customScannerObserver);
 		
 		//Initialize a new custom scale observer
@@ -346,6 +356,10 @@ public class CheckoutTest {
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCoins();
+    	
+		String finalReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		//Testing ONLY
     	
     	//Touch screen should not have been informed of change being dispensed
     	assertFalse(touchScreen.changeDispensed.get());

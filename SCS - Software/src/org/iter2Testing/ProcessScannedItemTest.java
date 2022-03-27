@@ -42,6 +42,7 @@ public class ProcessScannedItemTest {
 	private BarcodedItem cornFlakes;
 	private BigDecimal cornFlakesCost;
 	private ScheduledExecutorService addItemsToScaleScheduler;
+	private ReceiptHandler receiptHandler;
 	
 
 	//Initialize
@@ -52,11 +53,13 @@ public class ProcessScannedItemTest {
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreen();
+		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
-									 this.Station.baggingArea);
+									 this.Station.baggingArea,
+									 this.receiptHandler);
 		
 		//Get some barcoded items with their prices
 		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();
@@ -71,7 +74,8 @@ public class ProcessScannedItemTest {
 													 this.lookup, 
 													 this.Station.baggingArea, 
 													 touchScreen,
-													 checkout); 
+													 checkout,
+													 this.receiptHandler); 
 		//Attach the custom observer to the relevant device
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customObserver);
 		

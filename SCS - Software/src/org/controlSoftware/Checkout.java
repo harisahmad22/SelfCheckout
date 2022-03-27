@@ -29,15 +29,17 @@ public class Checkout {
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private double expectedWeight;
 	private double bagWeight = 50; // Should have this be configurable
-
+	private ReceiptHandler receiptHandler;
+	
 	public Checkout(TouchScreen touchScreen, BarcodeScanner scanner, BanknoteSlot banknoteSlot, CoinSlot coinSlot,
-			ElectronicScale scale) {
+			ElectronicScale scale, ReceiptHandler receiptHandler) {
 
 		this.touchScreen = touchScreen;
 		this.scanner = scanner;
 		this.banknoteSlot = banknoteSlot;
 		this.coinSlot = coinSlot;
 		this.scale = scale;
+		this.receiptHandler = receiptHandler;
 
 	}
 
@@ -98,13 +100,17 @@ public class Checkout {
 		// Out of while loop so we can assume user has paid, may need change but
 		// worry about that for next iteration
 		BigDecimal changeAmount = totalMoneyPaid.subtract(totalCost);
+		
+		ReceiptHandler.setFinalTotal(totalCost.toString());
+		ReceiptHandler.setFinalChange(changeAmount.toString());
+		
 		if (changeAmount.compareTo(new BigDecimal(0)) == 1) {
 			// Handle giving out change here
 			touchScreen.informChangeDispensed();
 		}
 
 		// Prompt touch screen to ask user if they would like a receipt
-		touchScreen.askToPrintReceipt();
+		touchScreen.askToPrintReceipt(receiptHandler);
 
 		// method call to handler that deals with waiting for all items in
 		// bagging area to be picked up before reseting system to be ready for a new
@@ -144,7 +150,7 @@ public class Checkout {
 		}
 
 		// Prompt touch screen to ask user if they would like a receipt
-		touchScreen.askToPrintReceipt();
+		touchScreen.askToPrintReceipt(receiptHandler);
 
 		// method call to handler that deals with waiting for all items in
 		// bagging area to be picked up before reseting system to be ready for a new

@@ -27,6 +27,7 @@ public class PayWithCoinTest {
 	private TouchScreen touchScreen;
 	private Checkout checkout;
 	private Object customObserver;
+	private ReceiptHandler receiptHandler;
     private static Coin fiveCents = new Coin(DummySelfCheckoutStation.getCurrency(),new BigDecimal(0.05));
    
 	//Initialize
@@ -35,11 +36,13 @@ public class PayWithCoinTest {
 
 		this.Station = new DummySelfCheckoutStation();
 		this.touchScreen = new TouchScreen();
+		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
-									 this.Station.baggingArea);
+									 this.Station.baggingArea,
+									 this.receiptHandler);
 		//Initialize a new custom coin dispenser observer
 		this.customObserver = new PayWithCoin();
 		

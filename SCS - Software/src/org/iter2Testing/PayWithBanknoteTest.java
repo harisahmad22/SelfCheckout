@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 import org.controlSoftware.Checkout;
 import org.controlSoftware.PayWithBanknote;
+import org.controlSoftware.ReceiptHandler;
 import org.controlSoftware.TouchScreen;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ public class PayWithBanknoteTest {
 	private TouchScreen touchScreen;
 	private Checkout checkout;
 	private PayWithBanknote customObserver;
+	private ReceiptHandler receiptHandler;
 	private static Banknote fiveDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 5);
 
 	//Initialize
@@ -32,11 +34,13 @@ public class PayWithBanknoteTest {
 	public void setup() {
 		this.Station = new DummySelfCheckoutStation();
 		this.touchScreen = new TouchScreen();
+		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
-									 this.Station.baggingArea);
+									 this.Station.baggingArea,
+									 this.receiptHandler);
 		//Initialize a new custom banknote validator observer
 		this.customObserver = new PayWithBanknote();
 		
