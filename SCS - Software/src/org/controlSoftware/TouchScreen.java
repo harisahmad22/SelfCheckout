@@ -171,7 +171,8 @@ public class TouchScreen implements TouchScreenObserver {
 	public BigDecimal choosePaymentAmount(BigDecimal totalDue) {
 		System.out.println("Would you like you make a partial payment?");
 		Random rand = new Random();
-		int choice = rand.nextInt(2);
+//		int choice = rand.nextInt(2);
+		int choice = 1; //Force full payment for now
 		BigDecimal partialPaymentAmount = new BigDecimal("27.35"); //Test value
 		if (choice == 0)
 		{ //Simulate choosing partial

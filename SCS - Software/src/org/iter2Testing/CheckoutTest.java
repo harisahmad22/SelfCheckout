@@ -231,6 +231,36 @@ public class CheckoutTest {
     }
     
     @Test
+    public void testPartialPaymentWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	//Weight does not change during payment
+    	//Cleanup will be tested in here also
+    	BigDecimal total = new BigDecimal("100");
+    	Checkout.addToTotalCost(total); //Add $100 to total cost
+    	//Bypass startCheckout method
+    	checkout.setInCheckout(true);
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { twentyDollarBanknote };
+    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { quarter, toonie, toonie, toonie};
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 2500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 5500, TimeUnit.MILLISECONDS);
+    	
+    	checkout.payWithCash(total.divide(new BigDecimal("2"))); //Pay $50
+
+		String partialReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + partialReceipt);
+		
+    	//Should no longer be in checkout mode
+    	assertFalse(checkout.isInCheckout());
+    }
+
+    
+    @Test
     public void testPayingWithBanknotesNoChangeRemoveScannedItem() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	//Change will not be given out
     	//Weight DOES change during payment
@@ -342,6 +372,9 @@ public class CheckoutTest {
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 12500, TimeUnit.MILLISECONDS);
     	
     	checkout.payWithCash(total);
+    	
+    	String finalReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
     	
     	//Touch screen should have been informed of the weight issue, and its correction
     	assertTrue(touchScreen.invalidWeightInCheckoutDetected.get());
