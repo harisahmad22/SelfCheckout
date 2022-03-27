@@ -199,11 +199,14 @@ public class CheckoutTest {
     	checkout.setInCheckout(true);
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
-    	Banknote[] banknotes2 = { twentyDollarBanknote, twentyDollarBanknote };
+    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { quarter, toonie, toonie, toonie};
+    	
     	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each banknote insertion.
     	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
     	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 4000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 6500, TimeUnit.MILLISECONDS);
     	
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 2000, TimeUnit.MILLISECONDS);
     	
