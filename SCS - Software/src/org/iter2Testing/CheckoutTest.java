@@ -362,7 +362,7 @@ public class CheckoutTest {
     	//$4 in coins to pay before adding another item
     	Coin[] coins = { toonie, toonie};
     	//$5 in coins to pay remaining balance
-//    	Coin[] coins2 = { toonie, toonie, loonie }; 
+    	Coin[] coins2 = { toonie, toonie, loonie }; 
     
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
@@ -375,12 +375,12 @@ public class CheckoutTest {
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 5500, TimeUnit.MILLISECONDS);
     	
     	//Pay remaining balance after 9.5 seconds
-//    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
     	
     	
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
     	
-    	checkout.payWithCash(total);
+    	checkout.payWithCash(new BigDecimal(9));
     	
 		String finalReceipt = this.Station.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);

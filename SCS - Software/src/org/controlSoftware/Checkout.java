@@ -307,4 +307,8 @@ public class Checkout {
 				System.out.println("Must enter a valid weight for bags!");
 			}	
 	}
+
+	public int compareTotals() {
+		return totalMoneyPaid.compareTo(totalDue);
+	}
 }
