@@ -59,6 +59,7 @@ public class CheckoutTest {
 	private BarcodedItem milkJug;
 	private BarcodedItem cornFlakes;
 	private ReceiptHandler receiptHandler;
+	private ScansMembershipCard customMembershipScannerObserver;
 
 	//Initialize
 	@Before
@@ -104,27 +105,13 @@ public class CheckoutTest {
 		//Initialize a new custom banknote validator observer
 		this.customCashPaymentObserver = new PayWithCash(this.Station);
 		
-		//Attach the custom cash payment observer to the relevant devices
-//		this.Station.banknoteValidator.attach((BanknoteValidatorObserver) customCashPaymentObserver);
-//		this.Station.coinValidator.attach((CoinValidatorObserver) customCashPaymentObserver);
-//		this.Station.coinStorage.attach((CoinStorageUnitObserver) customCashPaymentObserver);
-//		
-//		for (BigDecimal dispenser : this.Station.coinDispensers.keySet()) 
-//		{
-//			this.Station.coinDispensers.get(dispenser).attach((CoinDispenserObserver) customCashPaymentObserver);
-//		}
-		
+		//Initialize a new custom banknote validator observer
+		this.customMembershipScannerObserver = new ScansMembershipCard(checkout);
+		this.Station.cardReader.attach(customMembershipScannerObserver);
+			
 		scheduler =  Executors.newScheduledThreadPool(5);
 	}
-	
-//    @Test
-//    public void verifyScannerIsDisabledAfterStartingCheckout() throws InterruptedException, OverloadException {
-//        // start checkout
-//        checkout.startCheckout();
-//        // verify device is disabled or not
-//        assertTrue(Station.mainScanner.isDisabled());
-//    }
-//    
+	 
     @Test
     public void verifyExpectedWeightWhenStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
         // start checkout 
@@ -157,30 +144,21 @@ public class CheckoutTest {
     }
     
     
-//    @Test
-//    public void testPayingWithBanknotesNoChangeNoWeight() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	//Change will not be given out
-//    	//Weight does not change during payment
-//    	//Cleanup will be tested in here also
-//    	Checkout.addToTotalCost(new BigDecimal(50)); //Add $50 to total cost
-//    	//Bypass startCheckout method
-//    	checkout.setInCheckout(true);
-//    	//Create a list of banknotes matching the total cost of all items
-//    	Banknote[] banknotes = { twentyDollarBanknote, tenDollarBanknote, tenDollarBanknote, fiveDollarBanknote, fiveDollarBanknote };
-//    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-//    	//There is a 1 second delay between each banknote insertion.
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes), 1500, TimeUnit.MILLISECONDS);
-//    	
-//    	checkout.payWithCash();
-//    	
-//    	//Touch screen should not have been informed of change being dispensed
-//    	assertFalse(touchScreen.changeDispensed.get());
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	//Touch screen should have reset to the welcome screen
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
+    @Test
+    public void testScanningMembership() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+
+    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
+    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
+    	
+    	checkout.startCheckout();
+    	
+    	String finalReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+    	
+    	assertTrue(checkout.getMembershipNumber().equals("123456789"));
+    	assertTrue(touchScreen.askedForMembership.get());
+    }
+    
     @Test
     public void testPayingWithCashWithChangeAddItemNoScan() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	//Change will be given out
@@ -232,7 +210,7 @@ public class CheckoutTest {
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
     	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
-    	Coin[] coins = { toonie, toonie, loonie};
+    	Coin[] coins = { quarter, toonie, toonie, toonie};
     	
     	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each banknote insertion.

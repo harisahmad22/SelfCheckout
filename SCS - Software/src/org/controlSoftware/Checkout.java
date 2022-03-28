@@ -33,9 +33,15 @@ public class Checkout {
 	private AtomicBoolean usingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
+	private AtomicBoolean cardSwiped = new AtomicBoolean(false);
+	private AtomicBoolean waitingForMembership = new AtomicBoolean(false);
+
+
 	private double expectedWeight;
 	private double bagWeight = 50; // Should have this be configurable
+	private String membershipNum = "null";
 	private ReceiptHandler receiptHandler;
+
 
 	public Checkout(TouchScreen touchScreen, 
 					BarcodeScanner scanner, 
@@ -66,8 +72,7 @@ public class Checkout {
 
 		// First Disable scanner
 		scanner.disable();
-
-
+		
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
 		touchScreen.usingOwnBagsPrompt();
@@ -75,7 +80,11 @@ public class Checkout {
 		// If the user has bags to add, the weight of all their bags will be added to
 		// expectedWeight, which will then
 		// be checked for validity after the user chooses payment options
-
+		
+		touchScreen.inputMembershipPrompt(this);
+		ReceiptHandler.setMembershipID(membershipNum);
+//		resetMembershipInfo();
+		
 		//Ask user if they would like to pay partial or full
 		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(totalDue, totalMoneyPaid);
 
@@ -344,4 +353,33 @@ public class Checkout {
 	public int compareTotals() {
 		return totalMoneyPaid.compareTo(totalDue);
 	}
+	
+	public void resetMembershipInfo() {
+		membershipNum = "null";
+	}
+
+	public void setMembershipNumber(String num) {
+		membershipNum = num;
+	}
+	
+	public String getMembershipNumber() {
+		return membershipNum;
+	}
+	
+	public boolean isWaitingForMembership() {
+		return waitingForMembership.get();
+	}
+	
+	public void setWaitingForMembership(boolean bool) {
+		waitingForMembership.set(bool);;
+	}
+	
+	public boolean getCardSwiped() {
+		return cardSwiped.get();
+	}
+	
+	public void setCardSwiped(boolean bool) {
+		cardSwiped.set(bool);
+	}
+	
 }

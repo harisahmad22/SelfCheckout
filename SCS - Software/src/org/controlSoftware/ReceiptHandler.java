@@ -36,10 +36,10 @@ public class ReceiptHandler {
 		if (!membershipID.equals("null\n"))
 		{
 			char[] id = ("Membership ID: " + membershipID).toCharArray();
-			char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
+//			char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
 			
 			printChars(id);
-			printChars(points);
+//			printChars(points);
 		}
 		
 		//Now print the total cost of all items, and if any change was given back

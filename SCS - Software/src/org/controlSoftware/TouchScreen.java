@@ -39,8 +39,13 @@ public class TouchScreen implements TouchScreenObserver {
 	public AtomicBoolean invalidBarcodeDetected = new AtomicBoolean(false);
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
+	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
 
 	public int numberOfPersonalBags = 0;
+	private String membershipNum;
+	
+	
+	
 	
 
 	@Override
@@ -183,7 +188,7 @@ public class TouchScreen implements TouchScreenObserver {
 		
 		Random rand = new Random();
 //		choice = rand.nextInt(2);
-		BigDecimal partialPaymentAmount = new BigDecimal("50"); //Test value
+		BigDecimal partialPaymentAmount = new BigDecimal("0"); //Test value
 		if (choice == 1)
 		{ //Simulate choosing partial
 			System.out.println("Partial Payment");
@@ -208,4 +213,42 @@ public class TouchScreen implements TouchScreenObserver {
 		returnedToAddingItemMode.set(true);
 		
 	}
+	
+	public void inputMembershipPrompt(Checkout checkout) throws InterruptedException {
+		int choice = 0; //Will be set by GUI, 0 = manual, 1 = swipe
+		//For now default choice to swipe
+		//Could maybe have a loop that runs until hardware detects a valid swipe
+		//or user can press a button to bring up a keypad to enter in their ID
+		try (Scanner membershipCardInput = new Scanner(System.in)) {
+			System.out.println("Please swipe your membership card or enter your membership card number below. Press Next if you do not have a membership with us. ");
+			if (choice == 1)
+			{
+				if (membershipCardInput.hasNextInt()) {
+					String membership_num = membershipCardInput.toString();
+					ReceiptHandler.setMembershipID(membership_num);
+				}
+				else {
+					throw new InputMismatchException();
+				}
+			}
+			else
+			{	//Wait for swipe
+				checkout.setWaitingForMembership(true);
+				
+				while(!checkout.getCardSwiped())
+				{
+					TimeUnit.MILLISECONDS.sleep(100);
+				}
+				checkout.setCardSwiped(false); //Reset flag for next event		
+				checkout.setWaitingForMembership(false);
+			}
+			
+		} catch (InputMismatchException InputMismatchException) {
+			System.out.println("Please enter your membership card number again.");
+		}
+		
+		askedForMembership.set(true);
+	}
+	
+
 }
