@@ -38,7 +38,10 @@ public class TouchScreen implements TouchScreenObserver {
 	public AtomicBoolean resetSuccessful = new AtomicBoolean(false);
 	public AtomicBoolean invalidBarcodeDetected = new AtomicBoolean(false);
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
+	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
+
 	public int numberOfPersonalBags = 0;
+	
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
@@ -168,28 +171,41 @@ public class TouchScreen implements TouchScreenObserver {
 		return numberOfPersonalBags;
 	}
 
-	public BigDecimal choosePaymentAmount(BigDecimal totalDue) {
+	public BigDecimal choosePaymentAmount(BigDecimal totalDue, BigDecimal totalPaid) {
 		System.out.println("Would you like you make a partial payment?");
-		Random rand = new Random();
-//		int choice = rand.nextInt(2);
 		int choice = 1; //Force full payment for now
-		BigDecimal partialPaymentAmount = new BigDecimal("27.35"); //Test value
-		if (choice == 0)
+		BigDecimal remainingDue = totalDue.subtract(totalPaid);
+		System.out.println("Remaining Money Due: " + remainingDue);
+		
+		//---------------Add GUI logic for handling selection/amount---------------
+		
+		//---------------Add GUI logic for handling selection/amount---------------
+		
+		Random rand = new Random();
+//		choice = rand.nextInt(2);
+		BigDecimal partialPaymentAmount = new BigDecimal("50"); //Test value
+		if (choice == 1)
 		{ //Simulate choosing partial
 			System.out.println("Partial Payment");
 			if (partialPaymentAmount.compareTo(BigDecimal.ZERO) <= 0)
 			{ //For now if user chooses to pay <= $0, default to full payment
-				return totalDue;
+				return remainingDue;
 			}
-			else if (partialPaymentAmount.compareTo(totalDue) == 1)
+			else if (partialPaymentAmount.compareTo(remainingDue) >= 0)
 			{ //If user enters in more than totalDue, default to full payment
-				return totalDue;
+				return remainingDue;
 			}
 			return partialPaymentAmount;
 		}
 		else 
 		{//Simulate paying full amount
-			return totalDue; 
+			return remainingDue; 
 		}
+	}
+
+	public void returnToAddingItems() {
+		System.out.println("Payment Complete, you may add more items or make another payment.");
+		returnedToAddingItemMode.set(true);
+		
 	}
 }

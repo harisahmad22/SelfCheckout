@@ -223,6 +223,80 @@ public class CheckoutTest {
     }
     
     @Test
+    public void testStartCheckoutTwoPartialPaymentsWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	//Weight does not change during payment
+    	//Cleanup will be tested in here also
+    	BigDecimal total = new BigDecimal("100");
+    	Checkout.addToTotalCost(total); //Add $100 to total cost
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { twentyDollarBanknote };
+    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { toonie, toonie, loonie};
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 5000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 6750, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 9000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 13000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 15750, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 19000, TimeUnit.MILLISECONDS);
+    	
+    	checkout.startCheckout();
+
+		String partialReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + partialReceipt);
+		
+//    	//Should no longer be in checkout mode
+//    	assertFalse(checkout.isInCheckout());
+//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	
+    	
+    	checkout.startCheckout();
+
+		partialReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + partialReceipt);
+		
+    	//Should no longer be in checkout mode
+    	assertFalse(checkout.isInCheckout());
+    	assertTrue(touchScreen.resetSuccessful.get());
+    }
+    
+    @Test
+    public void testStartCheckoutPartialPaymentWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	//Weight does not change during payment
+    	//Cleanup will be tested in here also
+    	BigDecimal total = new BigDecimal("100");
+    	Checkout.addToTotalCost(total); //Add $100 to total cost
+    	//Bypass startCheckout method
+    	checkout.setInCheckout(true);
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { twentyDollarBanknote };
+    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { quarter, toonie, toonie, toonie};
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 5000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 6750, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 9000, TimeUnit.MILLISECONDS);
+    	
+    	checkout.startCheckout();
+
+		String partialReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + partialReceipt);
+		
+    	//Should no longer be in checkout mode
+    	assertFalse(checkout.isInCheckout());
+    	assertTrue(touchScreen.returnedToAddingItemMode.get());
+    }
+    
+    @Test
     public void testPartialPaymentWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	//Change will be given out
     	//Weight does not change during payment
@@ -249,6 +323,7 @@ public class CheckoutTest {
 		
     	//Should no longer be in checkout mode
     	assertFalse(checkout.isInCheckout());
+    	assertTrue(touchScreen.returnedToAddingItemMode.get());
     }
 
     

@@ -22,6 +22,7 @@ public class Checkout {
 
 	private static BigDecimal totalDue = BigDecimal.ZERO;
 	private static BigDecimal totalMoneyPaid = BigDecimal.ZERO;
+	private static BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
     private SelfCheckoutStation station; //needed for GiveChange
 	private TouchScreen touchScreen;
 	private BarcodeScanner scanner;
@@ -41,10 +42,11 @@ public class Checkout {
 					BanknoteSlot banknoteSlot, 
 					CoinSlot coinSlot,
 					ElectronicScale scale,
-          SelfCheckoutStation station, //needed for GiveChange
-          ReceiptHandler receiptHandler) { 
+					SelfCheckoutStation station, //needed for GiveChange
+					ReceiptHandler receiptHandler) 
+	{ 
 
-    this.station = station; //needed for GiveChange
+		this.station = station; //needed for GiveChange
 		this.touchScreen = touchScreen;
 		this.scanner = scanner;
 		this.banknoteSlot = banknoteSlot;
@@ -56,8 +58,7 @@ public class Checkout {
 
 	public void startCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 		// User has begun checkout
-		inCheckout.set(true); // Could use this as a signal to scale observer that weight is not allowed to
-								// change
+		inCheckout.set(true); // Could use this as a signal to scale observer that weight is not allowed to change
 
 		// Set our expected Weight to the current scale weight
 		// Allows scale observer to set weightValid
@@ -70,22 +71,23 @@ public class Checkout {
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
 		touchScreen.usingOwnBagsPrompt();
-		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change
-		System.out.println("test: " + Math.floor(scale.getCurrentWeight()));      
+		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change    
 		// If the user has bags to add, the weight of all their bags will be added to
 		// expectedWeight, which will then
 		// be checked for validity after the user chooses payment options
 
 		//Ask user if they would like to pay partial or full
-		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(totalDue);
+		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(totalDue, totalMoneyPaid);
 
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
 		// Returns an int: 0 = Cash, 1 = Credit, 2 = Debt
+		// TESTING - always chooses to pay with cash!
 		int paymentMethod = touchScreen.showPaymentOption(); 
 
 		// Check if weight is still valid after waiting for user input
-		if (!weightValid.get()) {
+		if (!weightValid.get()) 
+		{
 			handleInvalidWeight();
 		}
 		
@@ -97,12 +99,71 @@ public class Checkout {
 		{ 
 //			payWithDebtCard(); 
 		}
-		else { payWithCash(paymentAmount); }
+		else 
+		{
+			System.out.println("Cash Payment Chosen");
+			payWithCash(paymentAmount);
+		}
 		
 		//Need to handle when they pay partially, maybe payWithCash etc returns a boolean informing us
 		//if more payments are required (false when we need to pay more, true when we dont)
 		//Would have to move post payment logic to this method, but only reset system back to the 
 		//Welcome screen if payWithCash etc returns true. 
+		
+		//================================================================================================
+		
+		BigDecimal changeAmount = BigDecimal.ZERO;
+		// Out of while loop so we can assume user has paid
+		// Check if we have paid full amount
+		
+		if (totalMoneyPaid.compareTo(totalDue) >= 0)
+		{ //Total Paid >= total Due, check for change
+		  //Ask to print Receipt, wait for cleanup, and return to welcome screen
+			
+			if (totalMoneyPaid.compareTo(totalDue) == 1)
+			{ //Payment has exceeded totalDue, get the change amount
+				changeAmount = totalMoneyPaid.subtract(totalDue);
+				GiveChange someChange = new GiveChange(station, changeAmount);
+	            someChange.dispense();
+				touchScreen.informChangeDispensed();
+			}//Otherwise change is defaulted to 0 when a partial payment is completed
+
+			ReceiptHandler.setFinalTotal(totalDue.toString());
+			ReceiptHandler.setMoneyPaid(totalMoneyPaid.toString());
+			ReceiptHandler.setFinalChange(changeAmount.toString());
+			
+			// Prompt touch screen to ask user if they would like a receipt
+			touchScreen.askToPrintReceipt(receiptHandler);
+			
+			// method call to handler that deals with waiting for all items in
+			// bagging area to be picked up before reseting system to be ready for a new
+			// user
+			handlePostPaymentCleanup();
+
+			// Maybe Re-enable devices here?
+			enableDevices();
+
+			inCheckout.set(false);
+			touchScreen.resetToWelcomeScreen();
+		}
+		else
+		{ //Total Paid < total Due, Ask to Print Receipt, and return to Adding Items mode 
+			System.out.println("Total Due: " + totalDue);
+			System.out.println("Total Paid: " + totalMoneyPaid);
+			ReceiptHandler.setFinalTotal(totalDue.toString());
+			ReceiptHandler.setMoneyPaid(totalMoneyPaid.toString());
+			ReceiptHandler.setFinalChange(changeAmount.toString());
+			
+			// Prompt touch screen to ask user if they would like a receipt
+			touchScreen.askToPrintReceipt(receiptHandler);
+			
+			// Maybe Re-enable devices here?
+			enableDevices();
+
+			inCheckout.set(false);
+			touchScreen.returnToAddingItems();
+		}
+		//================================================================================================
 	}
 
 	// This method will be called by the GUI after prompting user to select a
@@ -110,10 +171,10 @@ public class Checkout {
 	// We will just call it directly when testing to simulate the GUI interaction
 	public void payWithCash(BigDecimal paymentAmount) throws InterruptedException, OverloadException, EmptyException, DisabledException {
         
-		scanner.enable();
+		//Cash payments should only be allowed once this method is entered!
 		
-		while (totalMoneyPaid.compareTo(paymentAmount) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
-			
+		scanner.enable();
+		while (totalPaidThisTransaction.compareTo(paymentAmount) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
 			if (!weightValid.get()) { handleInvalidWeight(); }
  
 			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
@@ -121,38 +182,7 @@ public class Checkout {
 			
 			TimeUnit.MILLISECONDS.sleep(50); 
 		}
-
-		// Out of while loop so we can assume user has paid, may need change
-		BigDecimal changeAmount = BigDecimal.ZERO;
-		if (totalMoneyPaid.compareTo(totalDue) >= 0)
-		{ //Payment has reached or exceeded totalDue, get the change amount
-			changeAmount = totalMoneyPaid.subtract(totalDue);
-		}//Otherwise change is defaulted to 0 when a partial payment is completed
-    
-		ReceiptHandler.setFinalTotal(totalDue.toString());
-		ReceiptHandler.setMoneyPaid(paymentAmount.toString());
-		ReceiptHandler.setFinalChange(changeAmount.toString());
-		
-		if (changeAmount.compareTo(BigDecimal.ZERO) > 0) {                
-			// Handle giving out change here
-            GiveChange someChange = new GiveChange(station, changeAmount);
-            someChange.dispense();
-			touchScreen.informChangeDispensed();
-		}
-
-		// Prompt touch screen to ask user if they would like a receipt
-		touchScreen.askToPrintReceipt(receiptHandler);
-
-		// method call to handler that deals with waiting for all items in
-		// bagging area to be picked up before reseting system to be ready for a new
-		// user
-		handlePostPaymentCleanup();
-
-		// Maybe Re-enable devices here?
-		enableDevices();
-
-		inCheckout.set(false);
-		touchScreen.resetToWelcomeScreen();
+		totalPaidThisTransaction = BigDecimal.ZERO; //Payment complete, reset for next payment run
 		return;
 	}
   
@@ -237,6 +267,10 @@ public class Checkout {
 
 	public static void addToTotalPaid(BigDecimal amount) {
 		totalMoneyPaid = totalMoneyPaid.add(amount);
+		
+		//This will be used to track how much money has been paid during one
+		//payment run
+		totalPaidThisTransaction  = totalPaidThisTransaction.add(amount);
 
 	}
 
