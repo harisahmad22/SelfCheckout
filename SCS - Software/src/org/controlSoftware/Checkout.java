@@ -34,6 +34,8 @@ public class Checkout {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(true);
 	private AtomicBoolean cardSwiped = new AtomicBoolean(false);
+	private AtomicBoolean cardTapped = new AtomicBoolean(false);
+	private AtomicBoolean cardInserted = new AtomicBoolean(false);
 	private AtomicBoolean waitingForMembership = new AtomicBoolean(false);
 
 
