@@ -41,6 +41,7 @@ public class Checkout {
 	private double bagWeight = 50; // Should have this be configurable
 	private String membershipNum = "null";
 	private ReceiptHandler receiptHandler;
+	private boolean isFirstCheckout = true;
 
 
 	public Checkout(TouchScreen touchScreen, 
@@ -75,16 +76,20 @@ public class Checkout {
 		
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
-		touchScreen.usingOwnBagsPrompt();
-		expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change    
-		// If the user has bags to add, the weight of all their bags will be added to
-		// expectedWeight, which will then
-		// be checked for validity after the user chooses payment options
-		setWaitingForMembership(true);
-		touchScreen.inputMembershipPrompt(this);
-		ReceiptHandler.setMembershipID(membershipNum);
-		setWaitingForMembership(false);
-//		resetMembershipInfo();
+		if (isFirstCheckout)
+		{ //Only prompt user for bags and membership if they haven't already been
+			touchScreen.usingOwnBagsPrompt();
+			expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change
+			// If the user has bags to add, the weight of all their bags will be added to
+			// expectedWeight, which will then
+			// be checked for validity after the user chooses payment options
+			setWaitingForMembership(true);
+			touchScreen.inputMembershipPrompt(this);
+			ReceiptHandler.setMembershipID(membershipNum);
+			setWaitingForMembership(false);
+			
+			isFirstCheckout = false; 
+		}
 		
 		//Ask user if they would like to pay partial or full
 		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(totalDue, totalMoneyPaid);

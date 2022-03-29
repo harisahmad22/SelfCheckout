@@ -105,6 +105,48 @@ public class TouchScreen implements TouchScreenObserver {
 		
 	}
 
+	public void informChangeDispensed() {
+		System.out.println("Change has been dispensed!");
+		changeDispensed.set(true);
+	}
+
+	public void validWeightInCheckout() {
+		System.out.println("Weight issue During Checkout corrected!");
+		invalidWeightInCheckoutCorrected.set(true);
+	}
+
+	public void invalidWeightInCheckout() {
+		System.out.println("Invalid Weight Detected during Checkout! Please correct the issue before continuing!");
+		invalidWeightInCheckoutDetected.set(true);
+
+	}
+
+	public void resetToWelcomeScreen() throws InterruptedException {
+		System.out.println("Thank You for shopping with us!");
+
+		TimeUnit.SECONDS.sleep(1);
+
+		System.out.println("Returning to Welcome Screen.");
+
+		TimeUnit.SECONDS.sleep(1);
+
+		System.out.println("Welcome! Press Start to continue.");
+
+		resetSuccessful.set(true);
+	}
+
+	public void invalidBarcodeScanned() {
+		System.out.println("ERROR! COULD NOT FIND BARCODE IN LOOKUP!");
+		invalidBarcodeDetected.set(true);
+
+	}
+
+	public void takeItemsNotification() {
+		System.out.println("Please take your items!");
+		informedToTakeItems.set(true);
+
+	}
+	
 	public int showPaymentOption() throws InterruptedException {
 		paymentOptionsDisplayed.set(true);
 		
@@ -148,47 +190,6 @@ public class TouchScreen implements TouchScreenObserver {
 		
 	}
 
-	public void informChangeDispensed() {
-		System.out.println("Change has been dispensed!");
-		changeDispensed.set(true);
-	}
-
-	public void validWeightInCheckout() {
-		System.out.println("Weight issue During Checkout corrected!");
-		invalidWeightInCheckoutCorrected.set(true);
-	}
-
-	public void invalidWeightInCheckout() {
-		System.out.println("Invalid Weight Detected during Checkout! Please correct the issue before continuing!");
-		invalidWeightInCheckoutDetected.set(true);
-
-	}
-
-	public void resetToWelcomeScreen() throws InterruptedException {
-		System.out.println("Thank You for shopping with us!");
-
-		TimeUnit.SECONDS.sleep(1);
-
-		System.out.println("Returning to Welcome Screen.");
-
-		TimeUnit.SECONDS.sleep(1);
-
-		System.out.println("Welcome! Press Start to continue.");
-
-		resetSuccessful.set(true);
-	}
-
-	public void invalidBarcodeScanned() {
-		System.out.println("ERROR! COULD NOT FIND BARCODE IN LOOKUP!");
-		invalidBarcodeDetected.set(true);
-
-	}
-
-	public void takeItemsNotification() {
-		System.out.println("Please take your items!");
-		informedToTakeItems.set(true);
-
-	}
 
 	public void usingOwnBagsPrompt() {
 		try {

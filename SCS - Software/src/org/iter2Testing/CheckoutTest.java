@@ -148,7 +148,7 @@ public class CheckoutTest {
     public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-//    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 5000, TimeUnit.MILLISECONDS);
     	
     	checkout.startCheckout();
     	
@@ -214,12 +214,12 @@ public class CheckoutTest {
     	
     	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each banknote insertion.
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 5000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 6750, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 9000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 13000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 15750, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 15000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 16750, TimeUnit.MILLISECONDS);
     	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 19000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 29000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 35750, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 39000, TimeUnit.MILLISECONDS);
     	
     	checkout.startCheckout();
 
