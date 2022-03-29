@@ -47,6 +47,7 @@ public class Checkout {
 	private double expectedWeight;
 	private double bagWeight = 50; // Should have this be configurable
 	private String membershipNum = "null";
+	private String creditNum = "null";
 	private ReceiptHandler receiptHandler;
 	private boolean isFirstCheckout = true;
 
@@ -393,6 +394,10 @@ public class Checkout {
 	
 	public void setCardSwiped(boolean bool) {
 		cardSwiped.set(bool);
+	}
+	
+	public void setCreditNumber(String num) {
+		creditNum = num;
 	}
 	
 }
