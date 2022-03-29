@@ -38,7 +38,12 @@ public class Checkout {
 	private AtomicBoolean cardInserted = new AtomicBoolean(false);
 	private AtomicBoolean waitingForMembership = new AtomicBoolean(false);
 
-
+	//Might not be needed
+	private AtomicBoolean waitingForCash = new AtomicBoolean(false);
+	private AtomicBoolean waitingForCreditCard = new AtomicBoolean(false);
+	private AtomicBoolean waitingForDebtCard = new AtomicBoolean(false);
+	//Might not be needed
+	
 	private double expectedWeight;
 	private double bagWeight = 50; // Should have this be configurable
 	private String membershipNum = "null";
