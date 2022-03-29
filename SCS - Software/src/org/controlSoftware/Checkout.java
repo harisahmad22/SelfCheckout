@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
+import org.lsmr.selfcheckout.devices.CardReader;
 import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
@@ -29,6 +30,7 @@ public class Checkout {
 	private BanknoteSlot banknoteSlot;
 	private CoinSlot coinSlot;
 	private ElectronicScale scale;
+	private CardReader reader;
 	private AtomicBoolean inCheckout = new AtomicBoolean(false);
 	private AtomicBoolean usingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
@@ -49,7 +51,7 @@ public class Checkout {
 	private String membershipNum = "null";
 	private ReceiptHandler receiptHandler;
 	private boolean isFirstCheckout = true;
-
+	private PayWithDebitCard debitCard;
 
 	public Checkout(TouchScreen touchScreen, 
 					BarcodeScanner scanner, 
@@ -57,7 +59,8 @@ public class Checkout {
 					CoinSlot coinSlot,
 					ElectronicScale scale,
 					SelfCheckoutStation station, //needed for GiveChange
-					ReceiptHandler receiptHandler) 
+					ReceiptHandler receiptHandler, PayWithDebitCard debitCard, 
+					CardReader reader) 
 	{ 
 
 		this.station = station; //needed for GiveChange
@@ -67,7 +70,9 @@ public class Checkout {
 		this.coinSlot = coinSlot;
 		this.scale = scale;
 		this.receiptHandler = receiptHandler;
-
+		this.debitCard = debitCard;
+		this.reader = reader;
+		
 	}
 
 	public void startCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
@@ -119,7 +124,19 @@ public class Checkout {
 		}
 		else if (paymentMethod == 2) 
 		{ 
-//			payWithDebtCard(); 
+			boolean cardPaymentVerified = false;
+			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
+			if (cardPaymentMethod == 0) {
+				debitCard.cardInserted(reader);
+			}
+			
+			else if (cardPaymentMethod == 1) {
+				debitCard.cardTapped(reader);
+			}
+
+			else {
+				debitCard.cardSwiped(reader);
+			}	
 		}
 		else 
 		{
