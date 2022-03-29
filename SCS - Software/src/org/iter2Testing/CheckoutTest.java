@@ -480,9 +480,10 @@ public class CheckoutTest {
 	@Test
 	public void verifyExpectedWeightWithBags()
 			throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		Barcode bagCode = new Barcode(new Numeral[] { Numeral.four });
 		scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
 		scheduler.schedule(
-				new PlaceItemOnScaleRunnable(this.Station.baggingArea, new BagItem(this.checkout.getBagWeight())), 6000,
+				new PlaceItemOnScaleRunnable(this.Station.baggingArea, new BarcodedItem(bagCode,this.checkout.getBagWeight())), 6000,
 				TimeUnit.MILLISECONDS);
 		// start checkout
 		checkout.startCheckout();
