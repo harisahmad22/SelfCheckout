@@ -76,6 +76,7 @@ public class PayByCredit implements CardReaderObserver
 	 */
 	@Override
 	public void cardSwiped(CardReader reader) {
+		System.out.println("A Card has been Swiped!");
 		checkout.setCardSwiped(true);
 	}
 
@@ -89,7 +90,8 @@ public class PayByCredit implements CardReaderObserver
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (checkout.getCardSwiped() && (data.getType() == "Credit")) {
+		if (checkout.getCardSwiped() && (data.getType() == "Credit") && (checkout.isWaitingForCredit())) {
+			System.out.println("Data read from Credit card swipe");
 			checkout.setCreditNumber(data.getNumber());
 		}
 	}

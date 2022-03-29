@@ -17,8 +17,10 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.lsmr.selfcheckout.Banknote;
+import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
@@ -481,9 +483,9 @@ public class CheckoutTest {
 	public void verifyExpectedWeightWithBags()
 			throws InterruptedException, OverloadException, EmptyException, DisabledException {
 		Barcode bagCode = new Barcode(new Numeral[] { Numeral.four });
-		scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
+		scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 5000, TimeUnit.MILLISECONDS);
 		scheduler.schedule(
-				new PlaceItemOnScaleRunnable(this.Station.baggingArea, new BarcodedItem(bagCode,this.checkout.getBagWeight())), 6000,
+				new PlaceItemOnScaleRunnable(this.Station.baggingArea, new BarcodedItem(bagCode,this.checkout.getBagWeight())), 15000,
 				TimeUnit.MILLISECONDS);
 		// start checkout
 		checkout.startCheckout();

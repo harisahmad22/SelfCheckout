@@ -116,11 +116,20 @@ public class Checkout {
 		
 		if (paymentMethod == 1) 
 		{ 
-//			payWithCreditCard(); 
+//			payWithCreditCard(paymentAmount); 
+			// Idea for how payWithCreditCard() will go: 
+			/*
+			 * 1) Inform user to input their card
+			 * 2) Wait until a credit card has been inserted, swiped, tapped
+			 * 3) Once card has been input, get the relevant card data
+			 * 4) Send this to the 'bank' stub
+			 * 5) if the bank authorizes the card data, then add paymentAmount to Checkout's totalMoneyPaid
+			 * 6) return 
+			 */
 		}
 		else if (paymentMethod == 2) 
 		{ 
-//			payWithDebtCard(); 
+//			payWithDebtCard(paymentAmount); 
 		}
 		else 
 		{
@@ -398,6 +407,18 @@ public class Checkout {
 	
 	public void setCreditNumber(String num) {
 		creditNum = num;
+	}
+
+	public double getBagWeight() {
+		return bagWeight;
+	}
+
+	public boolean isWaitingForCredit() {
+		return waitingForCreditCard.get();
+	}
+	
+	public void setWaitingForCreditCard(boolean bool) {
+		waitingForCreditCard.set(bool);
 	}
 	
 }
