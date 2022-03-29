@@ -145,10 +145,10 @@ public class CheckoutTest {
     
     
     @Test
-    public void testScanningMembership() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
+//    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
     	
     	checkout.startCheckout();
     	

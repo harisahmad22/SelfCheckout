@@ -4,6 +4,7 @@ package org.controlSoftware;
 
 import java.math.BigDecimal;
 import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -40,10 +41,10 @@ public class TouchScreen implements TouchScreenObserver {
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
 	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
-
+	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
-	
+	private Scanner userInputScanner = new Scanner(System.in);
 	
 	
 	
@@ -105,16 +106,46 @@ public class TouchScreen implements TouchScreenObserver {
 	}
 
 	public int showPaymentOption() throws InterruptedException {
-		System.out.println("How would you like to pay? Cash or Card? (Not Implemented yet!)");
 		paymentOptionsDisplayed.set(true);
-		TimeUnit.SECONDS.sleep(2); // Sleep for 2 seconds to simulate user selecting option
 		
-		//Random values for testing
-//		Random rand = new Random();
-//		int choice = rand.nextInt(3);
-//		return choice; //0 = Cash, 1 = Credit, 2 = Debt
+		System.out.println("(PRE-GUI) How would you like to pay? 'Cash', 'Credit', or 'Debt'.");
 		
-		return 0; //For now always default to cash
+		try
+		{			
+			String choice = userInputScanner.nextLine();
+			choice.toLowerCase();
+			if (choice.equals("cash"))
+			{ 
+				System.out.println("(TESTING) Cash Payment Chosen.");
+				return 0;
+			}
+			else if (choice.equals("credit"))
+			{
+				System.out.println("(TESTING) Credit Payment Chosen.");
+				return 1; 
+			}
+			else if (choice.equals("debt"))
+			{
+				System.out.println("(TESTING) Debt Payment Chosen.");
+				return 2; 
+			}
+			else { throw new InputMismatchException(); }
+		} catch (InputMismatchException InputMismatchException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			showPaymentOption();
+		} catch (NoSuchElementException NoSuchElementException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			showPaymentOption();
+		} catch (NumberFormatException NumberFormatException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			showPaymentOption();
+		}
+		return 0; //Default to cash (should never happen) 
+
+		
 	}
 
 	public void informChangeDispensed() {
@@ -160,16 +191,26 @@ public class TouchScreen implements TouchScreenObserver {
 	}
 
 	public void usingOwnBagsPrompt() {
-		try (Scanner bagInput = new Scanner(System.in)) {
+		try {
 			System.out.println("How many bags did you bring today?");
-//			numberOfPersonalBags = bagInput.nextInt();
+			numberOfPersonalBags = Integer.parseInt(userInputScanner.nextLine());
+//			numberOfPersonalBags = userInputScanner.nextInt();
 			if (numberOfPersonalBags < 0 || numberOfPersonalBags > 10) { throw new InputMismatchException(); }
 			// determine # of bags customer brought
-			
 			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI
 		} catch (InputMismatchException inputMismatchExcpetion) {
 			System.out.println("Sorry, please try again!");
-		}
+			userInputScanner.nextLine();
+			usingOwnBagsPrompt();
+		} catch (NoSuchElementException NoSuchElementException) {
+			System.out.println("Sorry, please try again!!");
+			userInputScanner.nextLine();
+			usingOwnBagsPrompt();
+		} catch (NumberFormatException NumberFormatException) {
+			System.out.println("Sorry, please try again!!");
+			userInputScanner.nextLine();
+			usingOwnBagsPrompt();
+		}  
 	}
 
 	public int getNumberOfPersonalBags() {
@@ -177,35 +218,64 @@ public class TouchScreen implements TouchScreenObserver {
 	}
 
 	public BigDecimal choosePaymentAmount(BigDecimal totalDue, BigDecimal totalPaid) {
-		System.out.println("Would you like you make a partial payment?");
-		int choice = 1; //Force full payment for now
+		System.out.println("(PRE-GUI) Would you like you to make a full or partial payment?");
+		System.out.println("(PRE-GUI) If you would like to pay a partial amount, input 'partial'.");
+		System.out.println("(PRE-GUI) Otherwise Press Enter to make a full payment.");
+
 		BigDecimal remainingDue = totalDue.subtract(totalPaid);
-		System.out.println("Remaining Money Due: " + remainingDue);
+		System.out.println("(TESTING) Remaining Money Due: " + remainingDue);
 		
+		try
+		{
 		//---------------Add GUI logic for handling selection/amount---------------
-		
-		//---------------Add GUI logic for handling selection/amount---------------
-		
-		Random rand = new Random();
-//		choice = rand.nextInt(2);
-		BigDecimal partialPaymentAmount = new BigDecimal("0"); //Test value
-		if (choice == 1)
-		{ //Simulate choosing partial
-			System.out.println("Partial Payment");
-			if (partialPaymentAmount.compareTo(BigDecimal.ZERO) <= 0)
-			{ //For now if user chooses to pay <= $0, default to full payment
-				return remainingDue;
+			
+			String choice = userInputScanner.nextLine();
+			//---------------Add GUI logic for handling selection/amount---------------
+			
+			if (choice.equals("partial"))
+			{ //Simulate choosing partial
+				System.out.println("(TESTING) Partial Payment Chosen.");
+				//Maybe unnecessary but, takes next line from input, tries to parse it as a double
+				//Then converts back to a string so we can pass this value into the BigDecimal constructor
+				//And avoid extra decimal place
+				//Should probably get a regex for a payment amount with a max of 2 decimal places
+				System.out.println("Please enter in how much you would like to pay:");
+				BigDecimal partialPaymentAmount = userInputScanner.nextBigDecimal();
+				userInputScanner.nextLine(); //Clear out '\n'
+				if (partialPaymentAmount.compareTo(BigDecimal.ZERO) <= 0)
+				{ //For now if user chooses to pay <= $0, default to full payment
+//					userInputScanner.close();
+					return remainingDue;
+				}
+				else if (partialPaymentAmount.compareTo(remainingDue) >= 0)
+				{ //If user enters in more than totalDue, default to full payment
+//					userInputScanner.close();
+					return remainingDue;
+				}
+//				userInput.close();
+				return partialPaymentAmount;
 			}
-			else if (partialPaymentAmount.compareTo(remainingDue) >= 0)
-			{ //If user enters in more than totalDue, default to full payment
-				return remainingDue;
+			else 
+			{
+				System.out.println("(TESTING) Full Payment Chosen.");
+//				userInput.close();
+				return remainingDue; 
 			}
-			return partialPaymentAmount;
-		}
-		else 
-		{//Simulate paying full amount
-			return remainingDue; 
-		}
+		} catch (InputMismatchException InputMismatchException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			choosePaymentAmount(totalDue, totalPaid);
+		} catch (NoSuchElementException NoSuchElementException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			choosePaymentAmount(totalDue, totalPaid);
+		} catch (NumberFormatException NumberFormatException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			choosePaymentAmount(totalDue, totalPaid);
+		} 
+		//Should never be reached 
+		return remainingDue;
 	}
 
 	public void returnToAddingItems() {
@@ -215,38 +285,41 @@ public class TouchScreen implements TouchScreenObserver {
 	}
 	
 	public void inputMembershipPrompt(Checkout checkout) throws InterruptedException {
-		int choice = 0; //Will be set by GUI, 0 = manual, 1 = swipe
 		//For now default choice to swipe
 		//Could maybe have a loop that runs until hardware detects a valid swipe
 		//or user can press a button to bring up a keypad to enter in their ID
-		try (Scanner membershipCardInput = new Scanner(System.in)) {
-			System.out.println("Please swipe your membership card or enter your membership card number below. Press Next if you do not have a membership with us. ");
-			if (choice == 1)
-			{
-				if (membershipCardInput.hasNextInt()) {
-					String membership_num = membershipCardInput.toString();
-					ReceiptHandler.setMembershipID(membership_num);
-				}
-				else {
-					throw new InputMismatchException();
-				}
-			}
-			else
-			{	//Wait for swipe
-				checkout.setWaitingForMembership(true);
+		
+		try {
+			
+			System.out.println("(PRE-GUI) If you have a Membership card, input 'swipe'.");
+			System.out.println("(PRE-GUI) If you do not have a Membership card but have a membership, input 'manual'.");
+			System.out.println("(PRE-GUI) Otherwise Press Enter to skip.");
+			String choice = userInputScanner.nextLine();
+			if (choice.equals("manual"))
+			{ //Manual Entry
+				System.out.println("Please Enter you Membership ID:");
+				int inputID = userInputScanner.nextInt();
+				userInputScanner.nextLine();
 				
+				String membership_num = Integer.toString(inputID);
+				checkout.setMembershipNumber(membership_num);
+			}
+			else if (choice.equals("swipe"))
+			{	//Wait for swipe				
+				System.out.println("Please Swipe you Membership Card.");
 				while(!checkout.getCardSwiped())
 				{
 					TimeUnit.MILLISECONDS.sleep(100);
 				}
 				checkout.setCardSwiped(false); //Reset flag for next event		
-				checkout.setWaitingForMembership(false);
 			}
-			
+//			userInputScanner.close();
+						
 		} catch (InputMismatchException InputMismatchException) {
-			System.out.println("Please enter your membership card number again.");
+			System.out.println("Error Processing Input! Please enter your membership card number again.");
+			userInputScanner.nextLine();
+			inputMembershipPrompt(checkout);
 		}
-		
 		askedForMembership.set(true);
 	}
 	

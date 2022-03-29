@@ -80,9 +80,10 @@ public class Checkout {
 		// If the user has bags to add, the weight of all their bags will be added to
 		// expectedWeight, which will then
 		// be checked for validity after the user chooses payment options
-		
+		setWaitingForMembership(true);
 		touchScreen.inputMembershipPrompt(this);
 		ReceiptHandler.setMembershipID(membershipNum);
+		setWaitingForMembership(false);
 //		resetMembershipInfo();
 		
 		//Ask user if they would like to pay partial or full

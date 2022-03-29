@@ -79,6 +79,7 @@ public class ProcessScannedItemTest {
 													 this.receiptHandler); 
 		//Attach the custom observer to the relevant device
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customObserver);
+		this.Station.handheldScanner.attach((BarcodeScannerObserver) customObserver);
 		
 		//Initialize a new custom scale observer
 		this.customScaleObserver = new ItemInBaggingArea(this.Station.baggingArea, 
@@ -113,7 +114,7 @@ public class ProcessScannedItemTest {
 		assertTrue(checkout.getTotalCost().compareTo(milkJugCost) == 0);
 		
 		//Re-initialize the station, touchscreen, and checkout totals.
-		resetState();
+		////resetState();
     }
     
     
@@ -132,7 +133,7 @@ public class ProcessScannedItemTest {
     	//Total cost should equal the cost of a milk jug 
     	assertTrue(checkout.getTotalCost().compareTo(milkJugCost) == 0);
 		//Re-initialize the station, touchscreen, and checkout totals.
-    	resetState();
+    	//resetState();
     	
     }
     
@@ -162,7 +163,42 @@ public class ProcessScannedItemTest {
     	//Total cost should equal the cost of a milk jug 
     	assertTrue(checkout.getTotalCost().compareTo(milkJugCost) == 0);
 		//Re-initialize the station, touchscreen, and checkout totals.
-    	resetState();
+    	//resetState();
+    }
+	
+	@Test
+    public void testScanValidItemRemoveItemInBaggingArea() {
+		//First Scan in some corn flakes, then just after scanning in a milk jug we take the corn flakes off the scale
+		//System will detect invalid weight, inform touch screen and wait until weight is valid. (Corn flakes + milk put on scale)
+    	
+		//Schedule the item to be put down after 1 seconds 
+    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 1000, TimeUnit.MILLISECONDS);
+    	
+		this.Station.handheldScanner.scan(cornFlakes);
+		
+		//Schedule this item to be removed after 1.0 seconds 
+    	addItemsToScaleScheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 1000, TimeUnit.MILLISECONDS);		
+    	
+    	//Schedule the item to be put back down after 2.5 seconds 
+    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, cornFlakes), 3500, TimeUnit.MILLISECONDS);
+    	
+    	//Schedule the correct item to be put down after 4 seconds 
+    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5000, TimeUnit.MILLISECONDS);
+    	
+    	
+    	//Scan in a 4L jug of milk (Barcode = 1)
+    	this.Station.mainScanner.scan(milkJug); 
+    	
+    	//After 3 seconds observer will check that item has been put down
+    	//It will detect that the wrong Item was put down
+    	assertTrue(touchScreen.scanWeightIssueDetected.get());
+    	
+    	//After 4 seconds observer will detect the weight has been corrected
+    	assertTrue(touchScreen.scanWeightIssueCorrected.get());
+    	//Total cost should equal the cost of a milk jug 
+    	assertTrue(checkout.getTotalCost().compareTo(cornFlakesCost.add(milkJugCost)) == 0);
+		//Re-initialize the station, touchscreen, and checkout totals.
+    	//resetState();
     }
     
     @Test
@@ -185,7 +221,7 @@ public class ProcessScannedItemTest {
     	//Total cost should equal the cost of a milk jug 
     	assertTrue(checkout.getTotalCost().compareTo(cornFlakesCost) == 0);
 		//Re-initialize the station, touchscreen, and checkout totals.
-    	resetState();
+    	//resetState();
     }
     
     @Test
@@ -218,7 +254,7 @@ public class ProcessScannedItemTest {
     	//Total cost should equal the cost of a milk jug 
     	assertTrue(checkout.getTotalCost().compareTo(milkJugCost) == 0);
 		//Re-initialize the station, touchscreen, and checkout totals.
-    	resetState();
+    	//resetState();
     }
     
     @Test
@@ -236,7 +272,7 @@ public class ProcessScannedItemTest {
     	//Invalid item should be detected
     	assertTrue(touchScreen.invalidBarcodeDetected.get());
 		//Re-initialize the station, touchscreen, and checkout totals.
-    	resetState();
+    	//resetState();
     	
     }
     
@@ -256,10 +292,11 @@ public class ProcessScannedItemTest {
     	//total cost in checkout remains the same
     	assertTrue(checkout.getTotalCost().compareTo(invalidProduct.getPrice()) < 0);
 		//Re-initialize the station, touchscreen, and checkout totals.
-    	resetState();
+    	//resetState();
     }
  
-    private void resetState() {
+    @After
+    public void resetState() {
     	this.Station = new DummySelfCheckoutStation();
     	this.touchScreen = new TouchScreen();
     	Checkout.resetCheckoutTotals();
