@@ -470,5 +470,23 @@ public class CheckoutTest {
     	//Touch screen should have reset to the welcome screen
     	assertTrue(touchScreen.resetSuccessful.get());
     }
+	
+	@Test(expected = NegativeNumberException.class)
+	public void testInvalidBagWeight()
+			throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		checkout.configureBagWeight(); // set to an invalid bag weight
+	}
+
+	@Test
+	public void verifyExpectedWeightWithBags()
+			throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 500, TimeUnit.MILLISECONDS);
+		scheduler.schedule(
+				new PlaceItemOnScaleRunnable(this.Station.baggingArea, new BagItem(this.checkout.getBagWeight())), 6000,
+				TimeUnit.MILLISECONDS);
+		// start checkout
+		checkout.startCheckout();
+		assertTrue(Math.floor(checkout.getExpectedWeight()) == 50.0);
+	}
 }
 
