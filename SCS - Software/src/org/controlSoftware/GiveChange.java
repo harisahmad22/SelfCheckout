@@ -54,6 +54,7 @@ public class GiveChange {
             BigDecimal temp = coinDenominations.get(i);     //denomination as BigDecimal
             while (temp.compareTo(changeDue) <= 0){
                 try {
+                	System.out.println("Temp: " + temp.toString());
                     coinDispensers.get(temp).emit();    //calls the dispenser for respective denomination to emit()
                     changeDue.subtract(temp);
                 }

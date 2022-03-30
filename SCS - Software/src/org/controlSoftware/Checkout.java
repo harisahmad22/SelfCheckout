@@ -420,5 +420,10 @@ public class Checkout {
 	public void setWaitingForCreditCard(boolean bool) {
 		waitingForCreditCard.set(bool);
 	}
+
+	public void updateTouchScreen(TouchScreen ts)
+	{//Used for when we have to change the touchScreen's input stream during testing
+		this.touchScreen = ts;		
+	}
 	
 }

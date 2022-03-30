@@ -6,8 +6,12 @@ package org.iter2Testing;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +49,13 @@ public class CheckoutTest {
 	private DummyItemProducts itemProducts;
 	private DummyBarcodeLookup lookup;
 	
+	//We will be overriding the regular System.in input stream with a
+	//Byte array input stream to simulate user input 
+	//This idea comes from the stack overflow post: https://stackoverflow.com/a/6416179
+	private final InputStream backupInputStream = System.in; //Save a backup of System.in
+	private InputStream customInputStream = backupInputStream;
+	
+	
 	private static Banknote fiveDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 5);
 	private static Banknote tenDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 10);
 	private static Banknote twentyDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 20);
@@ -69,7 +80,7 @@ public class CheckoutTest {
 		this.Station = new DummySelfCheckoutStation();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
-		this.touchScreen = new TouchScreen();
+		this.touchScreen = new TouchScreen(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
@@ -112,6 +123,7 @@ public class CheckoutTest {
 		this.Station.cardReader.attach(customMembershipScannerObserver);
 			
 		scheduler =  Executors.newScheduledThreadPool(5);
+
 	}
 	 
     @Test
@@ -150,16 +162,102 @@ public class CheckoutTest {
     public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 5000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader), 10, TimeUnit.MILLISECONDS);
     	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to swipe their membership card
+    	//They will pay in full ($0)
+    	//They will pay with cash
+    	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
+    	
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreen ts = new TouchScreen(customInputStream);
+    	checkout.updateTouchScreen(ts);
+    	
+
+
     	checkout.startCheckout();
     	
     	String finalReceipt = this.Station.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);
     	
-    	assertTrue(checkout.getMembershipNumber().equals("123456789"));
-    	assertTrue(touchScreen.askedForMembership.get());
+		assertTrue(checkout.getMembershipNumber().equals("123456789"));
+    	
     }
+    
+    @Test
+    public void testManualInputMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to input their membership card manually
+    	//ID = 123456789
+    	//They will pay in full ($0)
+    	//They will pay with cash
+    	String inputString = "0\n" + "manual\n" + "123456789\n" + "full\n" + "cash\n";
+    	
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	checkout.updateTouchScreen(ts);
+
+    	checkout.startCheckout();
+    	
+    	String finalReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+    	
+		assertTrue(checkout.getMembershipNumber().equals("123456789"));
+		assertTrue(ReceiptHandler.getMembershipID().equals("123456789\n"));
+    }
+    
+    @Test
+    public void testChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay in full ($50)
+    	//They will pay with cash ($51.25)
+    	//Should get $1.25 back in Coin tray
+    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
+    	
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	checkout.updateTouchScreen(ts);
+
+    	
+    	BigDecimal total = new BigDecimal("50");
+    	Checkout.addToTotalCost(total); //Add $50 to total cost
+    	//Bypass startCheckout method
+    	checkout.setInCheckout(true);
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { quarter, toonie, toonie, toonie};
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 4500, TimeUnit.MILLISECONDS);
+    		
+    	checkout.startCheckout();
+
+		String finalReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		
+		//Get Change from tray
+		List<Coin> change = this.Station.coinTray.collectCoins();
+		BigDecimal changeValue = BigDecimal.ZERO;
+		for (Coin c : change)
+		{
+			changeValue.add(c.getValue());
+		}
+		
+    	//Touch screen should have been informed of change being dispensed
+    	assertTrue(touchScreen.changeDispensed.get());
+    	assertTrue(changeValue.equals(new BigDecimal("1.25")));
+    }
+
     
     @Test
     public void testPayingWithCashWithChangeAddItemNoScan() throws InterruptedException, OverloadException, EmptyException, DisabledException {
@@ -472,7 +570,7 @@ public class CheckoutTest {
     	//Touch screen should have reset to the welcome screen
     	assertTrue(touchScreen.resetSuccessful.get());
     }
-	
+
 	@Test(expected = NegativeNumberException.class)
 	public void testInvalidBagWeight()
 			throws InterruptedException, OverloadException, EmptyException, DisabledException {
@@ -491,5 +589,11 @@ public class CheckoutTest {
 		checkout.startCheckout();
 		assertTrue(Math.floor(checkout.getExpectedWeight()) == 50.0);
 	}
+
+    @After
+    public void reset()
+    {
+    	System.setIn(backupInputStream);    	
+    }
 }
 
