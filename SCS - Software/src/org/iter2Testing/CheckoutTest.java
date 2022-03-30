@@ -174,6 +174,7 @@ public class CheckoutTest {
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
     	TouchScreen ts = new TouchScreen(customInputStream);
     	checkout.updateTouchScreen(ts);
+    	this.touchScreen = ts;
     	
     	checkout.startCheckout();
     	
@@ -201,6 +202,7 @@ public class CheckoutTest {
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
     	TouchScreen ts = new TouchScreen(customInputStream);
     	checkout.updateTouchScreen(ts);
+    	this.touchScreen = ts;
     	
     	checkout.startCheckout();
     	
@@ -226,7 +228,8 @@ public class CheckoutTest {
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
     	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
-
+    	this.touchScreen = ts;
+    	
     	checkout.startCheckout();
     	
     	String finalReceipt = this.Station.printer.removeReceipt();
@@ -251,7 +254,7 @@ public class CheckoutTest {
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
     	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
-
+    	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("50");
     	Checkout.addToTotalCost(total); //Add $50 to total cost
@@ -272,11 +275,7 @@ public class CheckoutTest {
 		//Get Change from tray
 		List<Coin> change = this.Station.coinTray.collectCoins();
 		BigDecimal changeValue = BigDecimal.ZERO;
-		for (Coin c : change)
-		{
-			changeValue.add(c.getValue());
-		}
-		
+		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
     	//Touch screen should have been informed of change being dispensed
     	assertTrue(touchScreen.changeDispensed.get());
     	assertTrue(changeValue.equals(new BigDecimal("1.25")));
