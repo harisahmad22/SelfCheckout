@@ -229,8 +229,6 @@ public class CheckoutTest {
     	
     	BigDecimal total = new BigDecimal("50");
     	Checkout.addToTotalCost(total); //Add $50 to total cost
-    	//Bypass startCheckout method
-    	checkout.setInCheckout(true);
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
     	Coin[] coins = { quarter, toonie, toonie, toonie};
