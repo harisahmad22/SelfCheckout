@@ -3,6 +3,7 @@ package org.controlSoftware;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 import org.lsmr.selfcheckout.devices.BanknoteDispenser;
 import org.lsmr.selfcheckout.devices.CoinDispenser;
@@ -25,6 +26,7 @@ public class GiveChange {
         banknoteDispensers = station.banknoteDispensers;
         coinDispensers = station.coinDispensers;
         coinDenominations = station.coinDenominations;
+        Collections.reverse(coinDenominations);
         banknoteDenominations = station.banknoteDenominations;
 
         changeDue = amount;
@@ -42,7 +44,7 @@ public class GiveChange {
             while (temp.compareTo(changeDue) <= 0){
                 try {
                     banknoteDispensers.get(banknoteDenominations[i]).emit();    //calls the dispenser for respective denomination to emit()
-                    changeDue.subtract(temp);
+                    changeDue = changeDue.subtract(temp);
                 }
                 catch(EmptyException e){    //if dispenser is empty, go to next lower denomination
                     break;
@@ -56,7 +58,7 @@ public class GiveChange {
                 try {
                 	System.out.println("Attempting to emit: " + temp.toString());
                     coinDispensers.get(temp).emit();    //calls the dispenser for respective denomination to emit()
-                    changeDue.subtract(temp);
+                    changeDue = changeDue.subtract(temp);
                 }
                 catch(EmptyException e){    //if dispenser is empty, go to next lower denomination
                     break;
