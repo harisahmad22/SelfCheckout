@@ -34,6 +34,7 @@ public class TouchScreen implements TouchScreenObserver {
 	public AtomicBoolean overloadDetected = new AtomicBoolean(false);
 	public AtomicBoolean askedToPrintReceipt = new AtomicBoolean(false);
 	public AtomicBoolean paymentOptionsDisplayed = new AtomicBoolean(false);
+	public AtomicBoolean cardPaymentOptionsDisplayed = new AtomicBoolean(false);
 	public AtomicBoolean changeDispensed = new AtomicBoolean(false);
 	public AtomicBoolean invalidWeightInCheckoutCorrected = new AtomicBoolean(false);
 	public AtomicBoolean invalidWeightInCheckoutDetected = new AtomicBoolean(false);
@@ -192,6 +193,49 @@ public class TouchScreen implements TouchScreenObserver {
 			showPaymentOption();
 		}
 		return 0; //Default to cash (should never happen) 
+
+		
+	}
+	
+	public int showCardPaymentOption() throws InterruptedException {
+		cardPaymentOptionsDisplayed.set(true);
+		
+		System.out.println("(PRE-GUI) Please select your card payment type: 'insert', 'tap', or 'swipe'.");
+		
+		try
+		{			
+			String choice = userInputScanner.nextLine();
+			choice.toLowerCase();
+			if (choice.equals("insert"))
+			{ 
+				System.out.println("(TESTING) Insert Card Chosen.");
+				return 0;
+			}
+			else if (choice.equals("tap"))
+			{
+				System.out.println("(TESTING) Tap Card Chosen.");
+				return 1; 
+			}
+			else if (choice.equals("swipe"))
+			{
+				System.out.println("(TESTING) Swipe Card Chosen.");
+				return 2; 
+			}
+			else { throw new InputMismatchException(); }
+		} catch (InputMismatchException InputMismatchException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			showPaymentOption();
+		} catch (NoSuchElementException NoSuchElementException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			showPaymentOption();
+		} catch (NumberFormatException NumberFormatException) {
+			System.out.println("Error Processing Input! Please try again.");
+			userInputScanner.nextLine();
+			showPaymentOption();
+		}
+		return 0; //Default to insert (should never happen) 
 
 		
 	}
