@@ -3,6 +3,7 @@ package org.controlSoftware;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.Collections;
 
 import org.lsmr.selfcheckout.devices.BanknoteDispenser;
@@ -37,13 +38,15 @@ public class GiveChange {
     /**
      * starts by dispensing banknotes, then coins, until correct change dispensed
      * assumes banknoteDenominations and coinDenominations are sorted in descending order
+     * @throws InterruptedException 
      */
-    public void dispense() throws EmptyException, DisabledException, OverloadException{
-        for (int i = 0; i < banknoteDenominations.length; i++){         
+    public void dispense() throws EmptyException, DisabledException, OverloadException, InterruptedException{
+        for (int i = banknoteDenominations.length-1; i >= 0; i--){         
             BigDecimal temp = new BigDecimal(banknoteDenominations[i]);     //denomination as BigDecimal
             while (temp.compareTo(changeDue) <= 0){
                 try {
                     banknoteDispensers.get(banknoteDenominations[i]).emit();    //calls the dispenser for respective denomination to emit()
+                    TimeUnit.SECONDS.sleep(5); //For now sleep for 5 seconds, so we have time to remove dangling banknotes in testing
                     changeDue = changeDue.subtract(temp);
                 }
                 catch(EmptyException e){    //if dispenser is empty, go to next lower denomination
@@ -56,8 +59,8 @@ public class GiveChange {
             BigDecimal temp = coinDenominations.get(i);     //denomination as BigDecimal
             while (temp.compareTo(changeDue) <= 0){
                 try {
-                	System.out.println("Attempting to emit: " + temp.toString());
                     coinDispensers.get(temp).emit();    //calls the dispenser for respective denomination to emit()
+                    System.out.println("Emitting: " + temp.toString());
                     changeDue = changeDue.subtract(temp);
                 }
                 catch(EmptyException e){    //if dispenser is empty, go to next lower denomination

@@ -87,7 +87,13 @@ public class Checkout {
 		if (isFirstCheckout)
 		{ //Only prompt user for bags and membership if they haven't already been
 			touchScreen.usingOwnBagsPrompt();
-			expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change
+			if (touchScreen.getNumberOfPersonalBags() > 0)
+			{
+				expectedWeight += (touchScreen.getNumberOfPersonalBags() * bagWeight); // If user selects 0 bags expected does not change
+				weightValid.set(false);
+				handleWaitingForBagWeight();
+			}
+			
 			// If the user has bags to add, the weight of all their bags will be added to
 			// expectedWeight, which will then
 			// be checked for validity after the user chooses payment options
@@ -201,12 +207,25 @@ public class Checkout {
 	// This method will be called by the GUI after prompting user to select a
 	// payment method,
 	// We will just call it directly when testing to simulate the GUI interaction
-	public void payWithCash(BigDecimal paymentAmount) throws InterruptedException, OverloadException, EmptyException, DisabledException {
+	public void payWithCash(BigDecimal amount) throws InterruptedException, OverloadException, EmptyException, DisabledException {
         
 		//Cash payments should only be allowed once this method is entered!
-		
+		BigDecimal amountToPay = amount;
+		BigDecimal initialTotalDue = totalDue;
+		double initialExpectedWeight = expectedWeight;
+		System.out.println("Starting pay with cash, total: " + totalPaidThisTransaction);
+		System.out.println("Starting pay with cash, amount to pay: " + amountToPay);
 		scanner.enable();
-		while (totalPaidThisTransaction.compareTo(paymentAmount) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
+		while (totalPaidThisTransaction.compareTo(amountToPay) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
+			
+			if (expectedWeight > initialExpectedWeight)
+			{//Checkout's expected weight has changed, this will happen when a user scans an item
+			 //Mid payment, we need to update amountToPay to account for the cost of the new item
+			 //Even if the user chose partial payment, make them pay for the just added item
+				amountToPay = amountToPay.add((totalDue.subtract(initialTotalDue)));
+				initialExpectedWeight = expectedWeight;
+			}
+			
 			if (!weightValid.get()) { handleInvalidWeight(); }
  
 			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
@@ -214,6 +233,7 @@ public class Checkout {
 			
 			TimeUnit.MILLISECONDS.sleep(50); 
 		}
+		System.out.println("(TESTING) Finished payWithCash!");
 		totalPaidThisTransaction = BigDecimal.ZERO; //Payment complete, reset for next payment run
 		return;
 	}
@@ -232,6 +252,8 @@ public class Checkout {
 			}
 			// Weight on scale is now equal to 0
 
+		totalMoneyPaid = BigDecimal.ZERO;
+		totalDue = BigDecimal.ZERO;
 		inCleanup.set(false);
 	}
 
@@ -252,6 +274,24 @@ public class Checkout {
 		touchScreen.validWeightInCheckout();
 	}
 
+	private void handleWaitingForBagWeight() throws InterruptedException {
+
+//		waitingForWeightChangeEvent.compareAndSet(false, true);
+
+		disablePaymentDevices();
+		touchScreen.addBagsToBaggingArea();
+		// Loop until scale observer reports a valid weight
+		while (!weightValid.get()) {
+//			waitingForWeightChangeEvent.compareAndSet(false, true);
+//			TimeUnit.SECONDS.sleep(1); //Check every second
+		}
+
+		// Weight is now valid, unblock and remove touchscreen message
+		enablePaymentDevices();
+		touchScreen.bagsPutInBaggingArea();
+	}
+
+	
 	private void resetWeightFlags() {
 		// Reset weight change flags
 //		waitingForWeightChangeEvent.set(false);
@@ -413,7 +453,7 @@ public class Checkout {
 		return bagWeight;
 	}
 
-	public boolean isWaitingForCredit() {
+	public boolean isWaitingForCreditCard() {
 		return waitingForCreditCard.get();
 	}
 	

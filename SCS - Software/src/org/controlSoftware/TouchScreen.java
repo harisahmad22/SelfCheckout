@@ -328,6 +328,17 @@ public class TouchScreen implements TouchScreenObserver {
 			inputMembershipPrompt(checkout);
 		}
 	}
+
+
+	public void addBagsToBaggingArea() {
+		System.out.println("Please put your bags in the bagging area.");
+	}
+
+
+	public void bagsPutInBaggingArea() {
+		System.out.println("Thank you!");
+		
+	}
 	
 
 }
