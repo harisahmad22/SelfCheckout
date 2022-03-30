@@ -26,7 +26,7 @@ public class RemoveDanglingBanknotesRunnable implements Runnable {
 				TimeUnit.SECONDS.sleep(5);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 		}
 	}

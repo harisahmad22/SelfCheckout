@@ -22,6 +22,7 @@ public class PayWithDebitCard implements CardReaderObserver {
 	private CardData cardData;
 	private String pin;
 	private BankClientInfo bankInfo;
+	private boolean wasCardSwiped = false;
 	
 	/**
 	 * @param scs
@@ -91,6 +92,7 @@ public class PayWithDebitCard implements CardReaderObserver {
 	 */
 	public void cardSwiped(CardReader reader) {
 		try {
+			wasCardSwiped = true;
 			cardData = reader.swipe(card);
 		} catch (IOException e) {
 			System.out.println("Error swiping card, please try again or try a different card payment method.");
@@ -114,14 +116,36 @@ public class PayWithDebitCard implements CardReaderObserver {
 	 */
 	public boolean verifyBankingInfo(CardReader reader, BigDecimal totalDue) {	
 		
-		if(bankInfo.getBalance().compareTo(totalDue) >= 0 && bankInfo.getCardholder() == cardData.getCardholder() && bankInfo.getCVV() == cardData.getCVV() && bankInfo.getNumber() == cardData.getNumber()) {
-			return true;
+		if(bankInfo.getBalance().compareTo(totalDue) >= 0 
+				&& bankInfo.getCardholder() == cardData.getCardholder() 
+				&& bankInfo.getNumber() == cardData.getNumber()) 
+		{
+			if (!wasCardSwiped)
+			{
+				if (bankInfo.getCVV() == cardData.getCVV())
+				{
+					completeTransaction(totalDue);
+					return true;
+				}
+				else { return false; }
+			}
+			else
+			{
+				completeTransaction(totalDue);
+				wasCardSwiped = false; //reset
+				return true;
+			}
 		} else {
+			wasCardSwiped = false; //reset
 			return false;
 		}
 	}
 
-	
+	private void completeTransaction(BigDecimal totalDue)
+	{
+		Checkout.addToTotalPaid(totalDue);
+		bankInfo.updateBalance(totalDue);
+	}
 	
 
 }

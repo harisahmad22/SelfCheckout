@@ -24,12 +24,13 @@ public class PayWithCreditCard implements CardReaderObserver
 	private CardData cardData;
 	private String pin;
 	private BankClientInfo bankClientsInfo;
+	private boolean wasCardSwiped = false;
 	
 	public PayWithCreditCard(SelfCheckoutStation checkout, Card CreditCard, CardData cardData, String pin, BankClientInfo bankClientsInfo) 
 	{
 		this.checkout=checkout;
 		this.CreditCard=CreditCard;
-		this.cardData=cardData;
+//		this.cardData=cardData;
 		this.pin=pin;
 		this.bankClientsInfo=bankClientsInfo;
 	}
@@ -78,7 +79,8 @@ public class PayWithCreditCard implements CardReaderObserver
 	public void cardSwiped(CardReader reader) 
 	{
 		try
-		{
+		{	
+			wasCardSwiped = true;
 			cardData = reader.swipe(CreditCard);
 		} catch (IOException e) {}
 		
@@ -90,13 +92,29 @@ public class PayWithCreditCard implements CardReaderObserver
 	
 	public boolean checkBankClientInfo(CardReader reader, BigDecimal totalDue)
 	{
-		if (bankClientsInfo.getBalance().add(totalDue).compareTo(bankClientsInfo.getMonthlyLimit())<=0 && bankClientsInfo.getNumber().equals(cardData.getNumber()) && bankClientsInfo.getCardholder().equals(cardData.getCardholder()) && bankClientsInfo.getCVV().equals(cardData.getCVV()))
+		if (bankClientsInfo.getBalance().add(totalDue).compareTo(bankClientsInfo.getMonthlyLimit())<=0 
+				&& bankClientsInfo.getNumber().equals(cardData.getNumber()) 
+				&& bankClientsInfo.getCardholder().equals(cardData.getCardholder())) 
 		{
-			completeTransaction(totalDue);
-			return true;
+			if (!wasCardSwiped)
+			{
+				if (bankClientsInfo.getCVV() == cardData.getCVV())
+				{
+					completeTransaction(totalDue);
+					return true;
+				}
+				else { return false; }
+			}
+			else
+			{
+				completeTransaction(totalDue);
+				wasCardSwiped = false; //reset
+				return true;
+			}
 		}
 		else
 		{
+			wasCardSwiped = false; //reset
 			return false;
 		}
 	}

@@ -115,7 +115,7 @@ public class Checkout {
 		}
 		
 		//Ask user if they would like to pay partial or full
-		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(totalDue, totalMoneyPaid);
+		BigDecimal paymentAmount = touchScreen.choosePaymentAmount(getTotalDue(), totalMoneyPaid);
 
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
@@ -131,7 +131,6 @@ public class Checkout {
 		
 		if (paymentMethod == 1) 
 		{ 
-//			payWithCreditCard(paymentAmount); 
 			// Idea for how payWithCreditCard() will go: 
 			/*
 			 * 1) Inform user to input their card
@@ -141,6 +140,29 @@ public class Checkout {
 			 * 5) if the bank authorizes the card data, then add paymentAmount to Checkout's totalMoneyPaid
 			 * 6) return 
 			 */
+			boolean cardPaymentVerified = false;
+			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
+			if (cardPaymentMethod == 0) {
+				creditCard.cardInserted(reader);
+				
+			}
+			
+			else if (cardPaymentMethod == 1) {
+				creditCard.cardTapped(reader);
+			}
+
+			else {
+				creditCard.cardSwiped(reader);
+			}	
+			
+			cardPaymentVerified = creditCard.checkBankClientInfo(reader, paymentAmount);
+			
+			if(cardPaymentVerified == false) {
+				System.out.println("Transaction Error: Please try again");
+//				startCheckout();
+			} else {
+				creditCard.cardRemoved(reader);
+			}
 		}
 		else if (paymentMethod == 2) 
 		{ 
@@ -163,11 +185,8 @@ public class Checkout {
 			
 			if(cardPaymentVerified == false) {
 				System.out.println("Transaction Error: Please try again");
-				startCheckout();
+//				startCheckout();
 			} else {
-				//Not sure if this will work
-				addToTotalPaid(paymentAmount);
-				
 				debitCard.cardRemoved(reader);
 			}
       
@@ -189,19 +208,19 @@ public class Checkout {
 		// Out of while loop so we can assume user has paid
 		// Check if we have paid full amount
 		
-		if (totalMoneyPaid.compareTo(totalDue) >= 0)
+		if (totalMoneyPaid.compareTo(getTotalDue()) >= 0)
 		{ //Total Paid >= total Due, check for change
 		  //Ask to print Receipt, wait for cleanup, and return to welcome screen
 			
-			if (totalMoneyPaid.compareTo(totalDue) == 1)
+			if (totalMoneyPaid.compareTo(getTotalDue()) == 1)
 			{ //Payment has exceeded totalDue, get the change amount
-				changeAmount = totalMoneyPaid.subtract(totalDue);
+				changeAmount = totalMoneyPaid.subtract(getTotalDue());
 				GiveChange someChange = new GiveChange(station, changeAmount);
 	            someChange.dispense();
 				touchScreen.informChangeDispensed();
 			}//Otherwise change is defaulted to 0 when a partial payment is completed
 
-			ReceiptHandler.setFinalTotal(totalDue.toString());
+			ReceiptHandler.setFinalTotal(getTotalDue().toString());
 			ReceiptHandler.setMoneyPaid(totalMoneyPaid.toString());
 			ReceiptHandler.setFinalChange(changeAmount.toString());
 			
@@ -221,9 +240,9 @@ public class Checkout {
 		}
 		else
 		{ //Total Paid < total Due, Ask to Print Receipt, and return to Adding Items mode 
-			System.out.println("Total Due: " + totalDue);
+			System.out.println("Total Due: " + getTotalDue());
 			System.out.println("Total Paid: " + totalMoneyPaid);
-			ReceiptHandler.setFinalTotal(totalDue.toString());
+			ReceiptHandler.setFinalTotal(getTotalDue().toString());
 			ReceiptHandler.setMoneyPaid(totalMoneyPaid.toString());
 			ReceiptHandler.setFinalChange(changeAmount.toString());
 			
@@ -246,9 +265,9 @@ public class Checkout {
         
 		//Cash payments should only be allowed once this method is entered!
 		BigDecimal amountToPay = amount;
-		BigDecimal initialTotalDue = totalDue;
+		BigDecimal initialTotalDue = getTotalDue();
 		double initialExpectedWeight = expectedWeight;
-		System.out.println("Starting pay with cash, total: " + totalPaidThisTransaction);
+		System.out.println("Starting pay with cash, total: " + initialTotalDue);
 		System.out.println("Starting pay with cash, amount to pay: " + amountToPay);
 		scanner.enable();
 		while (totalPaidThisTransaction.compareTo(amountToPay) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
@@ -257,7 +276,7 @@ public class Checkout {
 			{//Checkout's expected weight has changed, this will happen when a user scans an item
 			 //Mid payment, we need to update amountToPay to account for the cost of the new item
 			 //Even if the user chose partial payment, make them pay for the just added item
-				amountToPay = amountToPay.add((totalDue.subtract(initialTotalDue)));
+				amountToPay = amountToPay.add((getTotalDue().subtract(initialTotalDue)));
 				initialExpectedWeight = expectedWeight;
 			}
 			
@@ -368,7 +387,7 @@ public class Checkout {
 	}
 
 	public static void addToTotalCost(BigDecimal scannedItemPrice) {
-		totalDue = totalDue.add(scannedItemPrice);
+		totalDue = getTotalDue().add(scannedItemPrice);
 
 	}
 
@@ -405,7 +424,7 @@ public class Checkout {
 	}
 
 	public BigDecimal getTotalCost() {
-		return totalDue;
+		return getTotalDue();
 	}
 
 	public boolean isInCleanup() {
@@ -449,7 +468,7 @@ public class Checkout {
 	}
 
 	public int compareTotals() {
-		return totalMoneyPaid.compareTo(totalDue);
+		return totalMoneyPaid.compareTo(getTotalDue());
 	}
 	
 	public void resetMembershipInfo() {
@@ -499,6 +518,10 @@ public class Checkout {
 	public void updateTouchScreen(TouchScreen ts)
 	{//Used for when we have to change the touchScreen's input stream during testing
 		this.touchScreen = ts;		
+	}
+
+	public static BigDecimal getTotalDue() {
+		return totalDue;
 	}
 	
 }
