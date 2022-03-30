@@ -36,7 +36,7 @@ public class PayWithCashTest {
 	@Before
 	public void setup() {
 		this.Station = new DummySelfCheckoutStation();
-		this.touchScreen = new TouchScreen();
+		this.touchScreen = new TouchScreen(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 

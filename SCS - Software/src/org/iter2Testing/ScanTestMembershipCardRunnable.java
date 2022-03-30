@@ -11,11 +11,11 @@ public class ScanTestMembershipCardRunnable implements Runnable {
 
 	private CardReader reader;
 	private Card testMembershipCard;
-	public ScanTestMembershipCardRunnable(CardReader reader)
+	public ScanTestMembershipCardRunnable(CardReader reader, String type)
 	{
 		this.reader = reader;
 		//Membership Card has no pin, chip, or ability to tap
-		this.testMembershipCard = new Card("Membership", "123456789", "Test User", null, null, false, false);
+		this.testMembershipCard = new Card(type, "123456789", "Test User", null, null, false, false);
 	}
 	
 	@Override

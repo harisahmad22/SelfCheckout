@@ -2,6 +2,7 @@
 
 package org.controlSoftware;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
@@ -45,9 +46,14 @@ public class TouchScreen implements TouchScreenObserver {
 	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
-	private Scanner userInputScanner = new Scanner(System.in);
+	private InputStream inputStream; //So we can change Input stream for testing
+	private Scanner userInputScanner;
 	
-	
+	public TouchScreen(InputStream inputStream)
+	{
+		this.inputStream = inputStream;
+		this.userInputScanner = new Scanner(inputStream);
+	}
 	
 
 	@Override
@@ -335,7 +341,7 @@ public class TouchScreen implements TouchScreenObserver {
 		//or user can press a button to bring up a keypad to enter in their ID
 		
 		try {
-			
+			askedForMembership.set(true);
 			System.out.println("(PRE-GUI) If you have a Membership card, input 'swipe'.");
 			System.out.println("(PRE-GUI) If you do not have a Membership card but have a membership, input 'manual'.");
 			System.out.println("(PRE-GUI) Otherwise Press Enter to skip.");
@@ -365,7 +371,17 @@ public class TouchScreen implements TouchScreenObserver {
 			userInputScanner.nextLine();
 			inputMembershipPrompt(checkout);
 		}
-		askedForMembership.set(true);
+	}
+
+
+	public void addBagsToBaggingArea() {
+		System.out.println("Please put your bags in the bagging area.");
+	}
+
+
+	public void bagsPutInBaggingArea() {
+		System.out.println("Thank you!");
+		
 	}
 	
 

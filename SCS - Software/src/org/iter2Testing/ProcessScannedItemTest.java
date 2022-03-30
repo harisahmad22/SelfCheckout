@@ -52,7 +52,7 @@ public class ProcessScannedItemTest {
 		this.Station = new DummySelfCheckoutStation();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
-		this.touchScreen = new TouchScreen();
+		this.touchScreen = new TouchScreen(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
@@ -298,7 +298,7 @@ public class ProcessScannedItemTest {
     @After
     public void resetState() {
     	this.Station = new DummySelfCheckoutStation();
-    	this.touchScreen = new TouchScreen();
+    	this.touchScreen = new TouchScreen(System.in);
     	Checkout.resetCheckoutTotals();
 	}
 }

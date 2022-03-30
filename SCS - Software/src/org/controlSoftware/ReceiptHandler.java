@@ -50,7 +50,7 @@ public class ReceiptHandler {
 		printChars(paid);
 		printChars(change);
 		
-		resetReceipt();
+//		resetReceipt();
 		//Done printing receipt, cut paper so user can take
 		printer.cutPaper(); 
 	}
