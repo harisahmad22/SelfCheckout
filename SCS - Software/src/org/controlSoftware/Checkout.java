@@ -53,6 +53,7 @@ public class Checkout {
 	private ReceiptHandler receiptHandler;
 	private boolean isFirstCheckout = true;
 	private PayWithDebitCard debitCard;
+	private PayWithCreditCard creditCard;
 
 	public Checkout(TouchScreen touchScreen, 
 					BarcodeScanner scanner, 
@@ -60,7 +61,9 @@ public class Checkout {
 					CoinSlot coinSlot,
 					ElectronicScale scale,
 					SelfCheckoutStation station, //needed for GiveChange
-					ReceiptHandler receiptHandler, PayWithDebitCard debitCard, 
+					ReceiptHandler receiptHandler, 
+					PayWithDebitCard debitCard,
+					PayWithCreditCard creditCard,
 					CardReader reader) 
 	{ 
 
@@ -72,6 +75,7 @@ public class Checkout {
 		this.scale = scale;
 		this.receiptHandler = receiptHandler;
 		this.debitCard = debitCard;
+		this.creditCard = creditCard;
 		this.reader = reader;
 		
 	}

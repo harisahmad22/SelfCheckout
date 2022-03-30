@@ -60,7 +60,10 @@ public class ProcessScannedItemTest {
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
 									 this.Station,
-									 this.receiptHandler);
+									 this.receiptHandler,
+									 null,
+									 null,
+									 this.Station.cardReader);
 		
 		//Get some barcoded items with their prices
 		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();

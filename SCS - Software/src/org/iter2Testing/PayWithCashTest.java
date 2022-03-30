@@ -44,7 +44,10 @@ public class PayWithCashTest {
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
 									 this.Station,
-									 this.receiptHandler);
+									 this.receiptHandler,
+									 null,
+									 null,
+									 this.Station.cardReader);
 		//Initialize a new custom banknote validator observer
 		this.customCashPaymentObserver = new PayWithCash(this.Station);
 		

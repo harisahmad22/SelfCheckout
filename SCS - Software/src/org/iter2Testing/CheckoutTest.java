@@ -91,7 +91,10 @@ public class CheckoutTest {
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
 									 this.Station,
-									 this.receiptHandler);
+									 this.receiptHandler,
+									 null,
+									 null,
+									 this.Station.cardReader);
 		
 		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();
 		cornFlakes = lookup.get(itemProducts.BarcodeList.get(2)).getItem();
