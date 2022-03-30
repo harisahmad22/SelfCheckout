@@ -146,6 +146,7 @@ public class Checkout {
 				startCheckout();
 			} else {
 				debitCard.cardRemoved(reader);
+				totalDue = totalDue.subtract(totalDue);
 			}
 			
 		}
