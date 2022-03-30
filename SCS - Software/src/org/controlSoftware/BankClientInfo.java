@@ -17,6 +17,7 @@ public class BankClientInfo implements CardData {
 	private final String pin;
 	public final boolean isTapEnabled;
 	public final boolean hasChip;
+	private final BigDecimal monthlyLimit;
 	private int failedTrials = 0;
 	private boolean isBlocked;
 	private BigDecimal balance;
@@ -31,8 +32,9 @@ public class BankClientInfo implements CardData {
 	 * @param hasChip
 	 * @param balance
 	 * Fake Banking Information
+	 * @param monthlyLimit 
 	 */
-	public BankClientInfo(String type, String number, String cardholder, String cvv, String pin, boolean isTapEnabled, boolean hasChip, BigDecimal balance) {
+	public BankClientInfo(String type, String number, String cardholder, String cvv, String pin, boolean isTapEnabled, boolean hasChip, BigDecimal balance, BigDecimal monthlyLimit) {
 		
 		this.type = type;
 		this.number = number;
@@ -42,6 +44,7 @@ public class BankClientInfo implements CardData {
 		this.isTapEnabled = isTapEnabled;
 		this.hasChip = hasChip;
 		this.balance = balance;
+		this.monthlyLimit = monthlyLimit;
 	}
 
 	/**
@@ -83,6 +86,14 @@ public class BankClientInfo implements CardData {
 	public BigDecimal getBalance() {
 		return balance;
 		
+	}
+	
+	public BigDecimal getMonthlyLimit() {
+		return monthlyLimit;
+	}
+	
+	public void updateBalance(BigDecimal spent) {
+		this.balance.add(spent);
 	}
 	
 }
