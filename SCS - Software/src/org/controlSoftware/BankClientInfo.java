@@ -44,29 +44,33 @@ public class BankClientInfo implements CardData {
 		this.balance = balance;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.Card.CardData#getType()
+	/**
+	 * @return type
+	 * Returns type of card
 	 */
 	public String getType() {
 		return type;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.Card.CardData#getNumber()
+	/**
+	 * @return number
+	 * Returns card number
 	 */
 	public String getNumber() {
 		return number;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.Card.CardData#getCardholder()
+	/**
+	 * @return cardholder
+	 * Returns cardholder info
 	 */
 	public String getCardholder() {
 		return cardholder;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.Card.CardData#getCVV()
+	/**
+	 * @return cvv
+	 * Returns cvv info
 	 */
 	public String getCVV() {
 		return cvv;

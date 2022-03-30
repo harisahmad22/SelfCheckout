@@ -1,6 +1,7 @@
 package org.controlSoftware;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
@@ -20,29 +21,39 @@ public class PayWithDebitCard implements CardReaderObserver {
 	private Card card;
 	private CardData cardData;
 	private String pin;
+	private BankClientInfo bankInfo;
 	
-	public PayWithDebitCard(SelfCheckoutStation scs, Card card, CardData cardData, String pin) {
+	/**
+	 * @param scs
+	 * @param card
+	 * @param cardData
+	 * @param pin
+	 * @param bankInfo
+	 * Creates a new PayWithDebitCard Simulation
+	 */
+	public PayWithDebitCard(SelfCheckoutStation scs, Card card, CardData cardData, String pin, BankClientInfo bankInfo) {
 		this.scs = scs;
 		this.card = card;
 		this.cardData = cardData;
 		this.pin = pin;
+		this.bankInfo = bankInfo;
 		
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver#enabled(org.lsmr.selfcheckout.devices.AbstractDevice)
+	/**
+	 * Enabled State
 	 */
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {				
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver#disabled(org.lsmr.selfcheckout.devices.AbstractDevice)
+	/**
+	 * Disabled State
 	 */
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.CardReaderObserver#cardInserted(org.lsmr.selfcheckout.devices.CardReader)
+	/** 
+	 * Simulates a card being inserted
 	 */
 	public void cardInserted(CardReader reader) {
 		
@@ -54,15 +65,15 @@ public class PayWithDebitCard implements CardReaderObserver {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.CardReaderObserver#cardRemoved(org.lsmr.selfcheckout.devices.CardReader)
+	/** 
+	 * Simulates a card being removed
 	 */
 	public void cardRemoved(CardReader reader) {
 		reader.remove();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.CardReaderObserver#cardTapped(org.lsmr.selfcheckout.devices.CardReader)
+	/** 
+	 * Simulates a card being tapped
 	 */
 	public void cardTapped(CardReader reader) {
 		try {
@@ -75,8 +86,8 @@ public class PayWithDebitCard implements CardReaderObserver {
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.CardReaderObserver#cardSwiped(org.lsmr.selfcheckout.devices.CardReader)
+	/**
+	 * Simulates a card being swiped
 	 */
 	public void cardSwiped(CardReader reader) {
 		try {
@@ -85,16 +96,31 @@ public class PayWithDebitCard implements CardReaderObserver {
 			System.out.println("Error swiping card, please try again or try a different card payment method.");
 			e.printStackTrace();
 		}
+	}	
+
+	
+	/**
+	 * Read Card Data
+	 */
+	public void cardDataRead(CardReader reader, CardData data) {		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.lsmr.selfcheckout.devices.observers.CardReaderObserver#cardDataRead(org.lsmr.selfcheckout.devices.CardReader, org.lsmr.selfcheckout.Card.CardData)
+	/**
+	 * @param reader
+	 * @param data
+	 * @param totalDue
+	 * @return true if banking info is correct, false if not
+	 * Verifies a purchase using a card
 	 */
-	public void cardDataRead(CardReader reader, CardData data) {	
+	public boolean verifyBankingInfo(CardReader reader, BigDecimal totalDue) {	
 		
-		// Implement Banking info
-		
+		if(bankInfo.getBalance().compareTo(totalDue) >= 0 && bankInfo.getCardholder() == cardData.getCardholder() && bankInfo.getCVV() == cardData.getCVV() && bankInfo.getNumber() == cardData.getNumber()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
+
 	
 	
 

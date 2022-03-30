@@ -128,6 +128,7 @@ public class Checkout {
 			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
 			if (cardPaymentMethod == 0) {
 				debitCard.cardInserted(reader);
+				
 			}
 			
 			else if (cardPaymentMethod == 1) {
@@ -137,6 +138,16 @@ public class Checkout {
 			else {
 				debitCard.cardSwiped(reader);
 			}	
+			
+			cardPaymentVerified = debitCard.verifyBankingInfo(reader, totalDue);
+			
+			if(cardPaymentVerified == false) {
+				System.out.println("Transaction Error: Please try again");
+				startCheckout();
+			} else {
+				debitCard.cardRemoved(reader);
+			}
+			
 		}
 		else 
 		{
