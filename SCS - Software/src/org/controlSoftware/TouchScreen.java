@@ -157,7 +157,7 @@ public class TouchScreen implements TouchScreenObserver {
 	public int showPaymentOption() throws InterruptedException {
 		paymentOptionsDisplayed.set(true);
 		
-		System.out.println("(PRE-GUI) How would you like to pay? 'Cash', 'Credit', or 'Debt'.");
+		System.out.println("(PRE-GUI) How would you like to pay? 'Cash', 'Credit', or 'Debit'.");
 		
 		try
 		{			
@@ -173,9 +173,9 @@ public class TouchScreen implements TouchScreenObserver {
 				System.out.println("(TESTING) Credit Payment Chosen.");
 				return 1; 
 			}
-			else if (choice.equals("debt"))
+			else if (choice.equals("debit"))
 			{
-				System.out.println("(TESTING) Debt Payment Chosen.");
+				System.out.println("(TESTING) Debit Payment Chosen.");
 				return 2; 
 			}
 			else { throw new InputMismatchException(); }

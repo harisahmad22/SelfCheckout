@@ -159,12 +159,15 @@ public class Checkout {
 				debitCard.cardSwiped(reader);
 			}	
 			
-			cardPaymentVerified = debitCard.verifyBankingInfo(reader, totalDue);
+			cardPaymentVerified = debitCard.verifyBankingInfo(reader, paymentAmount);
 			
 			if(cardPaymentVerified == false) {
 				System.out.println("Transaction Error: Please try again");
 				startCheckout();
 			} else {
+				//Not sure if this will work
+				addToTotalPaid(paymentAmount);
+				
 				debitCard.cardRemoved(reader);
 			}
       

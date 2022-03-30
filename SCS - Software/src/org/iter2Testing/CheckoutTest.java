@@ -23,6 +23,7 @@ import org.junit.runners.JUnit4;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.devices.DisabledException;
@@ -80,11 +81,20 @@ public class CheckoutTest {
 	//Initialize
 	@Before
 	public void setup() {
+		
+		
+		
 		this.Station = new DummySelfCheckoutStation();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreen(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
+		
+		//Setup Card
+		Card testDebitCard = new Card("Debit", "1234567890", "Test Card Holder", "000", "1234", true, true);
+		BankClientInfo bankClientInfo = new BankClientInfo("Debit", "1234567890", "Test Card Holder", "000", "1234", true, true, new BigDecimal("50000"), new BigDecimal("2500"));
+		PayWithDebitCard payWithDebtTest = new PayWithDebitCard(this.Station, testDebitCard, null, "1234", bankClientInfo);
+		
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
@@ -92,7 +102,7 @@ public class CheckoutTest {
 									 this.Station.baggingArea,
 									 this.Station,
 									 this.receiptHandler,
-									 null,
+									 payWithDebtTest,
 									 null,
 									 this.Station.cardReader);
 		
@@ -461,6 +471,37 @@ public class CheckoutTest {
     	assertTrue(changeValue.equals(new BigDecimal("8.75")));
     }
 
+    @Test
+    public void testStartCheckoutPaymentWithDebtCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay partial ($50) each time
+
+    	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "tap\n";
+    	
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	checkout.updateTouchScreen(ts);
+    	this.touchScreen = ts;
+    	
+    	
+    	//Change will be given out
+    	//Weight does not change during payment
+    	
+    	BigDecimal total = new BigDecimal("100");
+    	Checkout.addToTotalCost(total); //Add $100 to total cost
+    	
+    	checkout.startCheckout();
+
+		String partialReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + partialReceipt);
+
+    	//Should no longer be in checkout mode
+    	assertFalse(checkout.isInCheckout());
+    	assertTrue(touchScreen.resetSuccessful.get());
+    }
     
     @Test
     public void testPayingWithCashAddItemNoScan() throws InterruptedException, OverloadException, EmptyException, DisabledException {
