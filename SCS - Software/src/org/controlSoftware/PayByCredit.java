@@ -10,6 +10,10 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
+
+// Currently Unused!!!
+
+
 public class PayByCredit implements CardReaderObserver
 {
 
