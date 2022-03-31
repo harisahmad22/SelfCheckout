@@ -57,7 +57,6 @@ public class PayWithDebitCard implements CardReaderObserver {
 	 * Simulates a card being inserted
 	 */
 	public void cardInserted(CardReader reader) {
-		
 		try {
 			cardData = reader.insert(card, pin);
 		} catch (IOException e) {
@@ -104,12 +103,20 @@ public class PayWithDebitCard implements CardReaderObserver {
 	/**
 	 * Read Card Data
 	 */
-	public void cardDataRead(CardReader reader, CardData data) {		
+	public void cardDataRead(CardReader reader, CardData data) {
+	}
+	
+	/**
+	 * @return cardData
+	 * Returns CardData
+	 */
+	public CardData getCardData() {
+		return cardData;		
+		
 	}
 
 	/**
 	 * @param reader
-	 * @param data
 	 * @param totalDue
 	 * @return true if banking info is correct, false if not
 	 * Verifies a purchase using a card
