@@ -1207,12 +1207,17 @@ public class CheckoutTest {
     	
     }
 
-//	@Test(expected = NegativeNumberException.class)
-//	public void testInvalidBagWeight()
-//			throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//		
-//		checkout.configureBagWeight(); // set to an invalid bag weight
-//	}
+	@Test(expected = NegativeNumberException.class)
+	public void testInvalidBagWeight()
+			throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		
+    	String inputString = "-1\n";
+    	
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	System.setIn(customInputStream);
+		checkout.configureBagWeight(); // set to an invalid bag weight
+
+	}
 
 	@Test
 	public void verifyExpectedWeightWithBags()
