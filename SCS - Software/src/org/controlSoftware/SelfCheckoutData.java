@@ -6,6 +6,10 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
 /*
+ *  !!!THIS CLASS IS CURRENTLY UNUSED!!!
+ *	
+ *  Jonah Richards
+ *
  *  Defines object to be associated with each self checkout machine that contains any data that
  *  might be needed across individual parts of the system. Running weights, totals, etc..
  *  
