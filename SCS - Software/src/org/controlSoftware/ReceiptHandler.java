@@ -36,10 +36,10 @@ public class ReceiptHandler {
 		if (!membershipID.equals("null\n"))
 		{
 			char[] id = ("Membership ID: " + membershipID).toCharArray();
-			char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
+//			char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
 			
 			printChars(id);
-			printChars(points);
+//			printChars(points);
 		}
 		
 		//Now print the total cost of all items, and if any change was given back
@@ -50,10 +50,18 @@ public class ReceiptHandler {
 		printChars(paid);
 		printChars(change);
 		
+//		resetReceipt();
 		//Done printing receipt, cut paper so user can take
 		printer.cutPaper(); 
 	}
 	
+	
+	private void resetReceipt() {
+		membershipID = "null\n"; //Default to null, change when membership card is scanned in
+		membershipPoints = "0\n";
+		finalTotal = "$0.0\n";
+		finalChange = "$0.0\n";
+	}
 	
 	private void printChars(char[] charArray) {
 		for (char c : charArray)
@@ -114,9 +122,4 @@ public class ReceiptHandler {
 	public static void setMoneyPaid(String moneyPaid) {
 		ReceiptHandler.moneyPaid = "$" + moneyPaid + "\n";
 	}
-	
-	
-	
-	
-	
 }

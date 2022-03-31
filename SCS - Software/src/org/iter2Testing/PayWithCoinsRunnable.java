@@ -33,7 +33,7 @@ public class PayWithCoinsRunnable implements Runnable {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 			
 		}

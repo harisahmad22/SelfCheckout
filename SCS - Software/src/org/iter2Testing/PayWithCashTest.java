@@ -36,7 +36,7 @@ public class PayWithCashTest {
 	@Before
 	public void setup() {
 		this.Station = new DummySelfCheckoutStation();
-		this.touchScreen = new TouchScreen();
+		this.touchScreen = new TouchScreen(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
@@ -44,7 +44,10 @@ public class PayWithCashTest {
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
 									 this.Station,
-									 this.receiptHandler);
+									 this.receiptHandler,
+									 null,
+									 null,
+									 this.Station.cardReader);
 		//Initialize a new custom banknote validator observer
 		this.customCashPaymentObserver = new PayWithCash(this.Station);
 		
