@@ -267,7 +267,9 @@ public class Checkout {
 		BigDecimal amountToPay = amount;
 		BigDecimal initialTotalDue = getTotalDue();
 		double initialExpectedWeight = expectedWeight;
-		System.out.println("Starting pay with cash, total: " + initialTotalDue);
+		System.out.println("Starting pay with cash, total due: " + initialTotalDue);
+		System.out.println("Starting pay with cash, total paid so far: " + totalMoneyPaid);
+		System.out.println("Starting pay with cash, total paid this round: " + totalPaidThisTransaction);
 		System.out.println("Starting pay with cash, amount to pay: " + amountToPay);
 		scanner.enable();
 		while (totalPaidThisTransaction.compareTo(amountToPay) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
@@ -298,13 +300,15 @@ public class Checkout {
 								// (weight == 0)
 		resetCheckoutTotals();
 		touchScreen.takeItemsNotification();
-		if (this.scale.getCurrentWeight() <= 0.0) { weightValid.set(false); } //should always evaluate true
+//		System.out.println("(TESTING) Current Scale weight at cleanup time: " + this.scale.getCurrentWeight());
+		if (this.scale.getCurrentWeight() > 0.1) { weightValid.set(false); } // 0.1 to account for floating point issues
 		else { weightValid.set(true); }
-			while (!weightValid.get()) 
-			{
-	//			TimeUnit.SECONDS.sleep(1); //Check every second
-			}
-			// Weight on scale is now equal to 0
+		
+		while (!weightValid.get()) 
+		{
+//			TimeUnit.SECONDS.sleep(1); //Check every second
+		}
+		// Weight on scale is now equal to 0
 
 		totalMoneyPaid = BigDecimal.ZERO;
 		totalDue = BigDecimal.ZERO;
@@ -522,6 +526,11 @@ public class Checkout {
 
 	public static BigDecimal getTotalDue() {
 		return totalDue;
+	}
+
+	public static void setTotalPaidThisTransaction(BigDecimal val) {
+		totalPaidThisTransaction = val;
+		
 	}
 	
 }

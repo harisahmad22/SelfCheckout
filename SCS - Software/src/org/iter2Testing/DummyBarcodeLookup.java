@@ -26,7 +26,7 @@ public class DummyBarcodeLookup extends BarcodeLookup{
 		Barcode IPbarcode = barcode;
 		double IPWeightInGrams = weightInGrams;
 		String IPDescription = description;
-		BigDecimal IPPrice = new BigDecimal(price);
+		BigDecimal IPPrice = new BigDecimal(Double.toString(price));
 		
 		BarcodedItem IPItem = new BarcodedItem(IPbarcode, IPWeightInGrams);
 		BarcodedProduct IPProduct = new BarcodedProduct(IPbarcode, IPDescription, IPPrice, IPWeightInGrams);
