@@ -101,8 +101,14 @@ public class PayWithCreditTest {
 									 payWithCreditTest,
 									 this.Station.cardReader);
 		//Setup receipt printer
-		this.Station.printer.addInk(2500);
-		this.Station.printer.addPaper(512);
+		try {
+			this.Station.printer.addInk(2500);
+			this.Station.printer.addPaper(512);
+		} catch (OverloadException e) {
+			System.out.println("Printer Overfilled!");
+			e.printStackTrace();
+		}
+		
 		//Setup receipt printer
 		//Initialize a new custom Barcode scanner observer
 		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,

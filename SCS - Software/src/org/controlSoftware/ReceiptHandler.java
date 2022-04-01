@@ -3,6 +3,8 @@ package org.controlSoftware;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import org.lsmr.selfcheckout.devices.EmptyException;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 
 public class ReceiptHandler {
@@ -66,7 +68,15 @@ public class ReceiptHandler {
 	private void printChars(char[] charArray) {
 		for (char c : charArray)
 		{
-			printer.print(c);
+			try {
+				printer.print(c);
+			} catch (EmptyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (OverloadException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -115,8 +115,14 @@ public class CheckoutTest {
 		cornFlakes = lookup.get(itemProducts.BarcodeList.get(2)).getItem();
 		
 		//Setup receipt printer
-		this.Station.printer.addInk(2500);
-		this.Station.printer.addPaper(512);
+		try {
+			this.Station.printer.addInk(2500);
+			this.Station.printer.addPaper(512);
+		} catch (OverloadException e) {
+			System.out.println("Overfilled Printer!");
+			e.printStackTrace();
+		}
+		
 		//Setup receipt printer
 		
 		

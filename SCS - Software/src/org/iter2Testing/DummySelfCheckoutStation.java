@@ -10,7 +10,6 @@ import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.CoinDispenser;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
-import org.lsmr.selfcheckout.devices.SimulationException;
 
 //Creates an instance of SelfCheckoutStation 
 //Uses Canadian currency
@@ -48,9 +47,6 @@ public class DummySelfCheckoutStation extends SelfCheckoutStation {
 			try { //Load half full
 				for (int i = 0; i < 100; i++) { super.coinDispensers.get(val).load(new Coin(CAD, val)); }
 				
-			} catch (SimulationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -61,9 +57,6 @@ public class DummySelfCheckoutStation extends SelfCheckoutStation {
 			try { //Load half full
 				for (int i = 0; i < 50; i++) { super.banknoteDispensers.get(val).load(new Banknote(CAD, val)); }
 				
-			} catch (SimulationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
