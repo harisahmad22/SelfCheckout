@@ -28,7 +28,7 @@ import org.lsmr.selfcheckout.products.BarcodedProduct;
 public class ProcessScannedItemTest {
 	
 	private SelfCheckoutStation Station;
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private Checkout checkout;
 	private ProcessScannedItem customObserver;
 	private ItemInBaggingArea customScaleObserver;
@@ -52,7 +52,7 @@ public class ProcessScannedItemTest {
 		this.Station = new DummySelfCheckoutStation();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
-		this.touchScreen = new TouchScreen(System.in);
+		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 
@@ -301,7 +301,7 @@ public class ProcessScannedItemTest {
     @After
     public void resetState() {
     	this.Station = new DummySelfCheckoutStation();
-    	this.touchScreen = new TouchScreen(System.in);
+    	this.touchScreen = new TouchScreenSoftware(System.in);
     	Checkout.resetCheckoutTotals();
 	}
 }

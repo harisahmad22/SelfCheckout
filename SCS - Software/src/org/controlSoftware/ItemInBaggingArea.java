@@ -12,7 +12,7 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 	private boolean isOverloaded = false;
 	private ElectronicScale scale;
 	private ProcessScannedItem scannerObserver;
-	private TouchScreen display;
+	private TouchScreenSoftware display;
 	private Checkout checkout;
 	private double weightAtLastEvent = 0;
 	private double personalBagsWeight = 0;
@@ -34,7 +34,7 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 	 * 4) Done
 	 */
 
-	public ItemInBaggingArea(ElectronicScale scale, ProcessScannedItem scanner, TouchScreen display,
+	public ItemInBaggingArea(ElectronicScale scale, ProcessScannedItem scanner, TouchScreenSoftware display,
 			Checkout checkout) {
 		this.scale = scale;
 		this.scannerObserver = scanner;

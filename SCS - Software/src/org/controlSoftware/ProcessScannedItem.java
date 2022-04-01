@@ -21,7 +21,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	private BarcodeScanner scanner;
 	private BarcodeLookup lookup;
 	private ElectronicScale scale;
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private Checkout checkout;
 	private double targetWeight;
 	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
@@ -56,7 +56,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	 */
 	private ReceiptHandler receiptHandler;
 
-	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreen touchScreen, Checkout checkout, ReceiptHandler receiptHandler) 
+	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreenSoftware touchScreen, Checkout checkout, ReceiptHandler receiptHandler) 
 	{
 		this.scanner = scanner;
 		this.lookup = lookup;

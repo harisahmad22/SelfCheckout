@@ -15,7 +15,7 @@ import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 public class ItemInBaggingAreaTest {
 	
 	private SelfCheckoutStation Station;
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private Checkout checkout;
 	private ItemInBaggingArea customObserver; // changed from Object to ItemInBaggingArea
 	private ProcessScannedItem customScannerObserver;
@@ -29,7 +29,7 @@ public class ItemInBaggingAreaTest {
 		this.Station = new DummySelfCheckoutStation();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
-		this.touchScreen = new TouchScreen(System.in);
+		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 

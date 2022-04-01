@@ -42,7 +42,7 @@ import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 public class CheckoutTest {
 	
 	private SelfCheckoutStation Station;
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private Checkout checkout;
 	private ScheduledExecutorService scheduler;
 	private PayWithCash customCashPaymentObserver;
@@ -81,14 +81,14 @@ public class CheckoutTest {
 
 	//Initialize
 	@Before
-	public void setup() {
+	public void setup() throws OverloadException {
 		
 		
 		
 		this.Station = new DummySelfCheckoutStation();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
-		this.touchScreen = new TouchScreen(System.in);
+		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		
 		//Setup Cards
@@ -158,7 +158,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream);
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -211,7 +211,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream);
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -239,7 +239,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream);
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -265,7 +265,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "manual\n" + "123456789\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -291,7 +291,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -337,7 +337,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -382,7 +382,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -434,7 +434,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -506,7 +506,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "swipe\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -555,7 +555,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "swipe\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -587,7 +587,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "swipe\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -619,7 +619,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "swipe\n" + "full\n" + "debit\n" + "swipe\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -655,7 +655,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "insert\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -687,7 +687,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "insert\n" + "full\n" + "debit\n" + "insert\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -723,7 +723,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "tap\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -755,7 +755,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "tap\n" + "full\n" + "debit\n" + "tap\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -791,7 +791,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "swipe\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -823,7 +823,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "swipe\n" + "full\n" + "credit\n" + "swipe\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -859,7 +859,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "insert\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -891,7 +891,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "insert\n" + "full\n" + "credit\n" + "insert\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -927,7 +927,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "tap\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -959,7 +959,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "tap\n" + "full\n" + "credit\n" + "tap\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -996,7 +996,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
 
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -1046,7 +1046,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "cash\n" + "partial\n" + "50\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -1097,7 +1097,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "cash\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -1154,7 +1154,7 @@ public class CheckoutTest {
     	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream); //Update the checkout's touch screen with the custom IS
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -1330,7 +1330,7 @@ public class CheckoutTest {
     	String inputString = "1\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreen ts = new TouchScreen(customInputStream);
+    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
     	checkout.updateTouchScreen(ts);
     	this.touchScreen = ts;
     	
@@ -1357,7 +1357,7 @@ public class CheckoutTest {
     	Checkout.setTotalCost(BigDecimal.ZERO);
     	Checkout.setTotalPaid(BigDecimal.ZERO);
     	Checkout.setTotalPaidThisTransaction(BigDecimal.ZERO);
-    	this.touchScreen = new TouchScreen(System.in);
+    	this.touchScreen = new TouchScreenSoftware(System.in);
     	scheduler.shutdownNow();
 
     }

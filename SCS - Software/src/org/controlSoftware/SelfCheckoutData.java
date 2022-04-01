@@ -28,7 +28,7 @@ public class SelfCheckoutData {
     
 	private SelfCheckoutStation station;
 	
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private double expectedWeight;
 	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
 	

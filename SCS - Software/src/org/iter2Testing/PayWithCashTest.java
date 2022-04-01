@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import org.controlSoftware.Checkout;
 import org.controlSoftware.PayWithCash;
 import org.controlSoftware.ReceiptHandler;
-import org.controlSoftware.TouchScreen;
+import org.controlSoftware.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,7 +26,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 public class PayWithCashTest {
 	
 	private SelfCheckoutStation Station;
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private Checkout checkout;
 	private PayWithCash customCashPaymentObserver;
 	private ReceiptHandler receiptHandler;
@@ -36,7 +36,7 @@ public class PayWithCashTest {
 	@Before
 	public void setup() {
 		this.Station = new DummySelfCheckoutStation();
-		this.touchScreen = new TouchScreen(System.in);
+		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
 		this.checkout = new Checkout(this.touchScreen, 
 									 this.Station.mainScanner, 

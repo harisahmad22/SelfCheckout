@@ -25,7 +25,7 @@ public class Checkout {
 	private static BigDecimal totalMoneyPaid = BigDecimal.ZERO;
 	private static BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
     private SelfCheckoutStation station; //needed for GiveChange
-	private TouchScreen touchScreen;
+	private TouchScreenSoftware touchScreen;
 	private BarcodeScanner scanner;
 	private BanknoteSlot banknoteSlot;
 	private CoinSlot coinSlot;
@@ -55,7 +55,7 @@ public class Checkout {
 	private PayWithDebitCard debitCard;
 	private PayWithCreditCard creditCard;
 
-	public Checkout(TouchScreen touchScreen, 
+	public Checkout(TouchScreenSoftware touchScreen, 
 					BarcodeScanner scanner, 
 					BanknoteSlot banknoteSlot, 
 					CoinSlot coinSlot,
@@ -519,7 +519,7 @@ public class Checkout {
 		waitingForCreditCard.set(bool);
 	}
 
-	public void updateTouchScreen(TouchScreen ts)
+	public void updateTouchScreen(TouchScreenSoftware ts)
 	{//Used for when we have to change the touchScreen's input stream during testing
 		this.touchScreen = ts;		
 	}
