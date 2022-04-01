@@ -50,7 +50,7 @@ public class PayWithDebitCardTest {
 		this.card = new Card("Debit", "30115014", "Jane Doe", "064", pin, true, true);
 		this.bankInfo = new BankClientInfo("Debit", "30115014", "Jane Doe", "064", pin, true, true, balance, limit);
 		pwdc = new PayWithDebitCard(scs, card, cardData, pin, bankInfo);
-//		reader.endConfigurationPhase();
+		reader.endConfigurationPhase();
 		pwdc.enabled(reader);
 		
 	}

@@ -3,8 +3,6 @@ package org.controlSoftware;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import org.lsmr.selfcheckout.devices.EmptyException;
-import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 
 public class ReceiptHandler {
@@ -22,7 +20,7 @@ public class ReceiptHandler {
 		this.printer = printer;
 	}
 	
-	public void printReceipt() throws EmptyException, OverloadException
+	public void printReceipt()
 	{
 		//For each entry in the scannedProductList, convert the string
 		//to a byte array, and loop over each character printing it via the printer
@@ -65,7 +63,7 @@ public class ReceiptHandler {
 		finalChange = "$0.0\n";
 	}
 	
-	private void printChars(char[] charArray) throws EmptyException, OverloadException {
+	private void printChars(char[] charArray) {
 		for (char c : charArray)
 		{
 			printer.print(c);

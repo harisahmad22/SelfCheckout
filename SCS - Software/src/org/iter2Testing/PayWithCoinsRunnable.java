@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.DisabledException;
-import org.lsmr.selfcheckout.devices.OverloadException;
 
 public class PayWithCoinsRunnable implements Runnable {
 
@@ -35,9 +34,6 @@ public class PayWithCoinsRunnable implements Runnable {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 //				e.printStackTrace();
-			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			
 		}

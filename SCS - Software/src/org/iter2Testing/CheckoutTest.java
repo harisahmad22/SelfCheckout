@@ -81,7 +81,7 @@ public class CheckoutTest {
 
 	//Initialize
 	@Before
-	public void setup() throws OverloadException {
+	public void setup() {
 		
 		
 		

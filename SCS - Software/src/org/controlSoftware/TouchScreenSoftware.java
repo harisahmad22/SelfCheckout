@@ -12,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lsmr.selfcheckout.devices.AbstractDevice;
-import org.lsmr.selfcheckout.devices.EmptyException;
-import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
@@ -105,7 +103,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		overloadDetected.set(false);
 	}
 
-	public void askToPrintReceipt(ReceiptHandler receipt) throws EmptyException, OverloadException {
+	public void askToPrintReceipt(ReceiptHandler receipt) {
 		System.out.println("Would You like to print a receipt?");
 		askedToPrintReceipt.set(true);
 		

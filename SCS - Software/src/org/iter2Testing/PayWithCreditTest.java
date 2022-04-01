@@ -1,3 +1,6 @@
+//Jacky Liang 
+//Yianni Hontzias
+
 package org.iter2Testing;
 
 import static org.junit.Assert.*;
@@ -65,7 +68,7 @@ public class PayWithCreditTest {
 	
 	
 	@Before 
-	public void setup() throws OverloadException
+	public void setup()
 	{
 
 		

@@ -81,7 +81,7 @@ public class PayWithCashTest {
     	
     	checkout.addToTotalCost(new BigDecimal(fiveDollarBanknote.getValue())); //Add $5 to bill
     	Station.banknoteInput.accept(fiveDollarBanknote); 			//Try inserting $5 bill 
-    	Assert.assertTrue(checkout.compareTotals() == 0);	//Check if total cost = total paid
+    	Assert.assertTrue(checkout.compareTotals() == 1);	//Check if total cost = total paid
 	    
     }
     
