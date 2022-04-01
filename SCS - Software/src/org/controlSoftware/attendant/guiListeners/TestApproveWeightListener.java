@@ -9,7 +9,6 @@ import org.controlSoftware.attendant.AttendantSoftware;
 //On some event, actionPerformed() will call the AddendantSoftware method
 //responsible for approving a weight issue for the specified station
 
-//This listener would be attached to something like a button 
 //E.g GUI code creates a new window and this listener is attached to X number of buttons. 
 
 public class TestApproveWeightListener implements ActionListener {
