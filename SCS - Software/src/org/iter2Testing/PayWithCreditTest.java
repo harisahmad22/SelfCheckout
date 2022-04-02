@@ -13,16 +13,16 @@ import java.util.Currency;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.controlSoftware.BankClientInfo;
-import org.controlSoftware.Checkout;
-import org.controlSoftware.ItemInBaggingArea;
-import org.controlSoftware.PayWithCash;
-import org.controlSoftware.PayWithCreditCard;
-import org.controlSoftware.PayWithDebitCard;
-import org.controlSoftware.ProcessScannedItem;
-import org.controlSoftware.ReceiptHandler;
-import org.controlSoftware.ScansMembershipCard;
-import org.controlSoftware.TouchScreenSoftware;
+import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.data.BankClientInfo;
+import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
+import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
+import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
+import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.lsmr.selfcheckout.Banknote;
@@ -44,7 +44,7 @@ public class PayWithCreditTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private Checkout checkout;
+	private CheckoutSoftware checkout;
 	private ScheduledExecutorService scheduler;
 	private PayWithCash customCashPaymentObserver;
 	private ItemInBaggingArea customScaleObserver;
@@ -90,7 +90,7 @@ public class PayWithCreditTest {
 		
 		
 		
-		this.checkout = new Checkout(this.touchScreen, 
+		this.checkout = new CheckoutSoftware(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -143,7 +143,7 @@ public class PayWithCreditTest {
     	
     	
     	BigDecimal total = new BigDecimal("100");
-    	Checkout.addToTotalCost(total); //Add $100 to total cost
+    	CheckoutSoftware.addToTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -168,7 +168,7 @@ public class PayWithCreditTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("100");
-    	Checkout.addToTotalCost(total); //Add $100 to total cost
+    	CheckoutSoftware.addToTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -195,7 +195,7 @@ public class PayWithCreditTest {
 
     	
     	BigDecimal total = new BigDecimal("100");
-    	Checkout.addToTotalCost(total); 
+    	CheckoutSoftware.addToTotalCost(total); 
     	
     	checkout.startCheckout();
     	

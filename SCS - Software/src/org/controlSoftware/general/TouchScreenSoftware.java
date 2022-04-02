@@ -1,6 +1,6 @@
 //Brody Long - 30022870 
 
-package org.controlSoftware;
+package org.controlSoftware.general;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -11,6 +11,8 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
@@ -335,7 +337,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		
 	}
 	
-	public void inputMembershipPrompt(Checkout checkout) throws InterruptedException {
+	public void inputMembershipPrompt(CheckoutSoftware checkout) throws InterruptedException {
 		//For now default choice to swipe
 		//Could maybe have a loop that runs until hardware detects a valid swipe
 		//or user can press a button to bring up a keypad to enter in their ID

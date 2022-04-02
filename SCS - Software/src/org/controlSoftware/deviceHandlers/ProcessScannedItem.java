@@ -1,12 +1,16 @@
 //Brody Long - 30022870 
 
-package org.controlSoftware;
+package org.controlSoftware.deviceHandlers;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.data.BarcodeLookup;
+import org.controlSoftware.data.ItemProduct;
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -22,7 +26,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	private BarcodeLookup lookup;
 	private ElectronicScale scale;
 	private TouchScreenSoftware touchScreen;
-	private Checkout checkout;
+	private CheckoutSoftware checkout;
 	private double targetWeight;
 	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
 	private AtomicBoolean weightValid = new AtomicBoolean(false);
@@ -56,7 +60,7 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	 */
 	private ReceiptHandler receiptHandler;
 
-	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreenSoftware touchScreen, Checkout checkout, ReceiptHandler receiptHandler) 
+	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreenSoftware touchScreen, CheckoutSoftware checkout, ReceiptHandler receiptHandler) 
 	{
 		this.scanner = scanner;
 		this.lookup = lookup;
@@ -88,14 +92,14 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 				//Item is priced per unit, since only one item can be scanned at once, just 
 				//add the price of this item to the customer's total
 				
-				Checkout.addToTotalCost(scannedItemPrice);
+				CheckoutSoftware.addToTotalCost(scannedItemPrice);
 			}
 			else
 			{
 				//Item is priced per KG, get the weight of item in KG and multiply by price,
 				//add this to customers total
 				
-				Checkout.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
+				CheckoutSoftware.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
 			}
 			
 			//Add product info to the receipt handler list

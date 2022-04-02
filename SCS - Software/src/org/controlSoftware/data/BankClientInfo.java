@@ -1,4 +1,4 @@
-package org.controlSoftware;
+package org.controlSoftware.data;
 
 import java.math.BigDecimal;
 

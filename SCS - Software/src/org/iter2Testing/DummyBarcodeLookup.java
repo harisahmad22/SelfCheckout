@@ -5,8 +5,8 @@ package org.iter2Testing;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import org.controlSoftware.BarcodeLookup;
-import org.controlSoftware.ItemProduct;
+import org.controlSoftware.data.BarcodeLookup;
+import org.controlSoftware.data.ItemProduct;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.products.BarcodedProduct;

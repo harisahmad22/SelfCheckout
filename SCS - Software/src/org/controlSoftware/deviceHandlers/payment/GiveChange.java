@@ -1,4 +1,4 @@
-package org.controlSoftware;
+package org.controlSoftware.deviceHandlers.payment;
 
 import java.math.BigDecimal;
 import java.util.List;

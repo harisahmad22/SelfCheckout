@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import org.controlSoftware.Checkout;
-import org.controlSoftware.PayWithCash;
-import org.controlSoftware.ReceiptHandler;
-import org.controlSoftware.TouchScreenSoftware;
+import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,7 +27,7 @@ public class PayWithCashTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private Checkout checkout;
+	private CheckoutSoftware checkout;
 	private PayWithCash customCashPaymentObserver;
 	private ReceiptHandler receiptHandler;
 	private static Banknote fiveDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 5);
@@ -38,7 +38,7 @@ public class PayWithCashTest {
 		this.Station = new DummySelfCheckoutStation();
 		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
-		this.checkout = new Checkout(this.touchScreen, 
+		this.checkout = new CheckoutSoftware(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot

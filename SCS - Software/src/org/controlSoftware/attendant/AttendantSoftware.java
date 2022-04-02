@@ -50,6 +50,11 @@ public class AttendantSoftware {
 		List<SelfCheckoutStation> staionList = supervisionStation.supervisedStations();
 		
 	}
+	
+	public void blockStation(SelfCheckoutStationUnit station)
+	{
+		
+	}
 
 	
 

@@ -1,13 +1,14 @@
-package org.controlSoftware;
+package org.driver;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
 /*
- *  !!!THIS CLASS IS CURRENTLY UNUSED!!!
- *	
+ *  
  *  Jonah Richards
  *
  *  Defines object to be associated with each self checkout machine that contains any data that

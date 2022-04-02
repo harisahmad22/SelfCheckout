@@ -1,7 +1,8 @@
-package org.controlSoftware;
+package org.controlSoftware.deviceHandlers.membership;
 
 import java.io.IOException;
 
+import org.controlSoftware.customer.CheckoutSoftware;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -11,9 +12,9 @@ import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
 public class ScansMembershipCard implements CardReaderObserver{
-	private Checkout checkout;
+	private CheckoutSoftware checkout;
 	
-	public ScansMembershipCard(Checkout checkout_instance) {
+	public ScansMembershipCard(CheckoutSoftware checkout_instance) {
 		this.checkout = checkout_instance;
 	}
 	

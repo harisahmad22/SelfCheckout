@@ -5,6 +5,11 @@ package org.iter2Testing;
 import static org.junit.Assert.assertTrue;
 
 import org.controlSoftware.*;
+import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
+import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -16,7 +21,7 @@ public class ItemInBaggingAreaTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private Checkout checkout;
+	private CheckoutSoftware checkout;
 	private ItemInBaggingArea customObserver; // changed from Object to ItemInBaggingArea
 	private ProcessScannedItem customScannerObserver;
 	private DummyBarcodeLookup lookup;
@@ -31,7 +36,7 @@ public class ItemInBaggingAreaTest {
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
-		this.checkout = new Checkout(this.touchScreen, 
+		this.checkout = new CheckoutSoftware(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
