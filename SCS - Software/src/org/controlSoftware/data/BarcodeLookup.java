@@ -1,6 +1,6 @@
 //Brody Long - 30022870
 
-package org.controlSoftware;
+package org.controlSoftware.data;
 
 import java.util.HashMap;
 

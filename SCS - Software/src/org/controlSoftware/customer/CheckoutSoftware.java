@@ -1,7 +1,7 @@
 //Brody Long - 30022870 
 //Shufan Zhai - 30117333
 
-package org.controlSoftware;
+package org.controlSoftware.customer;
 
 import java.math.BigDecimal;
 import java.util.InputMismatchException;
@@ -9,6 +9,12 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.controlSoftware.data.NegativeNumberException;
+import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.controlSoftware.deviceHandlers.payment.GiveChange;
+import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
+import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.CardReader;
@@ -19,7 +25,7 @@ import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation; // needed for GiveChange
 
-public class Checkout {
+public class CheckoutSoftware {
 
 	private static BigDecimal totalDue = BigDecimal.ZERO;
 	private static BigDecimal totalMoneyPaid = BigDecimal.ZERO;
@@ -55,7 +61,7 @@ public class Checkout {
 	private PayWithDebitCard debitCard;
 	private PayWithCreditCard creditCard;
 
-	public Checkout(TouchScreenSoftware touchScreen, 
+	public CheckoutSoftware(TouchScreenSoftware touchScreen, 
 					BarcodeScanner scanner, 
 					BanknoteSlot banknoteSlot, 
 					CoinSlot coinSlot,

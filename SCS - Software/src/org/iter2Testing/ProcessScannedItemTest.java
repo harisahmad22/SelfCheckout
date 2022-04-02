@@ -12,6 +12,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.controlSoftware.*;
+import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
+import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -29,7 +34,7 @@ public class ProcessScannedItemTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private Checkout checkout;
+	private CheckoutSoftware checkout;
 	private ProcessScannedItem customObserver;
 	private ItemInBaggingArea customScaleObserver;
 	private DummyBarcodeLookup lookup;
@@ -54,7 +59,7 @@ public class ProcessScannedItemTest {
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
-		this.checkout = new Checkout(this.touchScreen, 
+		this.checkout = new CheckoutSoftware(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -302,6 +307,6 @@ public class ProcessScannedItemTest {
     public void resetState() {
     	this.Station = new DummySelfCheckoutStation();
     	this.touchScreen = new TouchScreenSoftware(System.in);
-    	Checkout.resetCheckoutTotals();
+    	CheckoutSoftware.resetCheckoutTotals();
 	}
 }

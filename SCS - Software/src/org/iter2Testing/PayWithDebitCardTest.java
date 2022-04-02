@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import org.controlSoftware.BankClientInfo;
-import org.controlSoftware.PayWithDebitCard;
+import org.controlSoftware.data.BankClientInfo;
+import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
