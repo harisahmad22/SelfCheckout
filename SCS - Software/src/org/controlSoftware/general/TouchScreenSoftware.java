@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
@@ -50,11 +51,13 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	private String membershipNum;
 	private InputStream inputStream; //So we can change Input stream for testing
 	private Scanner userInputScanner;
+	private SelfCheckoutData stationData;
 	
-	public TouchScreenSoftware(InputStream inputStream)
+	public TouchScreenSoftware(InputStream inputStream, SelfCheckoutData stationData)
 	{
 		this.inputStream = inputStream;
 		this.userInputScanner = new Scanner(inputStream);
+		this.stationData = stationData;
 	}
 	
 
@@ -355,16 +358,16 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 				userInputScanner.nextLine();
 				
 				String membership_num = Integer.toString(inputID);
-				checkout.setMembershipNumber(membership_num);
+				stationData.setMembershipID(membership_num);
 			}
 			else if (choice.equals("swipe"))
 			{	//Wait for swipe				
 				System.out.println("Please Swipe you Membership Card.");
-				while(!checkout.getCardSwiped())
+				while(!stationData.getCardSwiped())
 				{
 					TimeUnit.MILLISECONDS.sleep(100);
 				}
-				checkout.setCardSwiped(false); //Reset flag for next event		
+				stationData.setCardSwiped(false); //Reset flag for next event		
 			}
 //			userInputScanner.close();
 						

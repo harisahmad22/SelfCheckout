@@ -14,7 +14,7 @@ public class SelfCheckoutSoftware {
 	
 	private CheckoutHandler checkoutHandler;
 	private ScannerHandler scannerHandler;
-	private BaggingAreaScaleHandler scaleHandler;
+	private BaggingAreaScaleHandler baggingAreaScaleHandler;
 	private ReceiptHandler receiptHandler;
 	
 	private TouchScreenSoftware touchScreenSoftware;
@@ -22,16 +22,18 @@ public class SelfCheckoutSoftware {
 	public SelfCheckoutSoftware(SelfCheckoutStation station, SelfCheckoutData stationData)
 	{
 		this.station = station;
+		
 		this.stationData = stationData;
+		
 		this.receiptHandler = new ReceiptHandler(this.station.printer);
 		
-		//Have to initialize handlers in this order: 
-		//1) CheckoutHandler
-		//2) ScannerHandler
-		//3) ScaleHandler
-		
 		this.checkoutHandler = new CheckoutHandler(this.stationData, this);
-
+		
+		this.scannerHandler = new ScannerHandler(this.stationData, this);
+		
+		this.baggingAreaScaleHandler = new BaggingAreaScaleHandler(this.stationData, this);
+		
+		
 		
 	}
 
@@ -57,6 +59,6 @@ public class SelfCheckoutSoftware {
 	}
 	
 	public BaggingAreaScaleHandler getScaleHandler() {
-		return this.scaleHandler;
+		return this.baggingAreaScaleHandler;
 	}
 }

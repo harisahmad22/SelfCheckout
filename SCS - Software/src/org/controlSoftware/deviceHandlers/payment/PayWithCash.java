@@ -5,6 +5,7 @@ import java.util.Currency;
 import java.util.Map;
 
 import org.controlSoftware.customer.CheckoutHandler;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BanknoteValidator;
@@ -24,11 +25,13 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     private CoinValidator coinValidator;
     private CoinStorageUnit coinStorageUnit;
     private Map<BigDecimal, CoinDispenser> coinDispensers;
-    private BigDecimal lastValidCoinInserted; 
+    private BigDecimal lastValidCoinInserted;
+	private SelfCheckoutData stationData; 
 
 
-    public PayWithCash(SelfCheckoutStation aStation){
-        this.station = aStation;
+    public PayWithCash(SelfCheckoutData stationData){
+        this.stationData = stationData;
+        this.station = stationData.getStation();
         this.banknoteValidator = this.station.banknoteValidator;
         this.coinValidator = this.station.coinValidator;
         this.coinDispensers = this.station.coinDispensers;
@@ -46,7 +49,7 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     //banknotes
 	@Override
 	public void validBanknoteDetected(BanknoteValidator validator, Currency currency, int value) {
-		CheckoutHandler.addToTotalPaid(new BigDecimal(value));
+		stationData.addToTotalPaid(new BigDecimal(value));
 	}
 
 	@Override
@@ -69,13 +72,13 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     // valid coin makes its way to the dispenser
     @Override
     public void coinAdded(CoinDispenser dispenser, Coin coin) {
-        CheckoutHandler.addToTotalPaid(coin.getValue());
+    	stationData.addToTotalPaid(coin.getValue());
     }
 
     // valid coin makes its way to the storage unit
     @Override
     public void coinAdded(CoinStorageUnit unit) {
-        CheckoutHandler.addToTotalPaid(lastValidCoinInserted);
+    	stationData.addToTotalPaid(lastValidCoinInserted);
     }
 
 
