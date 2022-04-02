@@ -101,7 +101,7 @@ public class CheckoutHandler {
 
 		// Set our expected Weight to the current scale weight
 		// Allows scale observer to set weightValid
-		stationData.setExpectedWeightCheckout(stationData.getScale().getCurrentWeight());
+		stationData.setExpectedWeightCheckout(stationData.getBaggingAreaScale().getCurrentWeight());
 
 		// First Disable scanner
 		stationData.getScanner().disable();
@@ -254,7 +254,7 @@ public class CheckoutHandler {
 			handlePostPaymentCleanup();
 
 			// Maybe Re-enable devices here?
-			stationData.enableDevices();
+			stationData.enableAllDevices();
 
 			stationData.setInCheckout(false);
 			stationSoftware.getTouchScreenSoftware().resetToWelcomeScreen();
@@ -271,7 +271,7 @@ public class CheckoutHandler {
 			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
 			
 			// Maybe Re-enable devices here?
-			stationData.enableDevices();
+			stationData.enableAllDevices();
 
 			stationData.setInCheckout(false);
 			stationSoftware.getTouchScreenSoftware().returnToAddingItems();
@@ -324,7 +324,7 @@ public class CheckoutHandler {
 		stationData.resetCheckoutTotals();
 		stationSoftware.getTouchScreenSoftware().takeItemsNotification();
 //		System.out.println("(TESTING) Current Scale weight at cleanup time: " + this.scale.getCurrentWeight());
-		if (stationData.getScale().getCurrentWeight() > 0.1) { stationData.setWeightValidCheckout(false); } // 0.1 to account for floating point issues
+		if (stationData.getBaggingAreaScale().getCurrentWeight() > 0.1) { stationData.setWeightValidCheckout(false); } // 0.1 to account for floating point issues
 		else { stationData.setWeightValidCheckout(true); }
 		
 		while (!stationData.getWeightValidCheckout()) 

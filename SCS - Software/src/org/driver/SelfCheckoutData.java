@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.controlSoftware.data.BarcodeLookup;
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.general.TouchScreenSoftware;
-import org.driver.databases.TestBarcodedProductDatabase;
+import org.driver.databases.BarcodedProductDatabase;
+import org.driver.databases.TestProducts;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.PLUDatabase;
 import org.driver.databases.StoreInventory;
+import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -50,7 +53,8 @@ public class SelfCheckoutData {
 	private BarcodeScanner mainScanner;
 	private BanknoteSlot banknoteInputSlot;
 	private CoinSlot coinSlot;
-	private ElectronicScale scale;
+	private ElectronicScale baggingAreaScale;
+	private ElectronicScale scanningAreaScale;
 	private CardReader cardReader;
 	//============================Hardware Devices============================	
 	
@@ -113,18 +117,21 @@ public class SelfCheckoutData {
 		this.handScanner = this.station.handheldScanner;
 		this.banknoteInputSlot = this.station.banknoteInput;
 		this.coinSlot = this.station.coinSlot;
-		this.scale = this.station.baggingArea;
+		this.baggingAreaScale = this.station.baggingArea;
+		this.scanningAreaScale = this.station.scanningArea;
 		this.cardReader = this.station.cardReader;
 		
 		//Initialize Product Databases
+		
+		//TODO
 		PLU_Product_Database = new PLUDatabase();
 		
 		//Initialize some test Proudcts
-		//THIS SHOULD BE PUT IN ITS OWN CLASS AT SOME POINT!!!
-		B
-		BarcodedProduct[] barcodedProductList = {};
-		Barcoded_Product_Database = new BarcodedProductDatabase(null);
+		//3 Products, milk, orange juice, and corn flakes
+		TestProducts testProducts = new TestProducts();
+		Barcoded_Product_Database = new BarcodedProductDatabase((BarcodedProduct[]) testProducts.BPList.toArray());
 		
+		//TODO
 		Store_Inventory = new StoreInventory();
 		
 	
@@ -174,7 +181,7 @@ public class SelfCheckoutData {
 	}
 
 	protected State state = State.WELCOME;
-		
+
 	
 	// Getters/setters
 	
@@ -352,8 +359,11 @@ public class SelfCheckoutData {
 	public CoinSlot getCoinSlot() {
 		return coinSlot;
 	}
-	public ElectronicScale getScale() {
-		return scale;
+	public ElectronicScale getBaggingAreaScale() {
+		return baggingAreaScale;
+	}
+	public ElectronicScale getScanningAreaScale() {
+		return scanningAreaScale;
 	}
 	public CardReader getCardReader() {
 		return cardReader;
@@ -530,19 +540,31 @@ public class SelfCheckoutData {
 		this.station.cardReader.enable();
 	}
 
-	// Disable all devices associated with this observer
-	public void disableDevices() {
+	// Disable all devices - NOT FULLY IMPLEMENTED
+	public void disableAllDevices() {
 		this.station.baggingArea.disable();
 		this.station.mainScanner.disable();
 		disablePaymentDevices();
 	}
 
-	// Enable all devices associated with this observer
-	public void enableDevices() {
+	// Enable all devices - NOT FULLY IMPLEMENTED
+	public void enableAllDevices() {
 		this.station.baggingArea.enable();
 		this.station.mainScanner.enable();
 		enablePaymentDevices();
 	}
+	
+	public void disableScannerDevices() {
+		this.station.mainScanner.disable();
+		this.station.handheldScanner.disable();
+		
+	}
+
+	public void enableScannerDevices() {
+		this.station.mainScanner.enable();
+		this.station.handheldScanner.enable();
+	}
+	
 	public boolean isFirstCheckout() {
 		return isFirstCheckout.get();
 	}
@@ -575,7 +597,23 @@ public class SelfCheckoutData {
 	public double getBaggingAreaWeightVariablity() {
 		return baggingAreaWeightVariability;
 	}
+	public Map<Barcode, BarcodedProduct> getBarcodedProductDatabase() {
+		return Barcoded_Product_Database.getDatabase();
+	}
+	public BarcodedProductDatabase getBarcodedProductDatabaseObject() {
+		return Barcoded_Product_Database;
+	}
 	
+	public void resetScannerWeightFlags()
+	{
+		// Reset weight change flags
+		setIsScannerWaitingForWeightChange(false);
+		setWeightValidScanner(false);
+	}
+	public void compareAndSetWaitingForWeightChangeEvent(boolean expected, boolean update) {
+		isScannerWaitingForWeightChange.compareAndSet(expected, update);
+		
+	}
 	
 	//===========================For ScannerHandler===========================
 }
