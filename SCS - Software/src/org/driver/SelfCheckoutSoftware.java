@@ -2,7 +2,7 @@ package org.driver;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -14,7 +14,7 @@ public class SelfCheckoutSoftware {
 	
 	private CheckoutHandler checkoutHandler;
 	private ScannerHandler scannerHandler;
-	private ScaleHandler scaleHandler;
+	private BaggingAreaScaleHandler scaleHandler;
 	private ReceiptHandler receiptHandler;
 	
 	private TouchScreenSoftware touchScreenSoftware;
@@ -24,6 +24,11 @@ public class SelfCheckoutSoftware {
 		this.station = station;
 		this.stationData = stationData;
 		this.receiptHandler = new ReceiptHandler(this.station.printer);
+		
+		//Have to initialize handlers in this order: 
+		//1) CheckoutHandler
+		//2) ScannerHandler
+		//3) ScaleHandler
 		
 		this.checkoutHandler = new CheckoutHandler(this.stationData, this);
 
@@ -41,5 +46,17 @@ public class SelfCheckoutSoftware {
 	public void updateTouchScreen(TouchScreenSoftware ts)
 	{//Used for when we have to change the touchScreen's input stream during testing
 		this.touchScreenSoftware = ts;		
+	}
+
+	public CheckoutHandler getCheckoutHandler() {
+		return this.checkoutHandler;
+	}
+	
+	public ScannerHandler getScannerHandler() {
+		return this.scannerHandler;
+	}
+	
+	public BaggingAreaScaleHandler getScaleHandler() {
+		return this.scaleHandler;
 	}
 }

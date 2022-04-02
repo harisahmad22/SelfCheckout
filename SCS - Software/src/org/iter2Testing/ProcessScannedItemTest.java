@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.controlSoftware.*;
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -36,7 +36,7 @@ public class ProcessScannedItemTest {
 	private TouchScreenSoftware touchScreen;
 	private CheckoutHandler checkout;
 	private ScannerHandler customObserver;
-	private ScaleHandler customScaleObserver;
+	private BaggingAreaScaleHandler customScaleObserver;
 	private DummyBarcodeLookup lookup;
 	private DummyItemProducts itemProducts;
 	
@@ -90,7 +90,7 @@ public class ProcessScannedItemTest {
 		this.Station.handheldScanner.attach((BarcodeScannerObserver) customObserver);
 		
 		//Initialize a new custom scale observer
-		this.customScaleObserver = new ScaleHandler(this.Station.baggingArea, 
+		this.customScaleObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
 				   										 this.customObserver, 
 				   										 touchScreen, 
 				   										 checkout);

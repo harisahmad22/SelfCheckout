@@ -11,6 +11,8 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BarcodeLookup;
 import org.controlSoftware.data.ItemProduct;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutSoftware;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -22,22 +24,16 @@ import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 
 public class ScannerHandler implements BarcodeScannerObserver
 {
-	private BarcodeScanner scanner;
-	private BarcodeLookup lookup;
-	private ElectronicScale scale;
-	private TouchScreenSoftware touchScreen;
-	private CheckoutHandler checkout;
-	private double targetWeight;
-	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
-	private AtomicBoolean weightValid = new AtomicBoolean(false);
-	private double weightTolerance = 15; // The maximum weight in grams that an Item's weight can differ from its weight stored in the ItemProduct dictionary  
-	/* (Brody)
-		DONT HAVE TO WORRY ABOUT:
-			- the graphical user interface
-			- **** products without barcodes ****
-			- credit/debit cards
-			- returning change to the customer
-		
+//	private BarcodeScanner scanner;
+//	private BarcodeLookup lookup;
+//	private ElectronicScale scale;
+//	private TouchScreenSoftware touchScreen;
+//	private CheckoutHandler checkout;
+//	private double targetWeight;
+//	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
+//	private AtomicBoolean weightValid = new AtomicBoolean(false);
+//	private double weightTolerance = 15; // The maximum weight in grams that an Item's weight can differ from its weight stored in the ItemProduct dictionary  
+	/*	
 		Assuming there is a HashMap that acts as a dictionary for all the items that can be scanned via barcode.
 		
 		1) We are given a barcode from the barcode scanner
@@ -59,15 +55,26 @@ public class ScannerHandler implements BarcodeScannerObserver
 		6) Done
 	 */
 	private ReceiptHandler receiptHandler;
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
 
-	public ScannerHandler(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreenSoftware touchScreen, CheckoutHandler checkout, ReceiptHandler receiptHandler) 
+	public ScannerHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
+//			BarcodeScanner scanner, 
+//			BarcodeLookup lookup, 
+//			ElectronicScale scale, 
+//			TouchScreenSoftware touchScreen, 
+//			CheckoutHandler checkout, 
+//			ReceiptHandler receiptHandler) 
 	{
-		this.scanner = scanner;
-		this.lookup = lookup;
-		this.scale = scale;
-		this.touchScreen = touchScreen;
-		this.checkout = checkout;
-		this.receiptHandler = receiptHandler;
+		this.stationData = stationData;
+		this.stationSoftware = stationSoftware;
+		
+//		this.scanner = scanner;
+//		this.lookup = lookup;
+//		this.scale = scale;
+//		this.touchScreen = touchScreen;
+//		this.checkout = checkout;
+//		this.receiptHandler = receiptHandler;
 	}
 
 	@Override

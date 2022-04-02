@@ -11,7 +11,7 @@ import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
-public class ScaleHandler implements ElectronicScaleObserver {
+public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 //	private static final double BAG_WEIGHT = 5;
 //	private boolean isOverloaded = false;
 //	private ElectronicScale scale;
@@ -41,8 +41,9 @@ public class ScaleHandler implements ElectronicScaleObserver {
 
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
+//	private String type;
 	
-	public ScaleHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware)
+	public BaggingAreaScaleHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware)
 //			ElectronicScale scale, 
 //			ScannerHandler scanner, 
 //			TouchScreenSoftware display,
@@ -54,11 +55,12 @@ public class ScaleHandler implements ElectronicScaleObserver {
 //		this.checkout = checkout;
 		this.stationData = stationData;
 		this.stationSoftware = stationSoftware;
+//		this.type = type; //Will be used to identify between bagging area scale and scanning area scale
 
 	}
 
 	public boolean isOverloaded() {
-		return stationData.getIsOverloaded();
+		return stationData.getIsBaggingAreaOverloaded();
 	}
 
 	@Override
@@ -73,29 +75,29 @@ public class ScaleHandler implements ElectronicScaleObserver {
 
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-		double scannerExpectedWeight = scannerObserver.getTargetWeight(); // set to weight in observer
-		double checkoutExpectedWeight = checkout.getExpectedWeight();
+		double scannerExpectedWeight = stationData.getExpectedWeightScanner(); // set to weight in observer
+		double checkoutExpectedWeight = stationData.getExpectedWeightCheckout();
 		double weightOnScale = weightInGrams;
 
-		if (!isOverloaded) {
-			if (scannerObserver.isWaitingForWeightChange()) {
+		if (!isOverloaded()) {
+			if (stationData.getIsScannerWaitingForWeightChange()) {
 				handleScannerWeightEvent(weightOnScale, scannerExpectedWeight);
 			}
-			if (checkout.isInCheckout()){ 
+			if (stationData.isInCheckout()) {
 				handleCheckoutWeightEvent(weightOnScale, checkoutExpectedWeight);
 			}
 		}
-		weightAtLastEvent = weightInGrams; // Done handling weight change, store scale weight for next event
+//		weightAtLastEvent = weightInGrams; // Done handling weight change, store scale weight for next event
 		System.out.println("Scale Weight: " + weightInGrams);
 	}
 	
 	private void handleScannerWeightEvent(double weightOnScale, double scannerExpectedWeight) {
-		if (Math.abs(scannerExpectedWeight - weightOnScale) <= weightVariablity) {
-			scannerObserver.setWeightValid(true);
-			scannerObserver.setWaitingForWeightChange(false);
+		if (Math.abs(scannerExpectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
+			stationData.setWeightValidScanner(true);
+			stationData.setIsScannerWaitingForWeightChange(false);
 		} else {
-			scannerObserver.setWeightValid(false);
-			scannerObserver.setWaitingForWeightChange(false);
+			stationData.setWeightValidScanner(false);
+			stationData.setIsScannerWaitingForWeightChange(false);
 		}
 		
 	}
@@ -103,34 +105,34 @@ public class ScaleHandler implements ElectronicScaleObserver {
 	private void handleCheckoutWeightEvent(double weightOnScale, double checkoutExpectedWeight) {
 	// Weight is not supposed to change during checkout, unless during cleanup
 	  // where all items on the scale need to be removed
-		if (checkout.isInCleanup())
+		if (stationData.isInCleanup())
 		{ 
 			if (weightOnScale != 0) 
 			{
-				checkout.setWeightValid(false);
+				stationData.setWeightValidCheckout(false);
 			}
-			else { checkout.setWeightValid(true); }
+			else { stationData.setWeightValidCheckout(true); }
 		}
 		else
 		{	
-			if (Math.abs(checkoutExpectedWeight - weightOnScale) <= weightVariablity) // Weight cannot change more than defined tolerance 
+			if (Math.abs(checkoutExpectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) // Weight cannot change more than defined tolerance 
 			{
-				checkout.setWeightValid(true);
+				stationData.setWeightValidCheckout(true);
 			}
-			else { checkout.setWeightValid(false); }
+			else { stationData.setWeightValidCheckout(false); }
 		}
 		
 	}
 	
 	@Override
 	public void overload(ElectronicScale scale) {
-		this.isOverloaded = true;
-		display.scaleOverloaded();
+		stationData.setIsBaggingAreaOverloaded(true);
+		stationSoftware.getTouchScreenSoftware().scaleOverloaded();
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
-		this.isOverloaded = false;
-		display.overloadFixed();
+		stationData.setIsBaggingAreaOverloaded(false);
+		stationSoftware.getTouchScreenSoftware().overloadFixed();
 	}
 }

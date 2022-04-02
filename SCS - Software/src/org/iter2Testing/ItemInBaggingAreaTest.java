@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.controlSoftware.*;
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -22,7 +22,7 @@ public class ItemInBaggingAreaTest {
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
 	private CheckoutHandler checkout;
-	private ScaleHandler customObserver; // changed from Object to ItemInBaggingArea
+	private BaggingAreaScaleHandler customObserver; // changed from Object to ItemInBaggingArea
 	private ScannerHandler customScannerObserver;
 	private DummyBarcodeLookup lookup;
 	private DummyItemProducts itemProducts;
@@ -57,7 +57,7 @@ public class ItemInBaggingAreaTest {
 		this.Station.mainScanner.attach(customScannerObserver);
 		
 		//Initialize a new custom scale observer
-		this.customObserver = new ScaleHandler(this.Station.baggingArea, 
+		this.customObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
 													this.customScannerObserver, 
 													touchScreen, 
 													checkout);

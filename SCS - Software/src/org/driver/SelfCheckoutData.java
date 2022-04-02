@@ -3,17 +3,26 @@ package org.driver;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.databases.TestBarcodedProductDatabase;
+import org.driver.databases.BarcodedProductDatabase;
+import org.driver.databases.PLUDatabase;
+import org.driver.databases.StoreInventory;
+import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.CardReader;
 import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.external.ProductDatabases;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 /*
@@ -37,7 +46,8 @@ public class SelfCheckoutData {
 	
 	//============================Hardware Devices============================ 
 	private SelfCheckoutStation station;
-	private BarcodeScanner scanner;
+	private BarcodeScanner handScanner;
+	private BarcodeScanner mainScanner;
 	private BanknoteSlot banknoteInputSlot;
 	private CoinSlot coinSlot;
 	private ElectronicScale scale;
@@ -49,36 +59,74 @@ public class SelfCheckoutData {
 	private BigDecimal totalMoneyPaid = BigDecimal.ZERO;
 	private BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
 	
-	// No implementation yet
-	private String membershipPoints = "0\n";
+	private double expectedWeightNormalMode = 0;
+	private double expectedWeightCheckout = 0;
+	private double expectedWeightScanner = 0;
 	
-	private double expectedWeightNormalMode;
-	private double expectedWeightCheckout;
-	private double expectedWeightScanner;
-	
-	private AtomicBoolean weightValidNormalMode = new AtomicBoolean(false);
-	private AtomicBoolean weightValidCheckout = new AtomicBoolean(false);
-	private AtomicBoolean weightValidScanner = new AtomicBoolean(false);
-	
-	
+	//The amount a product's weight can differ +/- from the listed weight in the lookup
+	private double baggingAreaWeightVariability = 15;
 	
 	private static double bagWeight = 40;
 	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
-
+	// No implementation yet
+	private String membershipPoints = "0\n";
+		
 	// List of scanned products for later use (List of product objects, different from list of strings for receipt printing)
 	// **Future problem: PLU products are going to have a weight at checkout not part of its object definition
 	private ArrayList<Product> scannedProductList = new ArrayList<Product>();
+
+	//Product Lookup
+	private ProductDatabases productDatabases;
+	
+	//============================Software Flags============================
+	private AtomicBoolean isWeightValidNormalMode = new AtomicBoolean(false);
+	private AtomicBoolean isWeightValidCheckout = new AtomicBoolean(false);
+	private AtomicBoolean isWeightValidScanner = new AtomicBoolean(false);
+	
+	private AtomicBoolean inCheckout = new AtomicBoolean(false);
+	private AtomicBoolean inCleanup = new AtomicBoolean(false);
+	private AtomicBoolean isUsingOwnBags = new AtomicBoolean(false);
+	private AtomicBoolean cardSwipedCheckout = new AtomicBoolean(false);
+
+	private AtomicBoolean isFirstCheckout = new AtomicBoolean(false);
+	private AtomicBoolean isBaggingAreaScaleOverloaded = new AtomicBoolean(false);
+	private AtomicBoolean isScanningAreaScaleOverloaded = new AtomicBoolean(false);
+	private AtomicBoolean isScannerWaitingForWeightChange = new AtomicBoolean(false);
+	
+	private AtomicBoolean isCheckoutWaitingForCreditCard = new AtomicBoolean(false);
+	private AtomicBoolean isCheckoutWaitingForDebitCard = new AtomicBoolean(false);
+	private AtomicBoolean isCheckoutWaitingForGiftCard = new AtomicBoolean(false);
+	private AtomicBoolean isCheckoutWaitingForMembership = new AtomicBoolean(false);
+	//============================Software Flags============================
+	private Map<PriceLookupCode, PLUCodedProduct> PLU_Database;
+	private PLUDatabase PLU_Product_Database;
+	private BarcodedProductDatabase Barcoded_Product_Database;
+	private StoreInventory Store_Inventory;
+	
 
 	public SelfCheckoutData(SelfCheckoutStation station, TouchScreenSoftware touchScreenSoftware) {
 		//This class will give the software access to 
 		//the hardware devices
 		this.station = station;
 //		this.touchScreenSoftware = touchScreenSoftware;
-		this.scanner = this.station.mainScanner;
+		this.mainScanner = this.station.mainScanner;
+		this.handScanner = this.station.handheldScanner;
 		this.banknoteInputSlot = this.station.banknoteInput;
 		this.coinSlot = this.station.coinSlot;
 		this.scale = this.station.baggingArea;
 		this.cardReader = this.station.cardReader;
+		
+		//Initialize Product Databases
+		PLU_Product_Database = new PLUDatabase();
+		
+		//Initialize some test Proudcts
+		//THIS SHOULD BE PUT IN ITS OWN CLASS AT SOME POINT!!!
+		B
+		BarcodedProduct[] barcodedProductList = {};
+		Barcoded_Product_Database = new BarcodedProductDatabase(null);
+		
+		Store_Inventory = new StoreInventory();
+		
 	
 	}
 	
@@ -126,15 +174,7 @@ public class SelfCheckoutData {
 	}
 
 	protected State state = State.WELCOME;
-	private AtomicBoolean inCheckout;
-	private AtomicBoolean inCleanup;
-	private AtomicBoolean usingOwnBags;
-	private AtomicBoolean waitingForMembership;
-	private AtomicBoolean cardSwiped;
-	private String creditNum;
-	private AtomicBoolean waitingForCreditCard;
-	private AtomicBoolean isFirstCheckout;
-	
+		
 	
 	// Getters/setters
 	
@@ -285,9 +325,27 @@ public class SelfCheckoutData {
 		scannedProductList = new ArrayList<Product>();
 	}
 	
-	public BarcodeScanner getScanner() {
-		return scanner;
+	public BarcodeScanner getScanner(String type) {
+		if (type.equals("main"))
+		{
+			return mainScanner;
+		}
+		else if (type.equals("hand"))
+		{
+			return handScanner;
+		}
+		else
+		{
+			System.out.println("Error! Unexpected Type!");
+			return mainScanner;
+		}
 	}
+	
+	public BarcodeScanner getScanner() {
+		//If no arg, default to main scanner
+		return mainScanner;
+	}
+	
 	public BanknoteSlot getBanknoteInputSlot() {
 		return banknoteInputSlot;
 	}
@@ -324,27 +382,27 @@ public class SelfCheckoutData {
 	}
 	
 	public boolean getWeightValidCheckout() {
-		return weightValidCheckout.get();
+		return isWeightValidCheckout.get();
 	}
 	
 	public void setWeightValidCheckout(boolean bool) {
-		weightValidCheckout.set(bool);
+		isWeightValidCheckout.set(bool);
 	}
 	
 	public boolean getWeightValidNormalMode() {
-		return weightValidNormalMode.get();
+		return isWeightValidNormalMode.get();
 	}
 	
 	public void setWeightValidNormalMode(boolean bool) {
-		weightValidNormalMode.set(bool);
+		isWeightValidNormalMode.set(bool);
 	}
 	
 	public boolean getWeightValidScanner() {
-		return weightValidScanner.get();
+		return isWeightValidScanner.get();
 	}
 	
 	public void setWeightValidScanner(boolean bool) {
-		weightValidScanner.set(bool);
+		isWeightValidScanner.set(bool);
 	}
 	
 	//===========================Imported From CheckoutHandler===========================
@@ -392,17 +450,17 @@ public class SelfCheckoutData {
 	
 	private void resetWeightFlags() {
 		// Reset weight change flags
-		weightValidCheckout.set(false);
-		weightValidScanner.set(false);
-		weightValidNormalMode.set(false);
+		isWeightValidCheckout.set(false);
+		isWeightValidScanner.set(false);
+		isWeightValidNormalMode.set(false);
 	}
 	
 	public boolean isUsingOwnBags() {
-		return usingOwnBags.get();
+		return isUsingOwnBags.get();
 	}
 
 	public void isUsingOwnBags(boolean bool) {
-		usingOwnBags.set(bool);
+		isUsingOwnBags.set(bool);
 	}
 	
 	public void configureBagWeight() {
@@ -423,19 +481,19 @@ public class SelfCheckoutData {
 	}
 
 	public boolean isWaitingForMembership() {
-		return waitingForMembership.get();
+		return isCheckoutWaitingForMembership.get();
 	}
 	
 	public void setWaitingForMembership(boolean bool) {
-		waitingForMembership.set(bool);;
+		isCheckoutWaitingForMembership.set(bool);;
 	}
 	
 	public boolean getCardSwiped() {
-		return cardSwiped.get();
+		return cardSwipedCheckout.get();
 	}
 	
 	public void setCardSwiped(boolean bool) {
-		cardSwiped.set(bool);
+		cardSwipedCheckout.set(bool);
 	}
 	
 //	public void setCreditNumber(String num) {
@@ -443,11 +501,11 @@ public class SelfCheckoutData {
 //	}
 
 	public boolean isWaitingForCreditCard() {
-		return waitingForCreditCard.get();
+		return isCheckoutWaitingForCreditCard.get();
 	}
 	
 	public void setWaitingForCreditCard(boolean bool) {
-		waitingForCreditCard.set(bool);
+		isCheckoutWaitingForCreditCard.set(bool);
 	}
 	
 	public BigDecimal getTotalPaidThisTransaction() {
@@ -493,8 +551,33 @@ public class SelfCheckoutData {
 		isFirstCheckout.set(bool);
 		
 	}
-
+	//===========================Imported From CheckoutHandler===========================
 	
+	
+	//===========================For ScaleHandler===========================
+	
+	public boolean getIsBaggingAreaOverloaded() {
+		return isBaggingAreaScaleOverloaded.get();
+	}
+	public void setIsBaggingAreaOverloaded(boolean bool) {
+		isBaggingAreaScaleOverloaded.set(bool);
+	}
+	
+	//===========================For ScaleHandler===========================
+	
+	//===========================For ScannerHandler===========================
+	public boolean getIsScannerWaitingForWeightChange() {
+		return isScannerWaitingForWeightChange.get();
+	}
+	public void setIsScannerWaitingForWeightChange(boolean bool) {
+		isScannerWaitingForWeightChange.set(bool);
+	}
+	public double getBaggingAreaWeightVariablity() {
+		return baggingAreaWeightVariability;
+	}
+	
+	
+	//===========================For ScannerHandler===========================
 }
 
 

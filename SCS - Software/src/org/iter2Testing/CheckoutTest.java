@@ -21,7 +21,7 @@ import org.controlSoftware.*;
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BankClientInfo;
 import org.controlSoftware.data.NegativeNumberException;
-import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
@@ -57,7 +57,7 @@ public class CheckoutTest {
 	private CheckoutHandler checkout;
 	private ScheduledExecutorService scheduler;
 	private PayWithCash customCashPaymentObserver;
-	private ScaleHandler customScaleObserver;
+	private BaggingAreaScaleHandler customScaleObserver;
 	private ScannerHandler customScannerObserver;
 	private DummyItemProducts itemProducts;
 	private DummyBarcodeLookup lookup;
@@ -148,7 +148,7 @@ public class CheckoutTest {
 		this.Station.handheldScanner.attach((BarcodeScannerObserver) customScannerObserver);
 		
 		//Initialize a new custom scale observer
-		this.customScaleObserver = new ScaleHandler(this.Station.baggingArea, 
+		this.customScaleObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
 				   										 this.customScannerObserver, 
 				   										 touchScreen, 
 				   										 checkout);

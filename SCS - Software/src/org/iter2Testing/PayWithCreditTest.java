@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BankClientInfo;
-import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
@@ -47,7 +47,7 @@ public class PayWithCreditTest {
 	private CheckoutHandler checkout;
 	private ScheduledExecutorService scheduler;
 	private PayWithCash customCashPaymentObserver;
-	private ScaleHandler customScaleObserver;
+	private BaggingAreaScaleHandler customScaleObserver;
 	private ScannerHandler customScannerObserver;
 	private DummyItemProducts itemProducts;
 	private DummyBarcodeLookup lookup;
@@ -119,7 +119,7 @@ public class PayWithCreditTest {
 													 this.receiptHandler); 
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customScannerObserver);
 		//Initialize a new custom scale observer
-		this.customScaleObserver = new ScaleHandler(this.Station.baggingArea, 
+		this.customScaleObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
 				   										 this.customScannerObserver, 
 				   										 touchScreen, 
 				   										 checkout);
