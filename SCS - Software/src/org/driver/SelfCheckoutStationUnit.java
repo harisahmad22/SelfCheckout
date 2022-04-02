@@ -3,11 +3,13 @@ package org.driver;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import org.controlSoftware.general.TouchScreenSoftware;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.TouchScreen;
 
 public class SelfCheckoutStationUnit {
 	//This class will initialize a new SelfCheckoutStation along with the Touch Screen,
@@ -17,7 +19,7 @@ public class SelfCheckoutStationUnit {
 	private SelfCheckoutData stationData;
 
 	private TouchScreen touchScreen;
-	private TouchScreenSoftware
+	private TouchScreenSoftware touchScreenSoftware;
 	
 	private static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
