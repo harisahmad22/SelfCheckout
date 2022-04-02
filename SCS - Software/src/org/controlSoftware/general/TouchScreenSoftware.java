@@ -16,6 +16,7 @@ import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
+import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
 
@@ -52,12 +53,16 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	private InputStream inputStream; //So we can change Input stream for testing
 	private Scanner userInputScanner;
 	private SelfCheckoutData stationData;
+	private TouchScreen touchScreen;
 	
-	public TouchScreenSoftware(InputStream inputStream, SelfCheckoutData stationData)
+	public TouchScreenSoftware(InputStream inputStream, TouchScreen touchScreen, SelfCheckoutData stationData)
 	{
 		this.inputStream = inputStream;
 		this.userInputScanner = new Scanner(inputStream);
+		this.touchScreen = touchScreen;
 		this.stationData = stationData;
+		
+		this.touchScreen.attach(this);
 	}
 	
 

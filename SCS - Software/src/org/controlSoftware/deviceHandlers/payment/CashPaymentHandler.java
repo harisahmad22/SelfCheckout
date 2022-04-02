@@ -19,7 +19,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinDispenserObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinStorageUnitObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 
-public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObserver, CoinDispenserObserver, CoinStorageUnitObserver {
+public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValidatorObserver, CoinDispenserObserver, CoinStorageUnitObserver {
     private SelfCheckoutStation station;
 	private BanknoteValidator banknoteValidator;
     private CoinValidator coinValidator;
@@ -29,7 +29,7 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
 	private SelfCheckoutData stationData; 
 
 
-    public PayWithCash(SelfCheckoutData stationData){
+    public CashPaymentHandler(SelfCheckoutData stationData){
         this.stationData = stationData;
         this.station = stationData.getStation();
         this.banknoteValidator = this.station.banknoteValidator;

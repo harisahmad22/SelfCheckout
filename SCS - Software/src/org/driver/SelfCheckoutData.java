@@ -108,7 +108,7 @@ public class SelfCheckoutData {
 	private StoreInventory Store_Inventory;
 	
 
-	public SelfCheckoutData(SelfCheckoutStation station, TouchScreenSoftware touchScreenSoftware) {
+	public SelfCheckoutData(SelfCheckoutStation station) {
 		//This class will give the software access to 
 		//the hardware devices
 		this.station = station;

@@ -24,8 +24,8 @@ import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
-import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -56,7 +56,7 @@ public class CheckoutTest {
 	private TouchScreenSoftware touchScreen;
 	private CheckoutHandler checkout;
 	private ScheduledExecutorService scheduler;
-	private PayWithCash customCashPaymentObserver;
+	private CashPaymentHandler customCashPaymentObserver;
 	private BaggingAreaScaleHandler customScaleObserver;
 	private ScannerHandler customScannerObserver;
 	private DummyItemProducts itemProducts;
@@ -88,7 +88,7 @@ public class CheckoutTest {
 	private BarcodedItem milkJug;
 	private BarcodedItem cornFlakes;
 	private ReceiptHandler receiptHandler;
-	private ScansMembershipCard customMembershipScannerObserver;
+	private MembershipCardScannerHandler customMembershipScannerObserver;
 
 	//Initialize
 	@Before
@@ -155,10 +155,10 @@ public class CheckoutTest {
 		this.Station.baggingArea.attach((ElectronicScaleObserver) customScaleObserver);
 
 		//Initialize a new custom banknote validator observer
-		this.customCashPaymentObserver = new PayWithCash(this.Station);
+		this.customCashPaymentObserver = new CashPaymentHandler(this.Station);
 		
 		//Initialize a new custom banknote validator observer
-		this.customMembershipScannerObserver = new ScansMembershipCard(checkout);
+		this.customMembershipScannerObserver = new MembershipCardScannerHandler(checkout);
 		this.Station.cardReader.attach(customMembershipScannerObserver);
 			
 		scheduler = Executors.newScheduledThreadPool(5);

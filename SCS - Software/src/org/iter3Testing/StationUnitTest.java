@@ -51,7 +51,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 @RunWith(JUnit4.class)
-public class CheckoutTest {
+public class StationUnitTest {
 	
 //	private SelfCheckoutStation Station;
 //	private TouchScreenSoftware touchScreen;
@@ -89,6 +89,8 @@ public class CheckoutTest {
 	private BarcodedItem cornFlakes;
 	private ReceiptHandler receiptHandler;
 	private ScansMembershipCard customMembershipScannerObserver;
+	
+	private SelfCheckoutStationUnit stationUnit;
 
 	//Initialize
 	@Before
@@ -96,7 +98,7 @@ public class CheckoutTest {
 		
 		
 		
-		this.Station = new DummySelfCheckoutStation();
+		this.stationUnit = new SelfCheckoutStationUnit();
 		itemProducts = new DummyItemProducts();
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreenSoftware(System.in);

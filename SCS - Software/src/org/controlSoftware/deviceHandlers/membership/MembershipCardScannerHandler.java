@@ -12,10 +12,10 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
-public class ScansMembershipCard implements CardReaderObserver{
+public class MembershipCardScannerHandler implements CardReaderObserver{
 	private SelfCheckoutData stationData;
 	
-	public ScansMembershipCard(SelfCheckoutData stationData) {
+	public MembershipCardScannerHandler(SelfCheckoutData stationData) {
 		this.stationData = stationData;
 	}
 	

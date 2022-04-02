@@ -45,7 +45,7 @@ public class SelfCheckoutStationUnit {
 	private static Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 	
 	public SelfCheckoutStationUnit() {
-		SelfCheckoutStation station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+		this.station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
 			try { //Load half full
@@ -66,6 +66,34 @@ public class SelfCheckoutStationUnit {
 				e.printStackTrace();
 			};
 		}
+		
+		//Initialize Data + Software
+		this.stationData = new SelfCheckoutData(station);
+		this.touchScreen = new TouchScreen();
+		//TouchScreenSoftware will attach itself to the touch screen
+		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
+		//SelfCheckotSoftware will attach the handlers to the hardware
+		this.stationSoftware = new SelfCheckoutSoftware(station, stationData);
+	}
+	
+	public SelfCheckoutStation getSelfCheckoutStation()
+	{
+		return this.station;
+	}
+	
+	public SelfCheckoutData getSelfCheckoutData()
+	{
+		return this.stationData;
+	}
+	
+	public SelfCheckoutSoftware getSelfCheckoutSoftware()
+	{
+		return this.stationSoftware;
+	}
+	
+	public TouchScreenSoftware getTouchScreenSoftware()
+	{
+		return touchScreenSoftware;
 	}
 	
 	public Currency getCurrency()

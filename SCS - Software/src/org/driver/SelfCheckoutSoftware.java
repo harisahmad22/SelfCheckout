@@ -4,8 +4,13 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
+import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
+import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
+import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 public class SelfCheckoutSoftware {
 
@@ -18,6 +23,15 @@ public class SelfCheckoutSoftware {
 	private ReceiptHandler receiptHandler;
 	
 	private TouchScreenSoftware touchScreenSoftware;
+	private CashPaymentHandler cashPaymentHandler;
+	private CardReaderObserver membershipCardScannerHandler;
+	
+	/***
+	 * This Class will deal with initializing all the handlers in the system and attaching them
+	 * to the relevant hardware devices.
+	 * 
+	 * Methods will also be provided to access individual handlers. (May not be needed) 
+	 */
 	
 	public SelfCheckoutSoftware(SelfCheckoutStation station, SelfCheckoutData stationData)
 	{
@@ -33,7 +47,17 @@ public class SelfCheckoutSoftware {
 		
 		this.baggingAreaScaleHandler = new BaggingAreaScaleHandler(this.stationData, this);
 		
+		this.membershipCardScannerHandler = new MembershipCardScannerHandler(this.stationData);
 		
+		//CashPaymentHandler will deal with attaching to hardware
+		this.cashPaymentHandler = new CashPaymentHandler(this.stationData);
+		
+		this.station.mainScanner.attach((BarcodeScannerObserver) scannerHandler);
+		this.station.handheldScanner.attach((BarcodeScannerObserver) scannerHandler);
+		
+		this.station.baggingArea.attach((ElectronicScaleObserver) baggingAreaScaleHandler);
+				
+		this.station.cardReader.attach(membershipCardScannerHandler);
 		
 	}
 
@@ -58,7 +82,7 @@ public class SelfCheckoutSoftware {
 		return this.scannerHandler;
 	}
 	
-	public BaggingAreaScaleHandler getScaleHandler() {
+	public BaggingAreaScaleHandler getBaggingAreaScaleHandler() {
 		return this.baggingAreaScaleHandler;
 	}
 }

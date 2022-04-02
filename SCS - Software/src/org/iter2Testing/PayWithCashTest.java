@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class PayWithCashTest {
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
 	private CheckoutHandler checkout;
-	private PayWithCash customCashPaymentObserver;
+	private CashPaymentHandler customCashPaymentObserver;
 	private ReceiptHandler receiptHandler;
 	private static Banknote fiveDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 5);
 
@@ -49,7 +49,7 @@ public class PayWithCashTest {
 									 null,
 									 this.Station.cardReader);
 		//Initialize a new custom banknote validator observer
-		this.customCashPaymentObserver = new PayWithCash(this.Station);
+		this.customCashPaymentObserver = new CashPaymentHandler(this.Station);
 		
 		//Attach the custom cash payment observer to the relevant devices
 		this.Station.banknoteValidator.attach((BanknoteValidatorObserver) customCashPaymentObserver);
