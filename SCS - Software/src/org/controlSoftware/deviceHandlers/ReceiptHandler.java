@@ -9,12 +9,12 @@ import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 
 public class ReceiptHandler {
 	
-	private static ArrayList<String> scannedProductList = new ArrayList<String>();
-	private static String membershipID = "null\n"; //Default to null, change when membership card is scanned in
-	private static String membershipPoints = "0\n";
-	private static String finalTotal = "$0.0\n";
-	private static String finalChange = "$0.0\n";
-	private static String moneyPaid;
+	private ArrayList<String> scannedProductList = new ArrayList<String>();
+	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
+	private String membershipPoints = "0\n";
+	private String finalTotal = "$0.0\n";
+	private String finalChange = "$0.0\n";
+	private String moneyPaid;
 	private ReceiptPrinter printer;
 	
 	public ReceiptHandler(ReceiptPrinter printer)
@@ -80,56 +80,56 @@ public class ReceiptHandler {
 		}
 	}
 
-	public static ArrayList<String> getScannedProductList() {
+	public ArrayList<String> getScannedProductList() {
 		return scannedProductList;
 	}
 	
 	//Pass in string values for the product we just scanned
 	//Formated as: Description --- Price
-	public static void addProductToReceipt(String productDescription, String productPrice) {
+	public void addProductToReceipt(String productDescription, String productPrice) {
 		String receiptEntry = productDescription + " --- $" + productPrice + "\n";
-		ReceiptHandler.scannedProductList.add(receiptEntry);
+		this.scannedProductList.add(receiptEntry);
 	}
-	public static String getMembershipID() {
-		return membershipID;
+	public String getMembershipID() {
+		return this.membershipID;
 	}
-	public static void setMembershipID(String membershipID) {
-		ReceiptHandler.membershipID = membershipID + "\n";
-	}
-	
-	public static String getMembershipPoints() {
-		return membershipPoints;
-	}
-	public static void setMembershipPoints(String membershipPoints) {
-		ReceiptHandler.membershipPoints = membershipPoints + "\n";
+	public void setMembershipID(String ID) {
+		this.membershipID = ID + "\n";
 	}
 	
-	public static void setMembershipPoints(int membershipPoints) {
-		ReceiptHandler.membershipPoints = membershipPoints + "\n";
+	public String getMembershipPoints() {
+		return this.membershipPoints;
+	}
+	public void setMembershipPoints(String points) {
+		this.membershipPoints = points + "\n";
 	}
 	
-	public static String getFinalTotal() {
-		return finalTotal;
+	public void setMembershipPoints(int points) {
+		this.membershipPoints = points + "\n";
 	}
-	public static void setFinalTotal(BigDecimal finalTotal) {
-		ReceiptHandler.finalTotal = "$" + finalTotal.toString() + "\n";
+	
+	public String getFinalTotal() {
+		return this.finalTotal;
 	}
-	public static void setFinalTotal(String finalTotal) {
-		ReceiptHandler.finalTotal = "$" + finalTotal + "\n";
+	public void setFinalTotal(BigDecimal total) {
+		this.finalTotal = "$" + total.toString() + "\n";
 	}
-
-	public static String getFinalChange() {
-		return finalChange;
-	}
-
-	public static void setFinalChange(double finalChange) {
-		ReceiptHandler.finalChange = "$" + String.valueOf(finalChange) + "\n";
-	}
-	public static void setFinalChange(String finalChange) {
-		ReceiptHandler.finalChange = "$" + finalChange + "\n";
+	public void setFinalTotal(String total) {
+		this.finalTotal = "$" + total + "\n";
 	}
 
-	public static void setMoneyPaid(String moneyPaid) {
-		ReceiptHandler.moneyPaid = "$" + moneyPaid + "\n";
+	public String getFinalChange() {
+		return this.finalChange;
+	}
+
+	public void setFinalChange(double change) {
+		this.finalChange = "$" + String.valueOf(change) + "\n";
+	}
+	public void setFinalChange(String change) {
+		this.finalChange = "$" + change + "\n";
+	}
+
+	public void setMoneyPaid(String paid) {
+		this.moneyPaid = "$" + paid + "\n";
 	}
 }

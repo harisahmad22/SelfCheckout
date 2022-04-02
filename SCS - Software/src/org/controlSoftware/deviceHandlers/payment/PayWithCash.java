@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Map;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BanknoteValidator;
@@ -46,7 +46,7 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     //banknotes
 	@Override
 	public void validBanknoteDetected(BanknoteValidator validator, Currency currency, int value) {
-		CheckoutSoftware.addToTotalPaid(new BigDecimal(value));
+		CheckoutHandler.addToTotalPaid(new BigDecimal(value));
 	}
 
 	@Override
@@ -69,13 +69,13 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     // valid coin makes its way to the dispenser
     @Override
     public void coinAdded(CoinDispenser dispenser, Coin coin) {
-        CheckoutSoftware.addToTotalPaid(coin.getValue());
+        CheckoutHandler.addToTotalPaid(coin.getValue());
     }
 
     // valid coin makes its way to the storage unit
     @Override
     public void coinAdded(CoinStorageUnit unit) {
-        CheckoutSoftware.addToTotalPaid(lastValidCoinInserted);
+        CheckoutHandler.addToTotalPaid(lastValidCoinInserted);
     }
 
 

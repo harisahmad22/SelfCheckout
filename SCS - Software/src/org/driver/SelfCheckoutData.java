@@ -2,8 +2,17 @@ package org.driver;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.lsmr.selfcheckout.devices.BanknoteSlot;
+import org.lsmr.selfcheckout.devices.BarcodeScanner;
+import org.lsmr.selfcheckout.devices.CardReader;
+import org.lsmr.selfcheckout.devices.CoinSlot;
+import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
@@ -23,26 +32,54 @@ import org.lsmr.selfcheckout.products.Product;
  */
 
 public class SelfCheckoutData {
+	
+//	private TouchScreenSoftware touchScreenSoftware;
+	
+	//============================Hardware Devices============================ 
+	private SelfCheckoutStation station;
+	private BarcodeScanner scanner;
+	private BanknoteSlot banknoteInputSlot;
+	private CoinSlot coinSlot;
+	private ElectronicScale scale;
+	private CardReader cardReader;
+	//============================Hardware Devices============================	
+	
 	// Can't make attributes static, unfortunately, as multiple machines will all have their own data.
 	private BigDecimal totalDue = BigDecimal.ZERO;
 	private BigDecimal totalMoneyPaid = BigDecimal.ZERO;
-    
-	private SelfCheckoutStation station;
-	
-	private TouchScreenSoftware touchScreen;
-	private double expectedWeight;
-	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
+	private BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
 	
 	// No implementation yet
 	private String membershipPoints = "0\n";
 	
+	private double expectedWeightNormalMode;
+	private double expectedWeightCheckout;
+	private double expectedWeightScanner;
+	
+	private AtomicBoolean weightValidNormalMode = new AtomicBoolean(false);
+	private AtomicBoolean weightValidCheckout = new AtomicBoolean(false);
+	private AtomicBoolean weightValidScanner = new AtomicBoolean(false);
+	
+	
+	
+	private static double bagWeight = 40;
+	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
+
 	// List of scanned products for later use (List of product objects, different from list of strings for receipt printing)
 	// **Future problem: PLU products are going to have a weight at checkout not part of its object definition
 	private ArrayList<Product> scannedProductList = new ArrayList<Product>();
+
+	public SelfCheckoutData(SelfCheckoutStation station, TouchScreenSoftware touchScreenSoftware) {
+		//This class will give the software access to 
+		//the hardware devices
+		this.station = station;
+//		this.touchScreenSoftware = touchScreenSoftware;
+		this.scanner = this.station.mainScanner;
+		this.banknoteInputSlot = this.station.banknoteInput;
+		this.coinSlot = this.station.coinSlot;
+		this.scale = this.station.baggingArea;
+		this.cardReader = this.station.cardReader;
 	
-	
-	public SelfCheckoutData(SelfCheckoutStation newStation) {
-		station = newStation;
 	}
 	
 	
@@ -89,6 +126,15 @@ public class SelfCheckoutData {
 	}
 
 	protected State state = State.WELCOME;
+	private AtomicBoolean inCheckout;
+	private AtomicBoolean inCleanup;
+	private AtomicBoolean usingOwnBags;
+	private AtomicBoolean waitingForMembership;
+	private AtomicBoolean cardSwiped;
+	private String creditNum;
+	private AtomicBoolean waitingForCreditCard;
+	private AtomicBoolean isFirstCheckout;
+	
 	
 	// Getters/setters
 	
@@ -170,6 +216,7 @@ public class SelfCheckoutData {
 		case FINISHED:
 			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed.
 			break;
+		
 			
 		case ERROR:
 			break;
@@ -230,12 +277,224 @@ public class SelfCheckoutData {
 	private void wipeData() {
 		totalDue = BigDecimal.ZERO;
 		totalMoneyPaid = BigDecimal.ZERO;
-		expectedWeight = 0.0;
+		expectedWeightNormalMode = 0.0;
+		expectedWeightCheckout = 0.0;
+		expectedWeightScanner = 0.0;
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		membershipPoints = "0\n";
 		scannedProductList = new ArrayList<Product>();
 	}
+	
+	public BarcodeScanner getScanner() {
+		return scanner;
+	}
+	public BanknoteSlot getBanknoteInputSlot() {
+		return banknoteInputSlot;
+	}
+	public CoinSlot getCoinSlot() {
+		return coinSlot;
+	}
+	public ElectronicScale getScale() {
+		return scale;
+	}
+	public CardReader getCardReader() {
+		return cardReader;
+	}
+	public SelfCheckoutStation getStation() {
+		return station;
+	}
+	public void setExpectedWeightCheckout(double weight) {
+		expectedWeightCheckout = weight;
 		
+	}
+	public double getExpectedWeightNormalMode() {
+		return expectedWeightNormalMode;
+		
+	}
+	public double getExpectedWeightCheckout() {
+		return expectedWeightCheckout;
+		
+	}
+	public double getExpectedWeightScanner() {
+		return expectedWeightScanner;
+		
+	}
+	public double getBagWeight() {
+		return bagWeight;
+	}
+	
+	public boolean getWeightValidCheckout() {
+		return weightValidCheckout.get();
+	}
+	
+	public void setWeightValidCheckout(boolean bool) {
+		weightValidCheckout.set(bool);
+	}
+	
+	public boolean getWeightValidNormalMode() {
+		return weightValidNormalMode.get();
+	}
+	
+	public void setWeightValidNormalMode(boolean bool) {
+		weightValidNormalMode.set(bool);
+	}
+	
+	public boolean getWeightValidScanner() {
+		return weightValidScanner.get();
+	}
+	
+	public void setWeightValidScanner(boolean bool) {
+		weightValidScanner.set(bool);
+	}
+	
+	//===========================Imported From CheckoutHandler===========================
+	
+	public void addToTotalCost(BigDecimal scannedItemPrice) {
+		totalDue = totalDue.add(scannedItemPrice);
+
+	}
+
+	public void addToTotalPaid(BigDecimal amount) {
+		totalMoneyPaid = totalMoneyPaid.add(amount);
+		
+		//This will be used to track how much money has been paid during one
+		//payment run
+		totalPaidThisTransaction  = totalPaidThisTransaction.add(amount);
+
+	}
+	
+	public void resetTotalPaidThisTransaction()
+	{
+		totalPaidThisTransaction = BigDecimal.ZERO;
+	}
+
+	public void setInCheckout(boolean bool) {
+		inCheckout.set(bool);
+
+	}
+
+	public boolean isInCheckout() {
+		return inCheckout.get();
+	}
+
+	public boolean isInCleanup() {
+		return inCleanup.get();
+	}
+
+	public void setInCleanup(boolean bool) {
+		inCleanup.set(bool);
+	}
+
+	public void resetCheckoutTotals() {
+		totalMoneyPaid = BigDecimal.ZERO;
+		totalDue = BigDecimal.ZERO;
+	}
+	
+	private void resetWeightFlags() {
+		// Reset weight change flags
+		weightValidCheckout.set(false);
+		weightValidScanner.set(false);
+		weightValidNormalMode.set(false);
+	}
+	
+	public boolean isUsingOwnBags() {
+		return usingOwnBags.get();
+	}
+
+	public void isUsingOwnBags(boolean bool) {
+		usingOwnBags.set(bool);
+	}
+	
+	public void configureBagWeight() {
+		try (Scanner weightInput = new Scanner(System.in)) {
+			System.out.println("Enter new weight of bags");
+			bagWeight = weightInput.nextDouble();
+			// configure new weight of bags
+			if (bagWeight < 0) {
+				throw new NegativeNumberException();
+			}
+		} catch (InputMismatchException e) {
+			System.out.println("Must enter a valid weight for bags!");
+		}	
+	}
+
+	public int compareTotals() {
+		return totalMoneyPaid.compareTo(getTotalDue());
+	}
+
+	public boolean isWaitingForMembership() {
+		return waitingForMembership.get();
+	}
+	
+	public void setWaitingForMembership(boolean bool) {
+		waitingForMembership.set(bool);;
+	}
+	
+	public boolean getCardSwiped() {
+		return cardSwiped.get();
+	}
+	
+	public void setCardSwiped(boolean bool) {
+		cardSwiped.set(bool);
+	}
+	
+//	public void setCreditNumber(String num) {
+//		creditNum = num;
+//	}
+
+	public boolean isWaitingForCreditCard() {
+		return waitingForCreditCard.get();
+	}
+	
+	public void setWaitingForCreditCard(boolean bool) {
+		waitingForCreditCard.set(bool);
+	}
+	
+	public BigDecimal getTotalPaidThisTransaction() {
+		return totalPaidThisTransaction;
+		
+	}
+	
+	public void setTotalPaidThisTransaction(BigDecimal val) {
+		totalPaidThisTransaction = val;
+		
+	}
+	
+	public void disablePaymentDevices() {
+		this.station.coinSlot.disable();
+		this.station.banknoteInput.disable();
+		this.station.cardReader.disable();
+	}
+
+	public void enablePaymentDevices() {
+		this.station.coinSlot.enable();
+		this.station.banknoteInput.enable();
+		this.station.cardReader.enable();
+	}
+
+	// Disable all devices associated with this observer
+	public void disableDevices() {
+		this.station.baggingArea.disable();
+		this.station.mainScanner.disable();
+		disablePaymentDevices();
+	}
+
+	// Enable all devices associated with this observer
+	public void enableDevices() {
+		this.station.baggingArea.enable();
+		this.station.mainScanner.enable();
+		enablePaymentDevices();
+	}
+	public boolean isFirstCheckout() {
+		return isFirstCheckout.get();
+	}
+	
+	public void setIsFirstCheckout(boolean bool) {
+		isFirstCheckout.set(bool);
+		
+	}
+
+	
 }
 
 

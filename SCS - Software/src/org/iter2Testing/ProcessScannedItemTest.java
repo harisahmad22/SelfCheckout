@@ -12,9 +12,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.controlSoftware.*;
-import org.controlSoftware.customer.CheckoutSoftware;
-import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
-import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.customer.CheckoutHandler;
+import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
@@ -34,9 +34,9 @@ public class ProcessScannedItemTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private CheckoutSoftware checkout;
-	private ProcessScannedItem customObserver;
-	private ItemInBaggingArea customScaleObserver;
+	private CheckoutHandler checkout;
+	private ScannerHandler customObserver;
+	private ScaleHandler customScaleObserver;
 	private DummyBarcodeLookup lookup;
 	private DummyItemProducts itemProducts;
 	
@@ -59,7 +59,7 @@ public class ProcessScannedItemTest {
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -79,7 +79,7 @@ public class ProcessScannedItemTest {
     	cornFlakesCost = lookup.get(itemProducts.BarcodeList.get(2)).getPrice();
 		
 		//Initialize a new custom Barcode scanner observer
-		this.customObserver = new ProcessScannedItem(this.Station.mainScanner,
+		this.customObserver = new ScannerHandler(this.Station.mainScanner,
 													 this.lookup, 
 													 this.Station.baggingArea, 
 													 touchScreen,
@@ -90,7 +90,7 @@ public class ProcessScannedItemTest {
 		this.Station.handheldScanner.attach((BarcodeScannerObserver) customObserver);
 		
 		//Initialize a new custom scale observer
-		this.customScaleObserver = new ItemInBaggingArea(this.Station.baggingArea, 
+		this.customScaleObserver = new ScaleHandler(this.Station.baggingArea, 
 				   										 this.customObserver, 
 				   										 touchScreen, 
 				   										 checkout);
@@ -307,6 +307,6 @@ public class ProcessScannedItemTest {
     public void resetState() {
     	this.Station = new DummySelfCheckoutStation();
     	this.touchScreen = new TouchScreenSoftware(System.in);
-    	CheckoutSoftware.resetCheckoutTotals();
+    	CheckoutHandler.resetCheckoutTotals();
 	}
 }

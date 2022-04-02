@@ -18,11 +18,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.controlSoftware.*;
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BankClientInfo;
 import org.controlSoftware.data.NegativeNumberException;
-import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
-import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.deviceHandlers.ScaleHandler;
+import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithCash;
@@ -54,11 +54,11 @@ public class CheckoutTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private CheckoutSoftware checkout;
+	private CheckoutHandler checkout;
 	private ScheduledExecutorService scheduler;
 	private PayWithCash customCashPaymentObserver;
-	private ItemInBaggingArea customScaleObserver;
-	private ProcessScannedItem customScannerObserver;
+	private ScaleHandler customScaleObserver;
+	private ScannerHandler customScannerObserver;
 	private DummyItemProducts itemProducts;
 	private DummyBarcodeLookup lookup;
 	
@@ -111,15 +111,15 @@ public class CheckoutTest {
 		BankClientInfo bankClientCreditInfo = new BankClientInfo("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
 		PayWithCreditCard payWithCreditTest = new PayWithCreditCard(this.Station, testCreditCard, null, "4321", bankClientCreditInfo);
 		
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
 									 this.Station.baggingArea,
 									 this.Station,
 									 this.receiptHandler,
-									 payWithDebitTest,
-									 payWithCreditTest,
+//									 payWithDebitTest,
+//									 payWithCreditTest,
 									 this.Station.cardReader);
 		
 		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();
@@ -138,7 +138,7 @@ public class CheckoutTest {
 		
 		
 		//Initialize a new custom Barcode scanner observer
-		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
+		this.customScannerObserver = new ScannerHandler(this.Station.mainScanner,
 													 this.lookup, 
 													 this.Station.baggingArea, 
 													 touchScreen, 
@@ -148,7 +148,7 @@ public class CheckoutTest {
 		this.Station.handheldScanner.attach((BarcodeScannerObserver) customScannerObserver);
 		
 		//Initialize a new custom scale observer
-		this.customScaleObserver = new ItemInBaggingArea(this.Station.baggingArea, 
+		this.customScaleObserver = new ScaleHandler(this.Station.baggingArea, 
 				   										 this.customScannerObserver, 
 				   										 touchScreen, 
 				   										 checkout);
@@ -313,7 +313,7 @@ public class CheckoutTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("50");
-    	CheckoutSoftware.setTotalCost(total); //Add $50 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
     	Coin[] coins = { quarter, toonie, toonie, toonie};
@@ -359,7 +359,7 @@ public class CheckoutTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("55");
-    	CheckoutSoftware.setTotalCost(total); //Add $50 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { fiftyDollarBanknote, twentyDollarBanknote };
     	
@@ -404,7 +404,7 @@ public class CheckoutTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("55");
-    	CheckoutSoftware.setTotalCost(total); //Add $55 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $55 to total cost
     	
     	Banknote[] banknotes1 = { fiftyDollarBanknote }; 
     	Coin[] coins = { quarter, quarter, quarter, loonie, toonie};
@@ -456,7 +456,7 @@ public class CheckoutTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("55");
-    	CheckoutSoftware.setTotalCost(total); //Add $55 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $55 to total cost
     	
     	//Remove all $5 bills, and all toonies, shold be given back the coins we put in 
     	// plus $5 in loonies
@@ -503,7 +503,7 @@ public class CheckoutTest {
 		BankClientInfo bankClientDebitInfo = new BankClientInfo("Debit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
 		PayWithDebitCard payWithDebitTest = new PayWithDebitCard(this.Station, testDebitCard, null, "4321", bankClientDebitInfo);
 		
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -532,7 +532,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -552,7 +552,7 @@ public class CheckoutTest {
 		BankClientInfo bankClientCreditInfo = new BankClientInfo("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
 		PayWithCreditCard payWithCreditTest = new PayWithCreditCard(this.Station, testCreditCard, null, "4321", bankClientCreditInfo);
 		
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -581,7 +581,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -613,7 +613,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -645,7 +645,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
     	
@@ -681,7 +681,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -713,7 +713,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
     	
@@ -749,7 +749,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -781,7 +781,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
     	
@@ -817,7 +817,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -849,7 +849,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
     	
@@ -885,7 +885,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -917,7 +917,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
     	
@@ -953,7 +953,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -985,7 +985,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
     	
@@ -1021,7 +1021,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("50");
-    	CheckoutSoftware.setTotalCost(total); //Add $50 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	//Create a list of banknotes exceeding the total cost of all items
@@ -1072,7 +1072,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
     	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
@@ -1123,7 +1123,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
     	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
@@ -1176,7 +1176,7 @@ public class CheckoutTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
     	
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
@@ -1204,7 +1204,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.setTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
 
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
@@ -1233,7 +1233,7 @@ public class CheckoutTest {
     	BigDecimal total = new BigDecimal("50");
     	//Add a milk jug to the scale
     	this.Station.baggingArea.add(milkJug);
-    	CheckoutSoftware.setTotalCost(total); //Add $50 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
 
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
@@ -1264,7 +1264,7 @@ public class CheckoutTest {
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("6.75");
     	this.Station.baggingArea.add(milkJug);
-    	CheckoutSoftware.setTotalCost(total); //Add $50 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	checkout.setExpectedWeight(4000);
@@ -1293,7 +1293,7 @@ public class CheckoutTest {
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("5");
-    	CheckoutSoftware.setTotalCost(total); //Add $5 to total cost
+    	CheckoutHandler.setTotalCost(total); //Add $5 to total cost
     	//Bypass startCheckout method
     	checkout.setInCheckout(true);
     	//$4 in coins to pay before adding another item
@@ -1371,9 +1371,9 @@ public class CheckoutTest {
     {
     	System.setIn(backupInputStream);    	
     	banknoteChangeValue = 0;
-    	CheckoutSoftware.setTotalCost(BigDecimal.ZERO);
-    	CheckoutSoftware.setTotalPaid(BigDecimal.ZERO);
-    	CheckoutSoftware.setTotalPaidThisTransaction(BigDecimal.ZERO);
+    	CheckoutHandler.setTotalCost(BigDecimal.ZERO);
+    	CheckoutHandler.setTotalPaid(BigDecimal.ZERO);
+    	CheckoutHandler.setTotalPaidThisTransaction(BigDecimal.ZERO);
     	this.touchScreen = new TouchScreenSoftware(System.in);
     	scheduler.shutdownNow();
 

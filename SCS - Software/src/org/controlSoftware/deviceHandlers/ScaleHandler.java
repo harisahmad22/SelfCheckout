@@ -2,23 +2,25 @@
 
 package org.controlSoftware.deviceHandlers;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutSoftware;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
-public class ItemInBaggingArea implements ElectronicScaleObserver {
-	private static final double BAG_WEIGHT = 5;
-	private boolean isOverloaded = false;
-	private ElectronicScale scale;
-	private ProcessScannedItem scannerObserver;
-	private TouchScreenSoftware display;
-	private CheckoutSoftware checkout;
-	private double weightAtLastEvent = 0;
-	private double personalBagsWeight = 0;
-	private double weightVariablity = 25;
+public class ScaleHandler implements ElectronicScaleObserver {
+//	private static final double BAG_WEIGHT = 5;
+//	private boolean isOverloaded = false;
+//	private ElectronicScale scale;
+//	private ScannerHandler scannerObserver;
+//	private TouchScreenSoftware display;
+//	private CheckoutHandler checkout;
+//	private double weightAtLastEvent = 0;
+//	private double personalBagsWeight = 0;
+//	private double weightVariablity = 25;
 
 	/*
 	 * (Shufan) DONT HAVE TO WORRY ABOUT: - the graphical user interface - products
@@ -36,17 +38,27 @@ public class ItemInBaggingArea implements ElectronicScaleObserver {
 	 * 4) Done
 	 */
 
-	public ItemInBaggingArea(ElectronicScale scale, ProcessScannedItem scanner, TouchScreenSoftware display,
-			CheckoutSoftware checkout) {
-		this.scale = scale;
-		this.scannerObserver = scanner;
-		this.display = display;
-		this.checkout = checkout;
+
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
+	
+	public ScaleHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware)
+//			ElectronicScale scale, 
+//			ScannerHandler scanner, 
+//			TouchScreenSoftware display,
+//			CheckoutHandler checkout) 
+	{
+//		this.scale = scale;
+//		this.scannerObserver = scanner;
+//		this.display = display;
+//		this.checkout = checkout;
+		this.stationData = stationData;
+		this.stationSoftware = stationSoftware;
 
 	}
 
 	public boolean isOverloaded() {
-		return isOverloaded;
+		return stationData.getIsOverloaded();
 	}
 
 	@Override

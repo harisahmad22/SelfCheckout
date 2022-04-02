@@ -15,9 +15,11 @@ public class SelfCheckoutStationUnit {
 	
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
+	
 
 	private TouchScreen touchScreen;
-	private TouchScreenSoftware
+	private TouchScreenSoftware touchScreenSoftware;
 	
 	private static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};

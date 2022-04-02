@@ -3,7 +3,7 @@ package org.controlSoftware.deviceHandlers.payment;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BankClientInfo;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
@@ -152,7 +152,7 @@ public class PayWithDebitCard implements CardReaderObserver {
 
 	private void completeTransaction(BigDecimal totalDue)
 	{
-		CheckoutSoftware.addToTotalPaid(totalDue);
+		CheckoutHandler.addToTotalPaid(totalDue);
 		bankInfo.updateBalance(totalDue);
 	}
 	
