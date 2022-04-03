@@ -52,6 +52,7 @@ public class SelfCheckoutStationUnit {
 		this.station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
+			//Money Loading should be moved to testing/attendant methods 
 			try { //Load half full
 				for (int i = 0; i < 100; i++) { station.coinDispensers.get(val).load(new Coin(CAD, val)); }
 				
