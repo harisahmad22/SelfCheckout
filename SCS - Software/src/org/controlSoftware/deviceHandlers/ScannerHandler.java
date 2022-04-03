@@ -8,8 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.data.BarcodeLookup;
-import org.controlSoftware.data.ItemProduct;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
@@ -66,16 +64,16 @@ public class ScannerHandler implements BarcodeScannerObserver
 		stationData.getScanner("main").disable(); //Disable scanning while we process this item
 		stationData.getScanner("hand").disable(); //Disable handheld scanning while we process this item
 		// Lookup Barcode in out lookup
-		BarcodedProduct scannedItem = stationData.getBarcodedProductDatabase().get(barcode);
-		if (scannedItem != null)
+		BarcodedProduct scannedProduct = stationData.getBarcodedProductDatabase().get(barcode);
+		if (scannedProduct != null)
 		{ //Item found in lookup, proceed
-			System.out.println(scannedItem.getDescription() + " has just been scanned in!");
-			BigDecimal scannedItemPrice = scannedItem.getPrice();
-			double scannedItemWeight = scannedItem.getExpectedWeight();
+			System.out.println(scannedProduct.getDescription() + " has just been scanned in!");
+			BigDecimal scannedItemPrice = scannedProduct.getPrice();
+			double scannedItemWeight = scannedProduct.getExpectedWeight();
 			double scannedItemWeightInKG = scannedItemWeight/1000; // Convert grams to KG
 			
 			
-			if (scannedItem.isPerUnit()) 
+			if (scannedProduct.isPerUnit()) 
 			{
 				//Item is priced per unit, since only one item can be scanned at once, just 
 				//add the price of this item to the customer's total
@@ -91,7 +89,8 @@ public class ScannerHandler implements BarcodeScannerObserver
 			}
 			
 			//Add product info to the receipt handler list
-			stationSoftware.getReceiptHandler().addProductToReceipt(scannedItem.getDescription(), scannedItemPrice.toString());
+			//!!! THIS SHOULD BE CHANGED TO ADD TO THE scannedProduct
+			stationData.addProductToCheckout(scannedProduct);
 			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
