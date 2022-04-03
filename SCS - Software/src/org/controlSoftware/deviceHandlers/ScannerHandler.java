@@ -90,7 +90,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 			
 			//Add product info to the receipt handler list
 			//!!! THIS SHOULD BE CHANGED TO ADD TO THE scannedProduct
-			stationSoftware.getReceiptHandler().addProductToReceipt(scannedProduct.getDescription(), scannedItemPrice.toString());
+			stationData.addProductToCheckout(scannedProduct);
 			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
