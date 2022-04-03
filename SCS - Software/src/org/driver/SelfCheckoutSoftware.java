@@ -45,7 +45,7 @@ public class SelfCheckoutSoftware {
 		
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationUnit.getTouchScreen(), stationData);
 		
-		this.receiptHandler = new ReceiptHandler(this.stationHardware.printer);
+		this.receiptHandler = new ReceiptHandler(this.stationData, this.stationHardware.printer);
 		
 		this.checkoutHandler = new CheckoutHandler(this.stationData, this);
 		

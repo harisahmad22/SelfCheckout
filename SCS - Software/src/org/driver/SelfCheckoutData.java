@@ -2,13 +2,14 @@ package org.driver;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.controlSoftware.data.BarcodeLookup;
 import org.controlSoftware.data.NegativeNumberException;
+import org.controlSoftware.data.ProductInfo;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.TestProducts;
@@ -75,9 +76,11 @@ public class SelfCheckoutData {
 	// No implementation yet
 	private String membershipPoints = "0\n";
 		
-	// List of scanned products for later use (List of product objects, different from list of strings for receipt printing)
-	// **Future problem: PLU products are going to have a weight at checkout not part of its object definition
-	private ArrayList<Product> scannedProductList = new ArrayList<Product>();
+	// List of scanned products for receipt generation and GUI
+	//The ProductInfo class is a wrapper for a product that allows you to get its associated weight
+	//Which may come from a database or the scanning area scale
+	//There are two methods to add to this map, either using a BarcodedProduct or a PLUCodedProduct
+	private HashMap<String, ProductInfo> productsAddedToCheckout = new HashMap<String, ProductInfo>(); //Key is product description, could be changed
 
 	//Product Lookup
 	private ProductDatabases productDatabases;
@@ -205,11 +208,25 @@ public class SelfCheckoutData {
 		return membershipID;
 	}
 	
-	public void addScannedProduct(Product product) {
-		scannedProductList.add(product);
+	public void addProductToCheckout(BarcodedProduct product) {
+		ProductInfo PI = new ProductInfo(product, product.getExpectedWeight());
+		productsAddedToCheckout.put(product.getDescription(), PI);
 	}
-	public Product getScannedProduct(int index) {
-		return scannedProductList.get(index);
+	public void addProductToCheckout(PLUCodedProduct product, double weight) {
+		ProductInfo PI = new ProductInfo(product, weight);
+		productsAddedToCheckout.put(product.getDescription(), PI);
+	}
+	public HashMap<String, ProductInfo> getProductsAddedToCheckoutHashMap() {
+		return productsAddedToCheckout;
+	}
+	public ProductInfo getProductAddedToCheckout(String productDescription) {
+		return productsAddedToCheckout.get(productDescription);
+	}
+	public void removeProductFromCheckoutHashMap(String description) {
+		if (productsAddedToCheckout.remove(description) == null)
+		{
+			System.out.println("Error! Could not remove product with description: " + description);
+		}
 	}
 	
 	/*
@@ -328,7 +345,7 @@ public class SelfCheckoutData {
 		expectedWeightScanner = 0.0;
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		membershipPoints = "0\n";
-		scannedProductList = new ArrayList<Product>();
+		productsAddedToCheckout = new HashMap<String, ProductInfo>();
 	}
 	
 	public BarcodeScanner getScanner(String type) {

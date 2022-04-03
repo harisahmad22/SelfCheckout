@@ -2,23 +2,28 @@ package org.controlSoftware.deviceHandlers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.controlSoftware.data.ProductInfo;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 
 public class ReceiptHandler {
 	
-	private ArrayList<String> scannedProductList = new ArrayList<String>();
+//	private ArrayList<String> scannedProductList = new ArrayList<String>();
 	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
 	private String membershipPoints = "0\n";
 	private String finalTotal = "$0.0\n";
 	private String finalChange = "$0.0\n";
 	private String moneyPaid;
 	private ReceiptPrinter printer;
+	private SelfCheckoutData stationData;
 	
-	public ReceiptHandler(ReceiptPrinter printer)
+	public ReceiptHandler(SelfCheckoutData stationData, ReceiptPrinter printer)
 	{
+		this.stationData = stationData;
 		this.printer = printer;
 	}
 	
@@ -27,9 +32,15 @@ public class ReceiptHandler {
 		//For each entry in the scannedProductList, convert the string
 		//to a byte array, and loop over each character printing it via the printer
 		//The print can print a MAX of 60 chars on a single line
-		for (String productInfo : scannedProductList)
+		
+		HashMap<String, ProductInfo> productsInCheckout = stationData.getProductsAddedToCheckoutHashMap();
+		for (String productDescription : productsInCheckout.keySet())
 		{
-			char[] productCharArray = productInfo.toCharArray();
+			//Get the price via description as key, then get Product from ProductInfo wrapper, then get the price.
+			BigDecimal productPrice = productsInCheckout.get(productDescription).getProduct().getPrice();
+			
+			String receiptEntry = productDescription + " --- $" + productPrice + "\n";
+			char[] productCharArray = receiptEntry.toCharArray();
 			
 			printChars(productCharArray);
 		}	
@@ -80,16 +91,16 @@ public class ReceiptHandler {
 		}
 	}
 
-	public ArrayList<String> getScannedProductList() {
-		return scannedProductList;
-	}
-	
-	//Pass in string values for the product we just scanned
-	//Formated as: Description --- Price
-	public void addProductToReceipt(String productDescription, String productPrice) {
-		String receiptEntry = productDescription + " --- $" + productPrice + "\n";
-		this.scannedProductList.add(receiptEntry);
-	}
+//	public ArrayList<String> getScannedProductList() {
+//		return scannedProductList;
+//	}
+//	
+//	//Pass in string values for the product we just scanned
+//	//Formated as: Description --- Price
+//	public void addProductToReceipt(String productDescription, String productPrice) {
+//		String receiptEntry = productDescription + " --- $" + productPrice + "\n";
+//		this.scannedProductList.add(receiptEntry);
+//	}
 	public String getMembershipID() {
 		return this.membershipID;
 	}
