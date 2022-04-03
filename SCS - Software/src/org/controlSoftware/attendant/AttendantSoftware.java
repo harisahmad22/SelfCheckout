@@ -52,6 +52,8 @@ public class AttendantSoftware {
 		this.supervisionStation = supervisionStation;
 		this.touchScreenDevice = supervisionStation.screen;
 		this.keyboard = supervisionStation.keyboard;
+		
+		//Use this array list to access all the data/software/hardware of any connected checkout station
 		this.checkoutStationUnits = checkoutStationUnits;
 	}
 	
