@@ -34,7 +34,8 @@ public final class TouchScreen extends AbstractDevice<TouchScreenObserver> {
 	}
 
 	private JFrame createGUI() {
-		JFrame frame = new JFrame();
+		//ADDED FINAL MODIFIER TO THIS VARIABLE TO REMOVE ERROR, JUST FOR TESTING PURPOSES (BRODY)
+		final JFrame frame = new JFrame();
 
 		frame.setUndecorated(true);
 		frame.setVisible(true);

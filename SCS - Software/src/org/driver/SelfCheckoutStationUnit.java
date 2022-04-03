@@ -76,7 +76,12 @@ public class SelfCheckoutStationUnit {
 		this.stationSoftware = new SelfCheckoutSoftware(station, stationData);
 	}
 	
-	public SelfCheckoutStation getSelfCheckoutStation()
+	public SelfCheckoutStationUnit getSelfCheckoutStationUnit()
+	{
+		return this;
+	}
+	
+	public SelfCheckoutStation getSelfCheckoutStationHardware()
 	{
 		return this.station;
 	}
@@ -89,6 +94,11 @@ public class SelfCheckoutStationUnit {
 	public SelfCheckoutSoftware getSelfCheckoutSoftware()
 	{
 		return this.stationSoftware;
+	}
+	
+	public TouchScreen getTouchScreen()
+	{
+		return touchScreen;
 	}
 	
 	public TouchScreenSoftware getTouchScreenSoftware()

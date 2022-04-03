@@ -7,14 +7,16 @@ import java.util.ArrayList;
 
 import org.controlSoftware.data.ItemProduct;
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 
 public class TestProducts {
 	
-	public ArrayList<Barcode> BarcodeList = new ArrayList<Barcode>();
-	
-	public ArrayList<BarcodedProduct> BPList = new ArrayList<BarcodedProduct>();
+	private ArrayList<Barcode> BarcodeList = new ArrayList<Barcode>();
+
+	private ArrayList<BarcodedProduct> BPList = new ArrayList<BarcodedProduct>();
 	
 	public TestProducts()
 	{
@@ -52,5 +54,19 @@ public class TestProducts {
 		// ItemProduct 3
 	//===============================================================================
 
+	}
+	
+	//For quickly creating an item based off of the corresponding barcoded product
+	public BarcodedItem getItem(BarcodedProduct product)
+	{
+		return new BarcodedItem(product.getBarcode(), product.getExpectedWeight());
+	}
+	
+	public ArrayList<Barcode> getBarcodeList() {
+		return BarcodeList;
+	}
+
+	public ArrayList<BarcodedProduct> getBarcodedProductList() {
+		return BPList;
 	}
 }

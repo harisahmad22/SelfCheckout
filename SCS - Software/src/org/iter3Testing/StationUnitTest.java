@@ -24,12 +24,16 @@ import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
-import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
+import org.driver.databases.TestProducts;
+import org.iter2Testing.RemoveItemOnScaleRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -38,6 +42,7 @@ import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.EmptyException;
@@ -49,6 +54,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinDispenserObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinStorageUnitObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
 
 @RunWith(JUnit4.class)
 public class StationUnitTest {
@@ -85,12 +91,26 @@ public class StationUnitTest {
 	
 	public static int banknoteChangeValue = 0; //Updated by DanglingBanknoteRemover runnable 
 	
-	private BarcodedItem milkJug;
-	private BarcodedItem cornFlakes;
+	private BarcodedProduct milkJug;
+	private BarcodedProduct orangeJuice;
+	private BarcodedProduct cornFlakes;
+	private BarcodedItem milkJugItem;
+	private BarcodedItem orangeJuiceItem;
+	private BarcodedItem cornFlakesItem;
+	
 	private ReceiptHandler receiptHandler;
-	private ScansMembershipCard customMembershipScannerObserver;
+	private MembershipCardScannerHandler customMembershipScannerObserver;
 	
 	private SelfCheckoutStationUnit stationUnit;
+	private SelfCheckoutStation stationHardware;
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
+	private TouchScreenSoftware touchScreenSoftware;
+	private TestProducts testProducts;
+	
+	private ScheduledExecutorService scheduler;
+	
+	
 
 	//Initialize
 	@Before
@@ -99,71 +119,62 @@ public class StationUnitTest {
 		
 		
 		this.stationUnit = new SelfCheckoutStationUnit();
-		itemProducts = new DummyItemProducts();
-		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
-		this.touchScreen = new TouchScreenSoftware(System.in);
-		this.receiptHandler = new ReceiptHandler(this.Station.printer);
+		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
+		this.stationData = stationUnit.getSelfCheckoutData();
+		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
+		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
+		
+		this.testProducts = new TestProducts();
+//		System.out.println(testProducts.getBarcodedProductList().get(0).getDescription());
+		
+//		this.stationData = new SelfCheckoutData();
+//		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationData);
 		
 		//Setup Cards
-		Card testDebitCard = new Card("Debit", "1234567890", "Test Card Holder", "000", "1234", true, true);
-		BankClientInfo bankClientDebitInfo = new BankClientInfo("Debit", "1234567890", "Test Card Holder", "000", "1234", true, true, new BigDecimal("50000"), new BigDecimal("2500"));
-		PayWithDebitCard payWithDebitTest = new PayWithDebitCard(this.Station, testDebitCard, null, "1234", bankClientDebitInfo);
+//		Card testDebitCard = new Card("Debit", "1234567890", "Test Card Holder", "000", "1234", true, true);
+//		BankClientInfo bankClientDebitInfo = new BankClientInfo("Debit", "1234567890", "Test Card Holder", "000", "1234", true, true, new BigDecimal("50000"), new BigDecimal("2500"));
+//		PayWithDebitCard payWithDebitTest = new PayWithDebitCard(this.Station, testDebitCard, null, "1234", bankClientDebitInfo);
+//		
+//		Card testCreditCard = new Card("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true);
+//		BankClientInfo bankClientCreditInfo = new BankClientInfo("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
+//		PayWithCreditCard payWithCreditTest = new PayWithCreditCard(this.Station, testCreditCard, null, "4321", bankClientCreditInfo);
+//		
+//		this.checkout = new CheckoutHandler(this.touchScreen, 
+//									 this.Station.mainScanner, 
+//									 this.Station.banknoteInput, //Checkout can disable banknote slot
+//									 this.Station.coinSlot,      //Checkout can disable coin slot
+//									 this.Station.baggingArea,
+//									 this.Station,
+//									 this.receiptHandler,
+////									 payWithDebitTest,
+////									 payWithCreditTest,
+//									 this.Station.cardReader);
 		
-		Card testCreditCard = new Card("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true);
-		BankClientInfo bankClientCreditInfo = new BankClientInfo("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
-		PayWithCreditCard payWithCreditTest = new PayWithCreditCard(this.Station, testCreditCard, null, "4321", bankClientCreditInfo);
+		milkJug = stationData.getBarcodedProductDatabase()
+					.get(testProducts.getBarcodeList().get(0));
+		milkJugItem = testProducts.getItem(milkJug);
 		
-		this.checkout = new CheckoutHandler(this.touchScreen, 
-									 this.Station.mainScanner, 
-									 this.Station.banknoteInput, //Checkout can disable banknote slot
-									 this.Station.coinSlot,      //Checkout can disable coin slot
-									 this.Station.baggingArea,
-									 this.Station,
-									 this.receiptHandler,
-//									 payWithDebitTest,
-//									 payWithCreditTest,
-									 this.Station.cardReader);
+		orangeJuice = stationData.getBarcodedProductDatabase()
+				.get(testProducts.getBarcodeList().get(1));
+		orangeJuiceItem = testProducts.getItem(orangeJuice);
 		
-		milkJug = lookup.get(itemProducts.BarcodeList.get(0)).getItem();
-		cornFlakes = lookup.get(itemProducts.BarcodeList.get(2)).getItem();
+		cornFlakes = stationData.getBarcodedProductDatabase()
+				.get(testProducts.getBarcodeList().get(2));
+		cornFlakesItem = testProducts.getItem(cornFlakes);
+		
 		
 		//Setup receipt printer
 		try {
-			this.Station.printer.addInk(2500);
-			this.Station.printer.addPaper(512);
+			this.stationHardware.printer.addInk(2500);
+			this.stationHardware.printer.addPaper(512);
 		} catch (OverloadException e) {
-			System.out.println("Overfilled Printer!");
+			System.out.println("Overfilled!");
 			e.printStackTrace();
 		}
 		
 		//Setup receipt printer
-		
-		
-		//Initialize a new custom Barcode scanner observer
-		this.customScannerObserver = new ScannerHandler(this.Station.mainScanner,
-													 this.lookup, 
-													 this.Station.baggingArea, 
-													 touchScreen, 
-													 checkout, 
-													 this.receiptHandler); 
-		this.Station.mainScanner.attach((BarcodeScannerObserver) customScannerObserver);
-		this.Station.handheldScanner.attach((BarcodeScannerObserver) customScannerObserver);
-		
-		//Initialize a new custom scale observer
-		this.customScaleObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
-				   										 this.customScannerObserver, 
-				   										 touchScreen, 
-				   										 checkout);
-		this.Station.baggingArea.attach((ElectronicScaleObserver) customScaleObserver);
-
-		//Initialize a new custom banknote validator observer
-		this.customCashPaymentObserver = new PayWithCash(this.Station);
-		
-		//Initialize a new custom banknote validator observer
-		this.customMembershipScannerObserver = new ScansMembershipCard(checkout);
-		this.Station.cardReader.attach(customMembershipScannerObserver);
-			
-		scheduler = Executors.newScheduledThreadPool(5);
+					
+		this.scheduler = Executors.newScheduledThreadPool(5);
 
 	}
 	 
@@ -177,16 +188,16 @@ public class StationUnitTest {
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
-    	checkout.updateTouchScreen(ts);
-    	this.touchScreen = ts;
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
     	
     	// start checkout 
-    	this.Station.baggingArea.add(milkJug); //Weighs 4000 grams
-    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 2500, TimeUnit.MILLISECONDS);
-        checkout.startCheckout();
+    	this.stationHardware.baggingArea.add(milkJugItem); //Weighs 4000 grams
+    	this.scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2500, TimeUnit.MILLISECONDS);
+        stationSoftware.getCheckoutHandler().startCheckout();
         // verify device is disabled or not
-        assertTrue(Math.floor(checkout.getExpectedWeight()) == 4000.0);
+        assertTrue(Math.floor(stationData.getExpectedWeightCheckout()) == 4000.0);
     }
     
 //    @Test
@@ -1373,10 +1384,12 @@ public class StationUnitTest {
     {
     	System.setIn(backupInputStream);    	
     	banknoteChangeValue = 0;
-    	CheckoutHandler.setTotalCost(BigDecimal.ZERO);
-    	CheckoutHandler.setTotalPaid(BigDecimal.ZERO);
-    	CheckoutHandler.setTotalPaidThisTransaction(BigDecimal.ZERO);
-    	this.touchScreen = new TouchScreenSoftware(System.in);
+//    	CheckoutHandler.setTotalCost(BigDecimal.ZERO);
+//    	CheckoutHandler.setTotalPaid(BigDecimal.ZERO);
+//    	CheckoutHandler.setTotalPaidThisTransaction(BigDecimal.ZERO);
+    	stationData.resetCheckoutTotals();
+    	stationData.resetTotalPaidThisTransaction();
+    	this.touchScreenSoftware = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
     	scheduler.shutdownNow();
 
     }

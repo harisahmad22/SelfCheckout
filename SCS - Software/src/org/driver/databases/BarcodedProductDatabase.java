@@ -1,6 +1,7 @@
 package org.driver.databases;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.controlSoftware.data.ItemProduct;
@@ -15,14 +16,14 @@ public class BarcodedProductDatabase {
 	
 	private Map<Barcode, BarcodedProduct> database;
 
-	public BarcodedProductDatabase(BarcodedProduct[] productList)
+	public BarcodedProductDatabase(ArrayList<BarcodedProduct> objects)
 	{
 		this.database = ProductDatabases.BARCODED_PRODUCT_DATABASE;
 		
 		//Populate the database with some products and their barcodes 
-		if (productList != null)
-		{
-			for (BarcodedProduct p : productList) { database.put(p.getBarcode(), p); }
+		if (!objects.isEmpty() || objects != null)
+		{	
+			for (BarcodedProduct p : objects) { database.put(p.getBarcode(), p); }
 		}
 		
 	}

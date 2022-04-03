@@ -69,7 +69,7 @@ public class SelfCheckoutSoftware {
 		return touchScreenSoftware;
 	}
 	
-	public void updateTouchScreen(TouchScreenSoftware ts)
+	public void updateTouchScreenSoftware(TouchScreenSoftware ts)
 	{//Used for when we have to change the touchScreen's input stream during testing
 		this.touchScreenSoftware = ts;		
 	}

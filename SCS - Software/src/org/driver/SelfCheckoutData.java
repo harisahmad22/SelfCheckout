@@ -129,7 +129,7 @@ public class SelfCheckoutData {
 		//Initialize some test Proudcts
 		//3 Products, milk, orange juice, and corn flakes
 		TestProducts testProducts = new TestProducts();
-		Barcoded_Product_Database = new BarcodedProductDatabase((BarcodedProduct[]) testProducts.BPList.toArray());
+		Barcoded_Product_Database = new BarcodedProductDatabase(testProducts.getBarcodedProductList());
 		
 		//TODO
 		Store_Inventory = new StoreInventory();
