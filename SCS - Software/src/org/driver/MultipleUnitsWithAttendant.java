@@ -13,11 +13,11 @@ public class MultipleUnitsWithAttendant {
 	private SupervisionStation attendantStation;
 	private AttendantSoftware attendantSoftware;
 	
-	public MultipleUnitsWithAttendant()
+	public MultipleUnitsWithAttendant(int stationCount)
 	{
 		this.attendantStation = new SupervisionStation();
 		
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < stationCount; i++)
 		{
 			SelfCheckoutStationUnit unit = new SelfCheckoutStationUnit(i);
 			checkoutStations.add(unit);
