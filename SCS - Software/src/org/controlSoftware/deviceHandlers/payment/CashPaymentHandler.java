@@ -27,7 +27,7 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
     private Map<BigDecimal, CoinDispenser> coinDispensers;
     private BigDecimal lastValidCoinInserted;
 	private SelfCheckoutData stationData; 
-
+	private boolean isInValidDetected = false;
 
     public CashPaymentHandler(SelfCheckoutData stationData){
         this.stationData = stationData;
@@ -55,6 +55,7 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
 	@Override
 	public void invalidBanknoteDetected(BanknoteValidator validator) {
         System.out.println("Invalid Banknote.");
+        setInValidDetected(true);
 	}
 
 
@@ -67,6 +68,7 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
     @Override
     public void invalidCoinDetected(CoinValidator validator) {
         System.out.println("Invalid coin.");
+        setInValidDetected(true);
     }
 
     // valid coin makes its way to the dispenser
@@ -120,5 +122,11 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
 
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+	}
+	public boolean isInValidDetected() {
+		return isInValidDetected;
+	}
+	public void setInValidDetected(boolean isValidDetected) {
+		this.isInValidDetected = isValidDetected;
 	}
 }

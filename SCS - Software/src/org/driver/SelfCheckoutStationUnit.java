@@ -113,7 +113,7 @@ public class SelfCheckoutStationUnit {
 		return touchScreenSoftware;
 	}
 	
-	public Currency getCurrency()
+	public static Currency getCurrency()
 	{
 		return CAD;
 	}
