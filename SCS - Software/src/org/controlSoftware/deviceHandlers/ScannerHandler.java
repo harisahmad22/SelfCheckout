@@ -25,15 +25,6 @@ import org.lsmr.selfcheckout.products.BarcodedProduct;
 
 public class ScannerHandler implements BarcodeScannerObserver
 {
-//	private BarcodeScanner scanner;
-//	private BarcodeLookup lookup;
-//	private ElectronicScale scale;
-//	private TouchScreenSoftware touchScreen;
-//	private CheckoutHandler checkout;
-//	private double targetWeight;
-//	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
-//	private AtomicBoolean weightValid = new AtomicBoolean(false);
-//	private double weightTolerance = 15; // The maximum weight in grams that an Item's weight can differ from its weight stored in the ItemProduct dictionary  
 	/*	
 		Assuming there is a HashMap that acts as a dictionary for all the items that can be scanned via barcode.
 		
@@ -60,22 +51,8 @@ public class ScannerHandler implements BarcodeScannerObserver
 	private SelfCheckoutSoftware stationSoftware;
 
 	public ScannerHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
-//			BarcodeScanner scanner, 
-//			BarcodeLookup lookup, 
-//			ElectronicScale scale, 
-//			TouchScreenSoftware touchScreen, 
-//			CheckoutHandler checkout, 
-//			ReceiptHandler receiptHandler) 
-//	{
 		this.stationData = stationData;
 		this.stationSoftware = stationSoftware;
-		
-//		this.scanner = scanner;
-//		this.lookup = lookup;
-//		this.scale = scale;
-//		this.touchScreen = touchScreen;
-//		this.checkout = checkout;
-//		this.receiptHandler = receiptHandler;
 	}
 
 	@Override
@@ -194,8 +171,6 @@ public class ScannerHandler implements BarcodeScannerObserver
 		while (!stationData.getWeightValidScanner())
 		{
 			stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
-//			if (!stationData.getIsScannerWaitingForWeightChange()) 
-//			{ stationData.setIsScannerWaitingForWeightChange(true); }
 		}
 		
 		// Weight is now valid, unblock and remove touchscreen message
@@ -223,24 +198,5 @@ public class ScannerHandler implements BarcodeScannerObserver
 		stationSoftware.getTouchScreenSoftware().validWeightAfterScan();		
 		
 		stationData.resetScannerWeightFlags();
-	}
-
-
-
-//	public double getTargetWeight() {
-//		return targetWeight;
-//	}
-//	public boolean isWaitingForWeightChange() {
-//		return waitingForWeightChangeEvent.get();
-//	}
-//	public void setWaitingForWeightChange(boolean bool) {
-//		this.waitingForWeightChangeEvent.set(bool);
-//	}
-//	public boolean isWeightValid() {
-//		return weightValid.get();
-//	}
-//	public void setWeightValid(boolean bool) {
-//		this.weightValid.set(bool);
-//	}
-	
+	}	
 }

@@ -12,19 +12,9 @@ import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
-//	private static final double BAG_WEIGHT = 5;
-//	private boolean isOverloaded = false;
-//	private ElectronicScale scale;
-//	private ScannerHandler scannerObserver;
-//	private TouchScreenSoftware display;
-//	private CheckoutHandler checkout;
-//	private double weightAtLastEvent = 0;
-//	private double personalBagsWeight = 0;
-//	private double weightVariablity = 25;
 
 	/*
-	 * (Shufan) DONT HAVE TO WORRY ABOUT: - the graphical user interface - products
-	 * without barcodes - credit/debit cards - returning change to the customer
+	 * (Shufan) DONT HAVE TO WORRY ABOUT: - 
 	 * 
 	 * 1) weightChanged is called by ProcessScannedItem observer
 	 * 
@@ -41,22 +31,11 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
-//	private String type;
 	
 	public BaggingAreaScaleHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware)
-//			ElectronicScale scale, 
-//			ScannerHandler scanner, 
-//			TouchScreenSoftware display,
-//			CheckoutHandler checkout) 
 	{
-//		this.scale = scale;
-//		this.scannerObserver = scanner;
-//		this.display = display;
-//		this.checkout = checkout;
 		this.stationData = stationData;
 		this.stationSoftware = stationSoftware;
-//		this.type = type; //Will be used to identify between bagging area scale and scanning area scale
-
 	}
 
 	public boolean isOverloaded() {
