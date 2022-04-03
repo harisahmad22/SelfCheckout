@@ -71,11 +71,7 @@ public class SelfCheckoutStationUnit {
 		
 		//Initialize Data + Software
 		this.stationData = new SelfCheckoutData(station);
-		this.touchScreen = new TouchScreen();
-		
-		//NEED TO IMPLEMENT KEYBOARD LISTENER FOR GUI!!!
-		this.keyboard = new Keyboard();
-		
+		this.touchScreen = station.screen;
 		
 		//TouchScreenSoftware will attach itself to the touch screen
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
