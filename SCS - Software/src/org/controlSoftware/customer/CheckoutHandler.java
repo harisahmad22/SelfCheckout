@@ -99,7 +99,7 @@ public class CheckoutHandler {
 //			 * 1) Inform user to input their card
 //			 * 2) Wait until a credit card has been inserted, swiped, tapped
 //			 * 3) Once card has been input, get the relevant card data
-//			 * 4) Send this to the 'bank' stub
+//			 * 4) Send this to the 'bank' card issuer
 //			 * 5) if the bank authorizes the card data, then add paymentAmount to Checkout's totalMoneyPaid
 //			 * 6) return 
 //			 */

@@ -65,8 +65,23 @@ public class AttendantSoftware {
 	
 	public void blockStation(SelfCheckoutStationUnit station)
 	{
-		//TODO not implemented yet
+		System.out.println("Blocking station: " + station.getStationID());
+		station.getSelfCheckoutSoftware().blockStation();
 	}
+	
+	public void blockStation(int stationID)
+	{
+		System.out.println("Blocking station: " + stationID);
+		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().blockStation();
+	}
+	
+	public void blockStation(String stationID)
+	{
+		System.out.println("Blocking station: " + stationID);
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().blockStation();
+	}
+	
+	
 
 	
 

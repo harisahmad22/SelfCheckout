@@ -96,4 +96,9 @@ public class SelfCheckoutSoftware {
 		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
 		
 	}
+
+	public void blockStation() {
+		// TODO Auto-generated method stub
+		
+	}
 }
