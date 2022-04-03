@@ -155,8 +155,11 @@ public class StationUnitTest {
     	//Choose to swipe their membership card
     	//They will pay in full ($0)
     	//They will pay with cash
+    	
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
+    	
+    	//Change Input stream so inputString can simulate console input 
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
     	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
     	stationSoftware.updateTouchScreenSoftware(tss);
@@ -288,8 +291,10 @@ public class StationUnitTest {
     	//They will pay in full ($50)
     	//They will pay with cash ($51.25)
     	//Should get $1.25 back in Coin tray
+    	
     	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
     	
+    	//Change Input stream so inputString can simulate console input
     	customInputStream = new ByteArrayInputStream(inputString.getBytes());
     	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData); //Update the checkout's touch screen with the custom IS
     	stationSoftware.updateTouchScreenSoftware(tss);

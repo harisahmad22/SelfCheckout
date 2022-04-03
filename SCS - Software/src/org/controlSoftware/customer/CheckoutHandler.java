@@ -94,7 +94,7 @@ public class CheckoutHandler {
 		
 		if (paymentMethod == 1) 
 		{ 
-//			// Idea for how payWithCreditCard() will work: 
+//			// Idea for how payWithCreditCard(BigDecimal paymentAmount) will work: 
 //			/*
 //			 * 1) Inform user to input their card
 //			 * 2) Wait until a credit card has been inserted, swiped, tapped
