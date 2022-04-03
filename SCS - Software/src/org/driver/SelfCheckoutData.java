@@ -210,7 +210,7 @@ public class SelfCheckoutData {
 	}
 	
 	public void addProductToCheckout(BarcodedProduct product) {
-		ProductInfo PI = new ProductInfo(product, product.getExpectedWeight());
+		ProductInfo PI = new ProductInfo(product);
 		productsAddedToCheckout.put(product.getDescription(), PI);
 	}
 	public void addProductToCheckout(PLUCodedProduct product, double weight) {
