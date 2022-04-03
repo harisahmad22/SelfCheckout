@@ -73,6 +73,8 @@ public class ScannerHandler implements BarcodeScannerObserver
 			BigDecimal scannedItemPrice = scannedItem.getPrice();
 			double scannedItemWeight = scannedItem.getExpectedWeight();
 			double scannedItemWeightInKG = scannedItemWeight/1000; // Convert grams to KG
+			
+			
 			if (scannedItem.isPerUnit()) 
 			{
 				//Item is priced per unit, since only one item can be scanned at once, just 
@@ -120,8 +122,9 @@ public class ScannerHandler implements BarcodeScannerObserver
 	}
 	
 	private void waitForWeightChange(double scannedItemWeight) throws OverloadException, InterruptedException {
+		
 		double weightBefore = stationData.getBaggingAreaScale().getCurrentWeight(); // In grams
-		stationData.setExpectedWeightCheckout(weightBefore + scannedItemWeight); // What we expect the scale to read after placing the item on it
+		stationData.setExpectedWeightScanner(weightBefore + scannedItemWeight); // What we expect the scale to read after placing the item on it
 		
 		stationData.setIsScannerWaitingForWeightChange(true); //Signal Scale observer that we are waiting for an weight change after scanning
 		

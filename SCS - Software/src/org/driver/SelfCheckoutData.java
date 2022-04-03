@@ -374,14 +374,27 @@ public class SelfCheckoutData {
 		expectedWeightCheckout = weight;
 		
 	}
-	public double getExpectedWeightNormalMode() {
-		return expectedWeightNormalMode;
-		
-	}
+	
 	public double getExpectedWeightCheckout() {
 		return expectedWeightCheckout;
 		
 	}
+	
+	public void setExpectedWeightNormalMode(double weight) {
+		expectedWeightNormalMode = weight;
+		
+	}
+	
+	public double getExpectedWeightNormalMode() {
+		return expectedWeightNormalMode;
+		
+	}
+	
+	public void setExpectedWeightScanner(double weight) {
+		expectedWeightScanner = weight;
+		
+	}
+	
 	public double getExpectedWeightScanner() {
 		return expectedWeightScanner;
 		
