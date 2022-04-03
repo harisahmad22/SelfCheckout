@@ -109,8 +109,6 @@ public class StationUnitTest {
 	@Before
 	public void setup() {
 		
-		
-		
 		this.stationUnit = new SelfCheckoutStationUnit();
 		
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
@@ -118,6 +116,8 @@ public class StationUnitTest {
 		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
 		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
 		
+		
+		//Create some test products/items
 		this.testProducts = new TestProducts();
 		
 		milkJug = stationData.getBarcodedProductDatabase()
