@@ -83,8 +83,8 @@ public class SelfCheckoutData {
 	private ProductDatabases productDatabases;
 	
 	//============================Software Flags============================
-	private AtomicBoolean isWeightValidNormalMode = new AtomicBoolean(false);
-	private AtomicBoolean isWeightValidCheckout = new AtomicBoolean(false);
+	private AtomicBoolean isWeightValidNormalMode = new AtomicBoolean(true);
+	private AtomicBoolean isWeightValidCheckout = new AtomicBoolean(true);
 	private AtomicBoolean isWeightValidScanner = new AtomicBoolean(false);
 	
 	private AtomicBoolean inCheckout = new AtomicBoolean(false);
