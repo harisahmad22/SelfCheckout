@@ -7,6 +7,7 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.devices.Keyboard;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.TouchScreen;
@@ -22,6 +23,7 @@ public class SelfCheckoutStationUnit {
 
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
+	private Object keyboard;
 	
 	public static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
@@ -70,6 +72,11 @@ public class SelfCheckoutStationUnit {
 		//Initialize Data + Software
 		this.stationData = new SelfCheckoutData(station);
 		this.touchScreen = new TouchScreen();
+		
+		//NEED TO IMPLEMENT KEYBOARD LISTENER FOR GUI!!!
+		this.keyboard = new Keyboard();
+		
+		
 		//TouchScreenSoftware will attach itself to the touch screen
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
 		//SelfCheckotSoftware will attach the handlers to the hardware
