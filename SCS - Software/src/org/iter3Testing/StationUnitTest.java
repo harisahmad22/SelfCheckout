@@ -33,6 +33,8 @@ import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
 import org.driver.databases.TestProducts;
+import org.iter2Testing.PayWithBanknotesRunnable;
+import org.iter2Testing.PayWithCoinsRunnable;
 import org.iter2Testing.RemoveItemOnScaleRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -73,12 +75,12 @@ public class StationUnitTest {
 	private static Banknote fiveDollarBanknoteUSD = new Banknote(Currency.getInstance("USD"), 5);
 	private static Banknote twelveDollarBanknote = new Banknote(SelfCheckoutStationUnit.CAD, 12);
 	
-	private static Coin nickel = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal(0.05));
-	private static Coin quarter = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal(0.25));
-	private static Coin loonie = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal(1.00));
-	private static Coin toonie = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal(2.00));
-	private static Coin quarterUSD = new Coin(Currency.getInstance("USD"), new BigDecimal(0.25));
-	private static Coin invalidCoin = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal(0.75));
+	private static Coin nickel = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal("0.05"));
+	private static Coin quarter = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal("0.25"));
+	private static Coin loonie = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal("1.00"));
+	private static Coin toonie = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal("2.00"));
+	private static Coin quarterUSD = new Coin(Currency.getInstance("USD"), new BigDecimal("0.25"));
+	private static Coin invalidCoin = new Coin(SelfCheckoutStationUnit.CAD, new BigDecimal("0.75"));
 	
 	public static int banknoteChangeValue = 0; //Updated by DanglingBanknoteRemover runnable 
 	
@@ -276,50 +278,50 @@ public class StationUnitTest {
 //		assertTrue(ReceiptHandler.getMembershipID().equals("123456789\n"));
 //    }
 //    
-//    @Test
-//    public void testCoinChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	//Change will be given out
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay in full ($50)
-//    	//They will pay with cash ($51.25)
-//    	//Should get $1.25 back in Coin tray
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	BigDecimal total = new BigDecimal("50");
-//    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
-//    	//Create a list of banknotes exceeding the total cost of all items
-//    	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
-//    	Coin[] coins = { quarter, toonie, toonie, toonie};
-//    	
-//    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-//    	//There is a 1 second delay between each banknote insertion.
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 100, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 3200, TimeUnit.MILLISECONDS);
-//    	
-//    	checkout.startCheckout();
-//
-//		String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//		
-//		//Get Change from tray
-//		List<Coin> change = this.Station.coinTray.collectCoins();
-//		BigDecimal changeValue = BigDecimal.ZERO;
-//		
-//		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
-//    	
-//		//Touch screen should have been informed of change being dispensed
-//    	assertTrue(touchScreen.changeDispensed.get());
-//    	assertTrue(banknoteChangeValue == 0);
-//    	assertTrue(changeValue.equals(new BigDecimal("1.25")));
-//    }
+    @Test
+    public void testCoinChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay in full ($50)
+    	//They will pay with cash ($51.25)
+    	//Should get $1.25 back in Coin tray
+    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
+    	
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData); //Update the checkout's touch screen with the custom IS
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	BigDecimal total = new BigDecimal("50");
+    	stationData.setTotalDue(total); //Add $50 to total cost
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { quarter, toonie, toonie, toonie};
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 100, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 3200, TimeUnit.MILLISECONDS);
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+
+		String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		
+		//Get Change from tray
+		List<Coin> change = this.stationHardware.coinTray.collectCoins();
+		BigDecimal changeValue = BigDecimal.ZERO;
+		
+		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
+    	
+		//Touch screen should have been informed of change being dispensed
+    	assertTrue(touchScreenSoftware.changeDispensed.get());
+    	assertTrue(banknoteChangeValue == 0);
+    	assertTrue(changeValue.equals(new BigDecimal("1.25")));
+    }
 //
 //
 //    @Test
