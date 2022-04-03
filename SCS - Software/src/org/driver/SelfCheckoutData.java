@@ -71,7 +71,7 @@ public class SelfCheckoutData {
 	private double baggingAreaWeightVariability = 15;
 	
 	private static double bagWeight = 40;
-	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
+	private String membershipID = "null"; //Default to null, change when membership card is scanned in
 	// No implementation yet
 	private String membershipPoints = "0\n";
 		
@@ -92,7 +92,7 @@ public class SelfCheckoutData {
 	private AtomicBoolean isUsingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean cardSwipedCheckout = new AtomicBoolean(false);
 
-	private AtomicBoolean isFirstCheckout = new AtomicBoolean(false);
+	private AtomicBoolean isFirstCheckout = new AtomicBoolean(true);
 	private AtomicBoolean isBaggingAreaScaleOverloaded = new AtomicBoolean(false);
 	private AtomicBoolean isScanningAreaScaleOverloaded = new AtomicBoolean(false);
 	private AtomicBoolean isScannerWaitingForWeightChange = new AtomicBoolean(false);
@@ -102,7 +102,7 @@ public class SelfCheckoutData {
 	private AtomicBoolean isCheckoutWaitingForGiftCard = new AtomicBoolean(false);
 	private AtomicBoolean isCheckoutWaitingForMembership = new AtomicBoolean(false);
 	//============================Software Flags============================
-	private Map<PriceLookupCode, PLUCodedProduct> PLU_Database;
+	
 	private PLUDatabase PLU_Product_Database;
 	private BarcodedProductDatabase Barcoded_Product_Database;
 	private StoreInventory Store_Inventory;
@@ -134,7 +134,6 @@ public class SelfCheckoutData {
 		//TODO
 		Store_Inventory = new StoreInventory();
 		
-	
 	}
 	
 	

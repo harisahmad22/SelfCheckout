@@ -36,6 +36,7 @@ import org.driver.databases.TestProducts;
 import org.iter2Testing.PayWithBanknotesRunnable;
 import org.iter2Testing.PayWithCoinsRunnable;
 import org.iter2Testing.RemoveItemOnScaleRunnable;
+import org.iter2Testing.ScanTestMembershipCardRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -168,93 +169,69 @@ public class StationUnitTest {
     	// start checkout 
     	this.stationHardware.baggingArea.add(milkJugItem); //Weighs 4000 grams
     	this.scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2500, TimeUnit.MILLISECONDS);
-        stationSoftware.getCheckoutHandler().startCheckout();
+        
+    	stationSoftware.getCheckoutHandler().startCheckout();
         // verify device is disabled or not
         assertTrue(Math.floor(stationData.getExpectedWeightCheckout()) == 4000.0);
     }
+        
     
-//    @Test
-//    public void verifyWeightIssueDetectedWhenStartingCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to swipe their membership card
-//    	//They will pay in full ($0)
-//    	//They will pay with cash
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreen ts = new TouchScreen(customInputStream);
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	//Put a milk jug on the scale 1.5 seconds after starting checkout
-//    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 500, TimeUnit.MILLISECONDS);
-//    	//Remove the milk jug 5 seconds after starting checkout
-//    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 5000, TimeUnit.MILLISECONDS);
-//        checkout.startCheckout();
-//        
-//        //Touch screen should have been informed of the item being added during checkout
-//        assertTrue(touchScreen.invalidWeightInCheckoutDetected.get());
-//        //Touch screen should have been informed of the item being removed during checkout
-//    	assertTrue(touchScreen.invalidWeightInCheckoutCorrected.get());
-//    }
-//    
-    
-//    @Test
-//    public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//
-//    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-//    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to swipe their membership card
-//    	//They will pay in full ($0)
-//    	//They will pay with cash
-//    	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//    	
-//		assertTrue(checkout.getMembershipNumber().equals("123456789"));
-//		assertTrue(ReceiptHandler.getMembershipID().equals("123456789\n"));
-//    	
-//    }
-//
-//    @Test
-//    public void testScanningWrongCardAsMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//
-//    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-//    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to swipe their membership card
-//    	//They will pay in full ($0)
-//    	//They will pay with cash
-//    	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream);
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//    	
-//		assertTrue(checkout.getMembershipNumber().equals("null"));
-//		assertTrue(ReceiptHandler.getMembershipID().equals("null\n"));
-//    }
-//
+    @Test
+    public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+
+    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
+    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.stationHardware.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to swipe their membership card
+    	//They will pay in full ($0)
+    	//They will pay with cash
+    	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
+    	
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+    	
+    	String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+    	
+		assertTrue(stationData.getMembershipID().equals("123456789"));
+		assertTrue(stationSoftware.getReceiptHandler().getMembershipID().equals("123456789\n"));
+    }
+
+    @Test
+    public void testScanningWrongCardAsMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+
+    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
+    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.stationHardware.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to swipe their membership card
+    	//They will pay in full ($0)
+    	//They will pay with cash
+    	String inputString = "0\n" + "swipe\n" + "full\n" + "cash\n";
+    	
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+    	
+    	String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+    	
+		assertTrue(stationData.getMembershipID().equals("null"));
+		assertTrue(stationSoftware.getReceiptHandler().getMembershipID().equals("null\n"));
+    }
+
 //    
 //    @Test
 //    public void testManualInputMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
