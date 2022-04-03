@@ -14,7 +14,8 @@ import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 public class SelfCheckoutSoftware {
 
-	private SelfCheckoutStation station;
+	private SelfCheckoutStationUnit stationUnit;
+	private SelfCheckoutStation stationHardware;
 	private SelfCheckoutData stationData;
 	
 	private CheckoutHandler checkoutHandler;
@@ -26,6 +27,7 @@ public class SelfCheckoutSoftware {
 	private CashPaymentHandler cashPaymentHandler;
 	private CardReaderObserver membershipCardScannerHandler;
 	
+	
 	/***
 	 * This Class will deal with initializing all the handlers in the system and attaching them
 	 * to the relevant hardware devices.
@@ -33,13 +35,17 @@ public class SelfCheckoutSoftware {
 	 * Methods will also be provided to access individual handlers. (May not be needed) 
 	 */
 	
-	public SelfCheckoutSoftware(SelfCheckoutStation station, SelfCheckoutData stationData)
+	public SelfCheckoutSoftware(SelfCheckoutStationUnit stationUnit, SelfCheckoutData stationData)
 	{
-		this.station = station;
+		this.stationUnit = stationUnit;
+		
+		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		
 		this.stationData = stationData;
 		
-		this.receiptHandler = new ReceiptHandler(this.station.printer);
+		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationUnit.getTouchScreen(), stationData);
+		
+		this.receiptHandler = new ReceiptHandler(this.stationHardware.printer);
 		
 		this.checkoutHandler = new CheckoutHandler(this.stationData, this);
 		
@@ -52,12 +58,12 @@ public class SelfCheckoutSoftware {
 		//CashPaymentHandler will deal with attaching to hardware
 		this.cashPaymentHandler = new CashPaymentHandler(this.stationData);
 		
-		this.station.mainScanner.attach((BarcodeScannerObserver) scannerHandler);
-		this.station.handheldScanner.attach((BarcodeScannerObserver) scannerHandler);
+		this.stationHardware.mainScanner.attach((BarcodeScannerObserver) scannerHandler);
+		this.stationHardware.handheldScanner.attach((BarcodeScannerObserver) scannerHandler);
 		
-		this.station.baggingArea.attach((ElectronicScaleObserver) baggingAreaScaleHandler);
+		this.stationHardware.baggingArea.attach((ElectronicScaleObserver) baggingAreaScaleHandler);
 				
-		this.station.cardReader.attach(membershipCardScannerHandler);
+		this.stationHardware.cardReader.attach(membershipCardScannerHandler);
 		
 	}
 

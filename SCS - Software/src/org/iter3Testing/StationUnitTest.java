@@ -35,6 +35,7 @@ import org.driver.SelfCheckoutStationUnit;
 import org.driver.databases.TestProducts;
 import org.iter2Testing.PayWithBanknotesRunnable;
 import org.iter2Testing.PayWithCoinsRunnable;
+import org.iter2Testing.RemoveDanglingBanknotesRunnable;
 import org.iter2Testing.RemoveItemOnScaleRunnable;
 import org.iter2Testing.ScanTestMembershipCardRunnable;
 import org.junit.*;
@@ -232,32 +233,33 @@ public class StationUnitTest {
 		assertTrue(stationSoftware.getReceiptHandler().getMembershipID().equals("null\n"));
     }
 
-//    
-//    @Test
-//    public void testManualInputMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to input their membership card manually
-//    	//ID = 123456789
-//    	//They will pay in full ($0)
-//    	//They will pay with cash
-//    	String inputString = "0\n" + "manual\n" + "123456789\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//    	
-//		assertTrue(checkout.getMembershipNumber().equals("123456789"));
-//		assertTrue(ReceiptHandler.getMembershipID().equals("123456789\n"));
-//    }
-//    
+    
+    @Test
+    public void testManualInputMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to input their membership card manually
+    	//ID = 123456789
+    	//They will pay in full ($0)
+    	//They will pay with cash
+    	String inputString = "0\n" + "manual\n" + "123456789\n" + "full\n" + "cash\n";
+    	
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+    	
+    	String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+    	
+		assertTrue(stationData.getMembershipID().equals("123456789"));
+		assertTrue(stationSoftware.getReceiptHandler().getMembershipID().equals("123456789\n"));
+    }
+    
     @Test
     public void testCoinChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	//Change will be given out
@@ -304,719 +306,218 @@ public class StationUnitTest {
     	assertTrue(banknoteChangeValue == 0);
     	assertTrue(changeValue.equals(new BigDecimal("1.25")));
     }
-//
-//
-//    @Test
-//    public void testBanknoteChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	//Change will be given out
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay in full ($55)
-//    	//They will pay with cash ($51.25)
-//    	//Should get $1.25 back in Coin tray
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	BigDecimal total = new BigDecimal("55");
-//    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
-//    	//Create a list of banknotes exceeding the total cost of all items
-//    	Banknote[] banknotes1 = { fiftyDollarBanknote, twentyDollarBanknote };
-//    	
-//    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-//    	//There is a 1 second delay between each banknote insertion.
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-//    	
-//    	
-//    	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
-//    	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.Station.banknoteOutput, 2), 3000, TimeUnit.MILLISECONDS);
-//    	
-//    	checkout.startCheckout();
-//
-//		String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//		
-//		BigDecimal changeValue = BigDecimal.ZERO;
-//		//Get Change from tray
-//		List<Coin> change = this.Station.coinTray.collectCoins();
-//		
-//		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
-//		
-//		//Touch screen should have been informed of change being dispensed
-//    	assertTrue(touchScreen.changeDispensed.get());
-//    	assertTrue(banknoteChangeValue == 15);
-//    	assertTrue(changeValue.equals(new BigDecimal("0")));
-//    }
-//    
-//    @Test
-//    public void testBanknoteAndCoinChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	//Change will be given out
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay in full
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	BigDecimal total = new BigDecimal("55");
-//    	CheckoutHandler.setTotalCost(total); //Add $55 to total cost
-//    	
-//    	Banknote[] banknotes1 = { fiftyDollarBanknote }; 
-//    	Coin[] coins = { quarter, quarter, quarter, loonie, toonie};
-//    	Banknote[] banknotes2 = { tenDollarBanknote };
-//    	//Totals $63.75 - Should return $8.75 in change
-//    	//Should be given: 1x $5, 1x $2, 1x $1, 3x $0.25 back 
-//    	
-//    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-//    	//There is a 1 second delay between each banknote insertion.
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 2000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 7000, TimeUnit.MILLISECONDS);
-//    	
-//    	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
-//    	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.Station.banknoteOutput, 1), 10000, TimeUnit.MILLISECONDS);
-//    	
-//    	checkout.startCheckout();
-//
-//		String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//		
-//		BigDecimal changeValue = BigDecimal.ZERO;
-//		//Get Change from tray
-//		List<Coin> change = this.Station.coinTray.collectCoins();
-//		
-//		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
-//		
-//		//Touch screen should have been informed of change being dispensed
-//    	assertTrue(touchScreen.changeDispensed.get());
-//    	assertTrue(banknoteChangeValue == 5);
-//    	assertTrue(changeValue.equals(new BigDecimal("3.75")));
-//    }
-// 
-//    @Test
-//    public void testChangeDispensedWithEmptyDispensers() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	//Change will be given out
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay in full ($55)
-//    	//They will pay with cash ($51.25)
-//    	//Should get $1.25 back in Coin tray
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	BigDecimal total = new BigDecimal("55");
-//    	CheckoutHandler.setTotalCost(total); //Add $55 to total cost
-//    	
-//    	//Remove all $5 bills, and all toonies, shold be given back the coins we put in 
-//    	// plus $5 in loonies
-//    	this.Station.banknoteDispensers.get(5).unload();
-//    	this.Station.coinDispensers.get(new BigDecimal(2.00)).unload();
-//    	
-//    	Banknote[] banknotes1 = { fiftyDollarBanknote }; 
-//    	Coin[] coins = { quarter, quarter, quarter, loonie, toonie};
-//    	Banknote[] banknotes2 = { tenDollarBanknote };
-//    	//Totals $63.75 - Should return $8.75 in change
-//    	//Should be given: 1x $5, 1x $2, 1x $1, 3x $0.25 back 
-//    	
-//    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-//    	//There is a 1 second delay between each banknote insertion.
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 2000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 7000, TimeUnit.MILLISECONDS);
-//    	
-//    	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
-//    	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.Station.banknoteOutput, 1), 8500, TimeUnit.MILLISECONDS);
-//    	
-//    	checkout.startCheckout();
-//
-//		String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//		
-//		BigDecimal changeValue = BigDecimal.ZERO;
-//		//Get Change from tray
-//		List<Coin> change = this.Station.coinTray.collectCoins();
-//		
-//		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
-//		
-//		//Touch screen should have been informed of change being dispensed
-//    	assertTrue(touchScreen.changeDispensed.get());
-//    	assertTrue(banknoteChangeValue == 0);
-//    	assertTrue(changeValue.equals(new BigDecimal("8.75")));
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPaymentWithBadDebitCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	
-//    	Card testDebitCard = new Card("Debit", "9999999999", "Card Holder", "888", "4321", true, true);
-//		BankClientInfo bankClientDebitInfo = new BankClientInfo("Debit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
-//		PayWithDebitCard payWithDebitTest = new PayWithDebitCard(this.Station, testDebitCard, null, "4321", bankClientDebitInfo);
-//		
-//		this.checkout = new CheckoutHandler(this.touchScreen, 
-//									 this.Station.mainScanner, 
-//									 this.Station.banknoteInput, //Checkout can disable banknote slot
-//									 this.Station.coinSlot,      //Checkout can disable coin slot
-//									 this.Station.baggingArea,
-//									 this.Station,
-//									 this.receiptHandler,
-//									 payWithDebitTest,
-//									 null,
-//									 this.Station.cardReader);
-//    	
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "swipe\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPaymentWithBadCreditCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	
-//    	Card testCreditCard = new Card("Credit", "9999999999", "Card Holder", "888", "4321", true, true);
-//		BankClientInfo bankClientCreditInfo = new BankClientInfo("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
-//		PayWithCreditCard payWithCreditTest = new PayWithCreditCard(this.Station, testCreditCard, null, "4321", bankClientCreditInfo);
-//		
-//		this.checkout = new CheckoutHandler(this.touchScreen, 
-//									 this.Station.mainScanner, 
-//									 this.Station.banknoteInput, //Checkout can disable banknote slot
-//									 this.Station.coinSlot,      //Checkout can disable coin slot
-//									 this.Station.baggingArea,
-//									 this.Station,
-//									 this.receiptHandler,
-//									 null,
-//									 payWithCreditTest,
-//									 this.Station.cardReader);
-//    	
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "swipe\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutFullPaymentWithDebtCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "swipe\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPartialPaymentsWithDebtCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "swipe\n" + "full\n" + "debit\n" + "swipe\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    	
-//    	checkout.startCheckout();
-//    	
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutFullPaymentWithDebtCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "insert\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPartialPaymentsWithDebtCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "insert\n" + "full\n" + "debit\n" + "insert\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    	
-//    	checkout.startCheckout();
-//    	
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutFullPaymentWithDebtCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "tap\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPartialPaymentsWithDebtCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "tap\n" + "full\n" + "debit\n" + "tap\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    	
-//    	checkout.startCheckout();
-//    	
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutFullPaymentWithCreditCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "swipe\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPartialPaymentsWithCreditCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "swipe\n" + "full\n" + "credit\n" + "swipe\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    	
-//    	checkout.startCheckout();
-//    	
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutFullPaymentWithCreditCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "insert\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPartialPaymentsWithCreditCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "insert\n" + "full\n" + "credit\n" + "insert\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    	
-//    	checkout.startCheckout();
-//    	
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutFullPaymentWithCreditCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "tap\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testStartCheckoutPartialPaymentsWithCreditCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay partial ($50) each time
-//
-//    	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "tap\n" + "full\n" + "credit\n" + "tap\n";
-//    	
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	
-//    	BigDecimal total = new BigDecimal("100");
-//    	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
-//    	
-//    	checkout.startCheckout();
-//    	
-//    	assertTrue(touchScreen.returnedToAddingItemMode.get());
-//    	
-//    	checkout.startCheckout();
-//    	
-//		String partialReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + partialReceipt);
-//
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
-//    @Test
-//    public void testPayingWithCashAddItemNoScan() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-//    	
-//    	//Setup simulated input
-//    	//User will select 0 bags
-//    	//Choose to skip membership card 
-//    	//They will pay in full ($50)
-//    	//They will pay with cash ($51.25)
-//    	//Should get $1.25 back in Coin tray
-//    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
-//
-//    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-//    	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
-//    	checkout.updateTouchScreen(ts);
-//    	this.touchScreen = ts;
-//    	
-//    	//Change will be given out
-//    	//Weight does not change during payment
-//    	//Cleanup will be tested in here also
-//    	BigDecimal total = new BigDecimal("50");
-//    	CheckoutHandler.setTotalCost(total); //Add $50 to total cost
-//    	//Bypass startCheckout method
-//    	checkout.setInCheckout(true);
-//    	//Create a list of banknotes exceeding the total cost of all items
-//    	Banknote[] banknotes1 = { twentyDollarBanknote };
-//    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
-//    	Coin[] coins = { loonie, toonie, toonie };
-//    	
-//    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-//    	//There is a 1 second delay between each banknote insertion.
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 2000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 3500, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 4000, TimeUnit.MILLISECONDS);
-//    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 6500, TimeUnit.MILLISECONDS);
-//    	
-//    	checkout.startCheckout();
-//
-//		String finalReceipt = this.Station.printer.removeReceipt();
-//		System.out.println("Receipt Generated:\n" + finalReceipt);
-//    	
-//		//Touch screen should have been informed of the weight issue, and its correction
-//    	assertTrue(touchScreen.invalidWeightInCheckoutDetected.get());
-//    	assertTrue(touchScreen.invalidWeightInCheckoutCorrected.get());
-//		
-//    	//Should no longer be in checkout mode
-//    	assertFalse(checkout.isInCheckout());
-//    	//Touch screen should have reset to the welcome screen
-//    	assertTrue(touchScreen.resetSuccessful.get());
-//    }
-//    
+
+
+    @Test
+    public void testBanknoteChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay in full ($75)
+    	//Should get $15 back in bills
+    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
+    	
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	    	
+    	BigDecimal total = new BigDecimal("55");
+    	stationData.setTotalDue(total); //Add $50 to total cost
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { fiftyDollarBanknote, twentyDollarBanknote };
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
+    	
+    	
+    	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
+    	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.stationHardware.banknoteOutput, 2), 3000, TimeUnit.MILLISECONDS);
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+
+		String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		
+		BigDecimal changeValue = BigDecimal.ZERO;
+		//Get Change from tray
+		List<Coin> change = this.stationHardware.coinTray.collectCoins();
+		
+		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
+		
+		//Touch screen should have been informed of change being dispensed
+    	assertTrue(stationSoftware.getTouchScreenSoftware().changeDispensed.get());
+    	assertTrue(banknoteChangeValue == 15);
+    	assertTrue(changeValue.equals(new BigDecimal("0")));
+    }
+    
+    @Test
+    public void testBanknoteAndCoinChangeDispensed() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay in full
+    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
+    	
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	BigDecimal total = new BigDecimal("55");
+    	stationData.setTotalDue(total); //Add $55 to total cost
+    	
+    	Banknote[] banknotes1 = { fiftyDollarBanknote }; 
+    	Coin[] coins = { quarter, quarter, quarter, loonie, toonie};
+    	Banknote[] banknotes2 = { tenDollarBanknote };
+    	//Totals $63.75 - Should return $8.75 in change
+    	//Should be given: 1x $5, 1x $2, 1x $1, 3x $0.25 back 
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 2000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 7000, TimeUnit.MILLISECONDS);
+    	
+    	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
+    	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.stationHardware.banknoteOutput, 1), 10000, TimeUnit.MILLISECONDS);
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+
+		String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		
+		BigDecimal changeValue = BigDecimal.ZERO;
+		//Get Change from tray
+		List<Coin> change = this.stationHardware.coinTray.collectCoins();
+		
+		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
+		
+		//Touch screen should have been informed of change being dispensed
+    	assertTrue(stationSoftware.getTouchScreenSoftware().changeDispensed.get());
+    	assertTrue(banknoteChangeValue == 5);
+    	assertTrue(changeValue.equals(new BigDecimal("3.75")));
+    }
+ 
+    @Test
+    public void testChangeDispensedWithEmptyDispensers() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	//Change will be given out
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay in full ($55)
+    	//They will pay with cash ($51.25)
+    	//Should get $1.25 back in Coin tray
+    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
+    	
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	BigDecimal total = new BigDecimal("55");
+    	stationData.setTotalDue(total); //Add $55 to total cost
+    	
+    	//Remove all $5 bills, and all toonies, shold be given back the coins we put in 
+    	// plus $5 in loonies
+    	this.stationHardware.banknoteDispensers.get(5).unload();
+    	this.stationHardware.coinDispensers.get(new BigDecimal("2.00")).unload();
+    	
+    	Banknote[] banknotes1 = { fiftyDollarBanknote }; 
+    	Coin[] coins = { quarter, quarter, quarter, loonie, toonie};
+    	Banknote[] banknotes2 = { tenDollarBanknote };
+    	//Totals $63.75 - Should return $8.75 in change
+    	//Should be given: 1x $5, 1x $2, 1x $1, 3x $0.25 back 
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 2000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 7000, TimeUnit.MILLISECONDS);
+    	
+    	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
+    	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.stationHardware.banknoteOutput, 1), 8500, TimeUnit.MILLISECONDS);
+    	
+    	stationSoftware.getCheckoutHandler().startCheckout();
+
+		String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		
+		BigDecimal changeValue = BigDecimal.ZERO;
+		//Get Change from tray
+		List<Coin> change = this.stationHardware.coinTray.collectCoins();
+		
+		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
+		
+		//Touch screen should have been informed of change being dispensed
+    	assertTrue(stationSoftware.getTouchScreenSoftware().changeDispensed.get());
+    	assertTrue(banknoteChangeValue == 0);
+    	assertTrue(changeValue.equals(new BigDecimal("8.75")));
+    }
+    
+
+    
+    @Test
+    public void testPayingWithCashAddItemNoScan() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	
+    	//Setup simulated input
+    	//User will select 0 bags
+    	//Choose to skip membership card 
+    	//They will pay in full ($50)
+    	//They will pay with cash ($51.25)
+    	//Should get $1.25 back in Coin tray
+    	String inputString = "0\n" + "skip\n" + "full\n" + "cash\n";
+
+    	//Change Input stream so inputString can simulate console input 
+    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
+    	stationSoftware.updateTouchScreenSoftware(tss);
+    	this.touchScreenSoftware = tss;
+    	
+    	//Change will be given out
+    	//Weight does not change during payment
+    	//Cleanup will be tested in here also
+    	BigDecimal total = new BigDecimal("50");
+    	stationData.setTotalDue(total); //Add $50 to total cost
+    	//Bypass startCheckout method
+    	stationSoftware.getCheckoutHandler().setInCheckout(true);
+    	//Create a list of banknotes exceeding the total cost of all items
+    	Banknote[] banknotes1 = { twentyDollarBanknote };
+    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
+    	Coin[] coins = { loonie, toonie, toonie };
+    	
+    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each banknote insertion.
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.Station.baggingArea, milkJug), 2000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.Station.baggingArea, milkJug), 3500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.Station.banknoteInput, banknotes2), 4000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithCoinsRunnable(this.Station.coinSlot, coins), 6500, TimeUnit.MILLISECONDS);
+    	
+    	checkout.startCheckout();
+
+		String finalReceipt = this.Station.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+    	
+		//Touch screen should have been informed of the weight issue, and its correction
+    	assertTrue(touchScreen.invalidWeightInCheckoutDetected.get());
+    	assertTrue(touchScreen.invalidWeightInCheckoutCorrected.get());
+		
+    	//Should no longer be in checkout mode
+    	assertFalse(checkout.isInCheckout());
+    	//Touch screen should have reset to the welcome screen
+    	assertTrue(touchScreen.resetSuccessful.get());
+    }
+    
 //    @Test
 //    public void testStartCheckoutTwoPartialPaymentsWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 //    	
@@ -1330,7 +831,515 @@ public class StationUnitTest {
 //		checkout.startCheckout();
 //		assertTrue(Math.floor(checkout.getExpectedWeight()) == 50.0);
 //	}
-	
+    
+//===================================================WAITING FOR RE-IMPLEMENTATION===================================================
+//  @Test
+//  public void testStartCheckoutPaymentWithBadDebitCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	
+//  	Card testDebitCard = new Card("Debit", "9999999999", "Card Holder", "888", "4321", true, true);
+//		BankClientInfo bankClientDebitInfo = new BankClientInfo("Debit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
+//		PayWithDebitCard payWithDebitTest = new PayWithDebitCard(this.Station, testDebitCard, null, "4321", bankClientDebitInfo);
+//		
+//		this.checkout = new CheckoutHandler(this.touchScreen, 
+//									 this.Station.mainScanner, 
+//									 this.Station.banknoteInput, //Checkout can disable banknote slot
+//									 this.Station.coinSlot,      //Checkout can disable coin slot
+//									 this.Station.baggingArea,
+//									 this.Station,
+//									 this.receiptHandler,
+//									 payWithDebitTest,
+//									 null,
+//									 this.Station.cardReader);
+//  	
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "swipe\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPaymentWithBadCreditCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	
+//  	Card testCreditCard = new Card("Credit", "9999999999", "Card Holder", "888", "4321", true, true);
+//		BankClientInfo bankClientCreditInfo = new BankClientInfo("Credit", "0987654321", "Test Card Holder", "999", "4321", true, true, new BigDecimal("200"), new BigDecimal("2500"));
+//		PayWithCreditCard payWithCreditTest = new PayWithCreditCard(this.Station, testCreditCard, null, "4321", bankClientCreditInfo);
+//		
+//		this.checkout = new CheckoutHandler(this.touchScreen, 
+//									 this.Station.mainScanner, 
+//									 this.Station.banknoteInput, //Checkout can disable banknote slot
+//									 this.Station.coinSlot,      //Checkout can disable coin slot
+//									 this.Station.baggingArea,
+//									 this.Station,
+//									 this.receiptHandler,
+//									 null,
+//									 payWithCreditTest,
+//									 this.Station.cardReader);
+//  	
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "swipe\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutFullPaymentWithDebtCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "swipe\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPartialPaymentsWithDebtCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "swipe\n" + "full\n" + "debit\n" + "swipe\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//  	
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  	
+//  	checkout.startCheckout();
+//  	
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutFullPaymentWithDebtCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "insert\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPartialPaymentsWithDebtCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "insert\n" + "full\n" + "debit\n" + "insert\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//  	
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  	
+//  	checkout.startCheckout();
+//  	
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutFullPaymentWithDebtCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "debit\n" + "tap\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPartialPaymentsWithDebtCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "debit\n" + "tap\n" + "full\n" + "debit\n" + "tap\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//  	
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  	
+//  	checkout.startCheckout();
+//  	
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutFullPaymentWithCreditCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "swipe\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPartialPaymentsWithCreditCardSwipe() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "swipe\n" + "full\n" + "credit\n" + "swipe\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//  	
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  	
+//  	checkout.startCheckout();
+//  	
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutFullPaymentWithCreditCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "insert\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPartialPaymentsWithCreditCardInsert() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "insert\n" + "full\n" + "credit\n" + "insert\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//  	
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  	
+//  	checkout.startCheckout();
+//  	
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutFullPaymentWithCreditCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "full\n" + "credit\n" + "tap\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//  
+//  @Test
+//  public void testStartCheckoutPartialPaymentsWithCreditCardTap() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+//  	
+//  	//Setup simulated input
+//  	//User will select 0 bags
+//  	//Choose to skip membership card 
+//  	//They will pay partial ($50) each time
+//
+//  	String inputString = "0\n" + "skip\n" + "partial\n" + "50\n" + "credit\n" + "tap\n" + "full\n" + "credit\n" + "tap\n";
+//  	
+//  	customInputStream = new ByteArrayInputStream(inputString.getBytes());
+//  	TouchScreenSoftware ts = new TouchScreenSoftware(customInputStream); //Update the checkout's touch screen with the custom IS
+//  	checkout.updateTouchScreen(ts);
+//  	this.touchScreen = ts;
+//  	
+//  	
+//  	//Change will be given out
+//  	//Weight does not change during payment
+//  	
+//  	BigDecimal total = new BigDecimal("100");
+//  	CheckoutHandler.setTotalCost(total); //Add $100 to total cost
+//  	
+//  	checkout.startCheckout();
+//  	
+//  	assertTrue(touchScreen.returnedToAddingItemMode.get());
+//  	
+//  	checkout.startCheckout();
+//  	
+//		String partialReceipt = this.Station.printer.removeReceipt();
+//		System.out.println("Receipt Generated:\n" + partialReceipt);
+//
+//  	//Should no longer be in checkout mode
+//  	assertFalse(checkout.isInCheckout());
+//  	assertTrue(touchScreen.resetSuccessful.get());
+//  }
+//===================================================WAITING FOR RE-IMPLEMENTATION===================================================
+    
 	@After
     public void reset()
     {
