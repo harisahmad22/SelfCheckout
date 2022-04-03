@@ -93,7 +93,7 @@ public class SelfCheckoutSoftware {
 	}
 
 	public void performAttendantWeightOverride() {
-		//Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
 		
 	}
 }
