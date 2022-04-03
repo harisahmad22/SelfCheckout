@@ -17,6 +17,7 @@ import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.PLUDatabase;
 import org.driver.databases.StoreInventory;
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
