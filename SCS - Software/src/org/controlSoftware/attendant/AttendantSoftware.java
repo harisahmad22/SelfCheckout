@@ -5,6 +5,7 @@ package org.controlSoftware.attendant;
 import java.awt.event.ComponentListener;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,7 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 
+import org.driver.SelfCheckoutStationUnit;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
+import org.lsmr.selfcheckout.devices.Keyboard;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
@@ -32,22 +35,31 @@ public class AttendantSoftware {
 	//via its add(SCS) method 
 	
 	//Listeners for the Attendant GUI will call methods in this class to handle events
+	
+	
+	//(BRODY): I am trying out using the selfCheckoutStaionUnit as a wrapper for each station, instead of relying on 
+	// the list of SelfCheckoutStations stored in the SupervisionStation class
 
 	private TouchScreen touchScreenDevice;
 //	private JFrame guiFrame;
 	private SupervisionStation supervisionStation;
+	private Keyboard keyboard;
+	private ArrayList<SelfCheckoutStationUnit> checkoutStationUnits;
 	
 	
-	public AttendantSoftware(SupervisionStation supervisionStation, TouchScreen touchScreenDevice)
+	public AttendantSoftware(SupervisionStation supervisionStation, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
 	{
 		this.supervisionStation = supervisionStation;
-		this.touchScreenDevice = touchScreenDevice;
+		this.touchScreenDevice = supervisionStation.screen;
+		this.keyboard = supervisionStation.keyboard;
+		this.checkoutStationUnits = checkoutStationUnits;
 	}
 	
 	public void overrideWeightIssue(int stationIndex) {
 		// Idea: Set the weight_valid flag for the corresponding station to true
 		// maybe check if station is in checkout or just scanned something also
-		List<SelfCheckoutStation> staionList = supervisionStation.supervisedStations();
+		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
+		stationToOverride.getSelfCheckoutSoftware().performAttendantWeightOverride();
 		
 	}
 	

@@ -75,9 +75,9 @@ public class SelfCheckoutSoftware {
 		return touchScreenSoftware;
 	}
 	
-	public void updateTouchScreenSoftware(TouchScreenSoftware ts)
+	public void updateTouchScreenSoftware(TouchScreenSoftware tss)
 	{//Used for when we have to change the touchScreen's input stream during testing
-		this.touchScreenSoftware = ts;		
+		this.touchScreenSoftware = tss;		
 	}
 
 	public CheckoutHandler getCheckoutHandler() {
@@ -90,5 +90,10 @@ public class SelfCheckoutSoftware {
 	
 	public BaggingAreaScaleHandler getBaggingAreaScaleHandler() {
 		return this.baggingAreaScaleHandler;
+	}
+
+	public void performAttendantWeightOverride() {
+		//Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+		
 	}
 }

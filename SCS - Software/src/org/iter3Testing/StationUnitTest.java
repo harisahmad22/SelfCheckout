@@ -113,7 +113,7 @@ public class StationUnitTest {
 	@Before
 	public void setup() {
 		
-		this.stationUnit = new SelfCheckoutStationUnit();
+		this.stationUnit = new SelfCheckoutStationUnit(1);
 		
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		this.stationData = stationUnit.getSelfCheckoutData();

@@ -23,7 +23,8 @@ public class SelfCheckoutStationUnit {
 
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
-	private Object keyboard;
+	
+	private int stationID; //The Number of this station
 	
 	public static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
@@ -46,7 +47,8 @@ public class SelfCheckoutStationUnit {
 	private static Coin loonie = new Coin(CAD, new BigDecimal("1.00"));
 	private static Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 	
-	public SelfCheckoutStationUnit() {
+	public SelfCheckoutStationUnit(int stationID) {
+		this.stationID = stationID;
 		this.station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
@@ -112,5 +114,9 @@ public class SelfCheckoutStationUnit {
 	public static Currency getCurrency()
 	{
 		return CAD;
+	}
+
+	public int getStationID() {
+		return stationID;
 	}
 }
