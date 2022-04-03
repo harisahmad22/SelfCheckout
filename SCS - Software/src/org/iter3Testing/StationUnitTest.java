@@ -281,6 +281,9 @@ public class StationUnitTest {
     	stationSoftware.updateTouchScreenSoftware(tss);
     	this.touchScreenSoftware = tss;
     	
+    	//Put a product in the productsAddedToCheckout HashMap to test receipt
+    	stationData.addProductToCheckout(milkJug);
+    	
     	BigDecimal total = new BigDecimal("50");
     	stationData.setTotalDue(total); //Add $50 to total cost
     	//Create a list of banknotes exceeding the total cost of all items
