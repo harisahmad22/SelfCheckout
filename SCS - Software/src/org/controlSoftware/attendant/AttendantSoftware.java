@@ -65,7 +65,7 @@ public class AttendantSoftware {
 	
 	public void blockStation(SelfCheckoutStationUnit station)
 	{
-		
+		//TODO not implemented yet
 	}
 
 	
