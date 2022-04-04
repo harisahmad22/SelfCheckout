@@ -1,6 +1,7 @@
 package org.driver;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
@@ -30,6 +31,7 @@ public class SelfCheckoutSoftware {
 	private CashPaymentHandler cashPaymentHandler;
 	private CardReaderObserver membershipCardScannerHandler;
 	
+	private AtomicBoolean weightIssueHandlerRunning = new AtomicBoolean(false);
 	
 	/***
 	 * This Class will deal with initializing all the handlers in the system and attaching them
@@ -95,6 +97,11 @@ public class SelfCheckoutSoftware {
 		return this.baggingAreaScaleHandler;
 	}
 	
+	public boolean getWeightIssueHandlerRunning() {
+		return weightIssueHandlerRunning.get();
+	}
+
+	
 	public void startupStation()
 	{
 		//ONLY start up station if it is in the INACTIVE state
@@ -145,30 +152,7 @@ public class SelfCheckoutSoftware {
 		//Switch to INACTIVE state, which will inform GUI to close all active windows
 		//Will wipe session data
 		stationData.setCurrentState(StationState.INACTIVE);
-		return;		
-		//Not sure if this is a good idea:
-//		this.stationUnit = null;
-//		
-//		this.stationHardware = null;
-//		
-//		this.stationData = null;
-//		
-//		this.touchScreenSoftware = null;
-//		
-//		this.receiptHandler = null;
-//		
-//		this.checkoutHandler = null;
-//		
-//		this.scannerHandler = null;
-//		
-//		this.baggingAreaScaleHandler = null;
-//		
-//		this.membershipCardScannerHandler = null;
-//		
-//		//CashPaymentHandler will deal with attaching to hardware
-//		this.cashPaymentHandler = null;
-		//Not sure if this is a good idea ^
-		
+		return;				
 	}
 
 	public void performAttendantWeightOverride() {
@@ -197,4 +181,23 @@ public class SelfCheckoutSoftware {
 		}
 		System.out.println("Unblocked! Returning to caller: " + tag);
 	}
+
+	public void handleInvalidWeightNormalMode() {
+		weightIssueHandlerRunning.set(true);
+		stationData.disableAllDevices();
+		getTouchScreenSoftware().invalidWeightInNormalMode();
+		// Loop until scale observer reports a valid weight
+		while (!stationData.getWeightValidNormalMode()) {
+//			TimeUnit.SECONDS.sleep(1); //Check every second
+		}
+
+		//Attendant Block check
+		attendantBlockCheck();
+		
+		// Weight is now valid, unblock and remove touchscreen message
+		stationData.enableAllDevices();
+		getTouchScreenSoftware().validWeightInNormalMode();
+		weightIssueHandlerRunning.set(false);
+	}
+
 }

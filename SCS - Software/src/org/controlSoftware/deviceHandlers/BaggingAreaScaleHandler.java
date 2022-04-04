@@ -6,6 +6,7 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
@@ -56,18 +57,36 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
 		double scannerExpectedWeight = stationData.getExpectedWeightScanner(); // set to weight in observer
 		double checkoutExpectedWeight = stationData.getExpectedWeightCheckout();
+		double normalModeExpectedWeight = stationData.getExpectedWeightNormalMode();
 		double weightOnScale = weightInGrams;
 
 		if (!isOverloaded()) {
+			if (stationData.getCurrentState() == StationState.NORMAL) {
+				handleNormalModeWeightEvent(weightOnScale, normalModeExpectedWeight);
+			}
+			
 			if (stationData.getIsScannerWaitingForWeightChange()) {
 				handleScannerWeightEvent(weightOnScale, scannerExpectedWeight);
 			}
-			if (stationData.isInCheckout()) {
+//			if (stationData.isInCheckout()) {
+			if (stationData.getCurrentState() == StationState.CHECKOUT || stationData.getCurrentState() == StationState.PAY_CASH) {
 				handleCheckoutWeightEvent(weightOnScale, checkoutExpectedWeight);
 			}
 		}
 //		weightAtLastEvent = weightInGrams; // Done handling weight change, store scale weight for next event
 		System.out.println("Scale Weight: " + weightInGrams);
+	}
+	
+	private void handleNormalModeWeightEvent(double weightOnScale, double normalModeExpectedWeight) {
+		if (Math.abs(normalModeExpectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
+			stationData.setWeightValidNormalMode(true);
+		} else {
+			stationData.setWeightValidNormalMode(false);
+			if(stationSoftware.getWeightIssueHandlerRunning()) //Only call software handler if not already running
+			{
+				stationSoftware.handleInvalidWeightNormalMode();		
+			}
+		}
 	}
 	
 	private void handleScannerWeightEvent(double weightOnScale, double scannerExpectedWeight) {
@@ -78,7 +97,6 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 			stationData.setWeightValidScanner(false);
 			stationData.setIsScannerWaitingForWeightChange(false);
 		}
-		
 	}
 	
 	private void handleCheckoutWeightEvent(double weightOnScale, double checkoutExpectedWeight) {

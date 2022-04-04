@@ -24,6 +24,7 @@ import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.CardReader;
 import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -201,7 +202,7 @@ public class SelfCheckoutData {
 		INACTIVE
 	}
 
-	private StationState currentState = StationState.WELCOME;
+	private StationState currentState = StationState.INACTIVE;
 	private StationState preBlockedState = getCurrentState();
 	
 	// Getters/setters
@@ -284,6 +285,12 @@ public class SelfCheckoutData {
 			station.mainScanner.enable();
 			station.handheldScanner.enable();
 			station.scanningArea.enable();
+			try {
+				setExpectedWeightNormalMode(station.baggingArea.getCurrentWeight());
+			} catch (OverloadException e) {
+				System.out.println("Error! Scale overloaded during transition to NORMAL state!");
+				e.printStackTrace();
+			}
 			break;
 		
 		case PROCESSING_SCAN:
