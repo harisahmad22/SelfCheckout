@@ -82,7 +82,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 			stationData.setWeightValidNormalMode(true);
 		} else {
 			stationData.setWeightValidNormalMode(false);
-			if(stationSoftware.getWeightIssueHandlerRunning()) //Only call software handler if not already running
+			if(!stationSoftware.getWeightIssueHandlerRunning()) //Only call software handler if not already running
 			{
 				stationSoftware.handleInvalidWeightNormalMode();		
 			}
