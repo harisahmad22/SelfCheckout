@@ -13,13 +13,13 @@ import java.util.Currency;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BankClientInfo;
-import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
-import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
+import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
-import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -44,11 +44,11 @@ public class PayWithCreditTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private CheckoutSoftware checkout;
+	private CheckoutHandler checkout;
 	private ScheduledExecutorService scheduler;
-	private PayWithCash customCashPaymentObserver;
-	private ItemInBaggingArea customScaleObserver;
-	private ProcessScannedItem customScannerObserver;
+	private CashPaymentHandler customCashPaymentObserver;
+	private BaggingAreaScaleHandler customScaleObserver;
+	private ScannerHandler customScannerObserver;
 	private DummyItemProducts itemProducts;
 	private DummyBarcodeLookup lookup;
 	private CardData cd;
@@ -90,7 +90,7 @@ public class PayWithCreditTest {
 		
 		
 		
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -111,7 +111,7 @@ public class PayWithCreditTest {
 		
 		//Setup receipt printer
 		//Initialize a new custom Barcode scanner observer
-		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
+		this.customScannerObserver = new ScannerHandler(this.Station.mainScanner,
 													 this.lookup, 
 													 this.Station.baggingArea, 
 													 touchScreen, 
@@ -119,7 +119,7 @@ public class PayWithCreditTest {
 													 this.receiptHandler); 
 		this.Station.mainScanner.attach((BarcodeScannerObserver) customScannerObserver);
 		//Initialize a new custom scale observer
-		this.customScaleObserver = new ItemInBaggingArea(this.Station.baggingArea, 
+		this.customScaleObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
 				   										 this.customScannerObserver, 
 				   										 touchScreen, 
 				   										 checkout);
@@ -143,7 +143,7 @@ public class PayWithCreditTest {
     	
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.addToTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.addToTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -168,7 +168,7 @@ public class PayWithCreditTest {
     	this.touchScreen = ts;
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.addToTotalCost(total); //Add $100 to total cost
+    	CheckoutHandler.addToTotalCost(total); //Add $100 to total cost
     	
     	checkout.startCheckout();
 
@@ -195,7 +195,7 @@ public class PayWithCreditTest {
 
     	
     	BigDecimal total = new BigDecimal("100");
-    	CheckoutSoftware.addToTotalCost(total); 
+    	CheckoutHandler.addToTotalCost(total); 
     	
     	checkout.startCheckout();
     	

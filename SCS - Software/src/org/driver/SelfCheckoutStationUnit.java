@@ -7,6 +7,7 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.devices.Keyboard;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.TouchScreen;
@@ -17,11 +18,16 @@ public class SelfCheckoutStationUnit {
 	
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
+	
+	private AttendantUnit attendantUnit;
 
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
 	
-	private static Currency CAD = Currency.getInstance("CAD");
+	private int stationID; //The Number of this station
+	
+	public static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
 	private static BigDecimal[] coinDenominations = {new BigDecimal("2.00"),
 													 new BigDecimal("1.00"),
@@ -42,15 +48,16 @@ public class SelfCheckoutStationUnit {
 	private static Coin loonie = new Coin(CAD, new BigDecimal("1.00"));
 	private static Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 	
-	public SelfCheckoutStationUnit() {
-		SelfCheckoutStation station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+	public SelfCheckoutStationUnit(int stationID) {
+		this.stationID = stationID;
+		this.station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
+			//Money Loading should be moved to testing/attendant methods 
 			try { //Load half full
 				for (int i = 0; i < 100; i++) { station.coinDispensers.get(val).load(new Coin(CAD, val)); }
 				
 			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};
 		}
@@ -60,14 +67,74 @@ public class SelfCheckoutStationUnit {
 				for (int i = 0; i < 50; i++) { station.banknoteDispensers.get(val).load(new Banknote(CAD, val)); }
 				
 			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};
 		}
+		
+		//Initialize Data + Software
+		this.stationData = new SelfCheckoutData(station);
+		this.touchScreen = station.screen;
+		
+		//TouchScreenSoftware will attach itself to the touch screen
+		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
+		//SelfCheckoutSoftware will attach the handlers to the hardware
+		this.stationSoftware = new SelfCheckoutSoftware(this, stationData);
 	}
 	
-	public Currency getCurrency()
+	public SelfCheckoutStationUnit getSelfCheckoutStationUnit()
+	{
+		return this;
+	}
+	
+	public SelfCheckoutStation getSelfCheckoutStationHardware()
+	{
+		return this.station;
+	}
+	
+	public SelfCheckoutData getSelfCheckoutData()
+	{
+		return this.stationData;
+	}
+	
+	public SelfCheckoutSoftware getSelfCheckoutSoftware()
+	{
+		return this.stationSoftware;
+	}
+	
+	public TouchScreen getTouchScreen()
+	{
+		return touchScreen;
+	}
+	
+	public TouchScreenSoftware getTouchScreenSoftware()
+	{
+		return touchScreenSoftware;
+	}
+	
+	public static Currency getCurrency()
 	{
 		return CAD;
 	}
+
+	public int getStationID() {
+		return stationID;
+	}
+
+	//==============================ATTENDANT RELATED METHODS===================================
+	
+	public void attachAttendant(AttendantUnit attendantUnit) {
+		this.attendantUnit = attendantUnit;
+	}
+	
+	public void informAttendantOfStartup() {
+		this.attendantUnit.stationStarted(this.stationID);
+	}
+
+	public void informAttendantOfShutdown() {
+		this.attendantUnit.stationShutdown(this.stationID);
+		
+	}
+
+	//==============================ATTENDANT RELATED METHODS===================================
+
 }

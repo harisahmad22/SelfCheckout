@@ -6,9 +6,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.payment.PayWithCash;
+import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -27,8 +27,8 @@ public class PayWithCashTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private CheckoutSoftware checkout;
-	private PayWithCash customCashPaymentObserver;
+	private CheckoutHandler checkout;
+	private CashPaymentHandler customCashPaymentObserver;
 	private ReceiptHandler receiptHandler;
 	private static Banknote fiveDollarBanknote = new Banknote(DummySelfCheckoutStation.getCurrency(), 5);
 
@@ -38,7 +38,7 @@ public class PayWithCashTest {
 		this.Station = new DummySelfCheckoutStation();
 		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -49,7 +49,7 @@ public class PayWithCashTest {
 									 null,
 									 this.Station.cardReader);
 		//Initialize a new custom banknote validator observer
-		this.customCashPaymentObserver = new PayWithCash(this.Station);
+		this.customCashPaymentObserver = new CashPaymentHandler(this.Station);
 		
 		//Attach the custom cash payment observer to the relevant devices
 		this.Station.banknoteValidator.attach((BanknoteValidatorObserver) customCashPaymentObserver);

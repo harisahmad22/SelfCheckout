@@ -7,10 +7,11 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.controlSoftware.customer.CheckoutSoftware;
-import org.controlSoftware.data.BarcodeLookup;
-import org.controlSoftware.data.ItemProduct;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutSoftware;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -19,25 +20,11 @@ import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
 
-public class ProcessScannedItem implements BarcodeScannerObserver
+public class ScannerHandler implements BarcodeScannerObserver
 {
-	private BarcodeScanner scanner;
-	private BarcodeLookup lookup;
-	private ElectronicScale scale;
-	private TouchScreenSoftware touchScreen;
-	private CheckoutSoftware checkout;
-	private double targetWeight;
-	private AtomicBoolean waitingForWeightChangeEvent = new AtomicBoolean(false);
-	private AtomicBoolean weightValid = new AtomicBoolean(false);
-	private double weightTolerance = 15; // The maximum weight in grams that an Item's weight can differ from its weight stored in the ItemProduct dictionary  
-	/* (Brody)
-		DONT HAVE TO WORRY ABOUT:
-			- the graphical user interface
-			- **** products without barcodes ****
-			- credit/debit cards
-			- returning change to the customer
-		
+	/*	
 		Assuming there is a HashMap that acts as a dictionary for all the items that can be scanned via barcode.
 		
 		1) We are given a barcode from the barcode scanner
@@ -59,15 +46,12 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 		6) Done
 	 */
 	private ReceiptHandler receiptHandler;
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
 
-	public ProcessScannedItem(BarcodeScanner scanner, BarcodeLookup lookup, ElectronicScale scale, TouchScreenSoftware touchScreen, CheckoutSoftware checkout, ReceiptHandler receiptHandler) 
-	{
-		this.scanner = scanner;
-		this.lookup = lookup;
-		this.scale = scale;
-		this.touchScreen = touchScreen;
-		this.checkout = checkout;
-		this.receiptHandler = receiptHandler;
+	public ScannerHandler(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
+		this.stationData = stationData;
+		this.stationSoftware = stationSoftware;
 	}
 
 	@Override
@@ -78,38 +62,49 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 	}
 	@Override
 	public void barcodeScanned(BarcodeScanner barcodeScanner, Barcode barcode) {
-		barcodeScanner.disable(); //Disable scanning while we process this item
+		stationData.changeState(StationState.PROCESSING_SCAN);
+//		stationData.getScanner("main").disable(); //Disable scanning while we process this item
+//		stationData.getScanner("hand").disable(); //Disable handheld scanning while we process this item
+		
+		stationSoftware.attendantBlockCheck();
+		
 		// Lookup Barcode in out lookup
-		ItemProduct scannedItem = lookup.get(barcode);
-		if (scannedItem != null)
+		BarcodedProduct scannedProduct = stationData.getBarcodedProductDatabase().get(barcode);
+		if (scannedProduct != null)
 		{ //Item found in lookup, proceed
-			System.out.println(scannedItem.getProductDescription() + " has just been scanned in!");
-			BigDecimal scannedItemPrice = scannedItem.getPrice();
-			double scannedItemWeight = scannedItem.getWeight();
+			System.out.println(scannedProduct.getDescription() + " has just been scanned in!");
+			BigDecimal scannedItemPrice = scannedProduct.getPrice();
+			double scannedItemWeight = scannedProduct.getExpectedWeight();
 			double scannedItemWeightInKG = scannedItemWeight/1000; // Convert grams to KG
-			if (scannedItem.isPerUnit()) 
+			
+			
+			if (scannedProduct.isPerUnit()) 
 			{
 				//Item is priced per unit, since only one item can be scanned at once, just 
 				//add the price of this item to the customer's total
 				
-				CheckoutSoftware.addToTotalCost(scannedItemPrice);
+				stationData.addToTotalCost(scannedItemPrice);
 			}
 			else
 			{
 				//Item is priced per KG, get the weight of item in KG and multiply by price,
 				//add this to customers total
-				
-				CheckoutSoftware.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
+				//!!! THIS WILL HAVE TO CHANGE WITH THE ADDITION OF THE SCALE !!!
+				stationData.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
 			}
 			
 			//Add product info to the receipt handler list
-			ReceiptHandler.addProductToReceipt(scannedItem.getProductDescription(), scannedItemPrice.toString());
+			stationData.addProductToCheckout(scannedProduct);
+			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
 			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
 			try {
 				waitForWeightChange(scannedItemWeight);
-				barcodeScanner.enable(); //Re-enable scanning 
+				//Attendant Block check
+				stationSoftware.attendantBlockCheck();
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -126,41 +121,45 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 			//Item not found in lookup
 			//Report Error to touchscreen
 			System.out.println("Informing Touch Screen of invalid barcode.");
-			touchScreen.invalidBarcodeScanned();
-			barcodeScanner.enable(); //Re-enable scanning 
+			stationSoftware.getTouchScreenSoftware().invalidBarcodeScanned();
+			stationData.changeState(StationState.NORMAL); 
 			return;
 		}
+		stationData.changeState(StationState.NORMAL);
 	}
 	
 	private void waitForWeightChange(double scannedItemWeight) throws OverloadException, InterruptedException {
-		double weightBefore = scale.getCurrentWeight(); // In grams
-		targetWeight = weightBefore + scannedItemWeight; // What we expect the scale to read after placing the item on it
 		
-		waitingForWeightChangeEvent.set(true); //Signal Scale observer that we are waiting for an weight change after scanning
+		double weightBefore = stationData.getBaggingAreaScale().getCurrentWeight(); // In grams
+		stationData.setExpectedWeightScanner(weightBefore + scannedItemWeight); // What we expect the scale to read after placing the item on it
 		
-		if (checkout.isInCheckout())
+		stationData.setIsScannerWaitingForWeightChange(true); //Signal Scale observer that we are waiting for an weight change after scanning
+		
+		if (stationData.isInCheckout())
 		{
-			checkout.setExpectedWeight(targetWeight);
+			stationData.setExpectedWeightCheckout(stationData.getExpectedWeightScanner());
 		}
 		
 		//Wait for 3 seconds
 		TimeUnit.SECONDS.sleep(3);
-
+		
 		// Check if the weight has increased by approximately the weight of the scanned item since we last checked
-		if (waitingForWeightChangeEvent.get())
+		if (stationData.getIsScannerWaitingForWeightChange())
 		{	// We are still waiting for a weight change event, signal screen that Item must be put in bagging area
 			handleItemNotPlacedInBaggingArea();
+//			Attendant Block check
+//			stationSoftware.attendantBlockCheck();
 			return;
 		}
 		else
 		{	//A weight change event has occurred, check if it is valid (matches approx target weight)
 			
-			if (weightValid.get())
+			if (stationData.getWeightValidScanner())
 			{
 				//Weight change is valid with the scanned item, we are done
 				
 				// Reset weight change flags
-				resetWeightFlags();
+				stationData.resetScannerWeightFlags();
 				return;
 			}
 			else
@@ -168,83 +167,56 @@ public class ProcessScannedItem implements BarcodeScannerObserver
 				//Weight change is not valid, need to inform relevant observers and 
 				//block input/scanning from user until issue is corrected
 				handleInvalidWeight();
+//				//Attendant Block check
+//				stationSoftware.attendantBlockCheck();
 				return;
 			}
 		}
 		
 	}
 
-	private void resetWeightFlags()
-	{
-		// Reset weight change flags
-		waitingForWeightChangeEvent.set(false);
-		weightValid.set(false);
-	}
 	
 	private void handleItemNotPlacedInBaggingArea() throws InterruptedException {
 		
-		disableDevices();
-		touchScreen.waitingForScannedItem();
+		stationData.disableScannerDevices();
+		stationSoftware.getTouchScreenSoftware().waitingForScannedItem();
 		System.out.println("Informing Touch Screen that item has not been placed in bagging area.");
 		// Loop until scale observer reports a valid weight
-		while (!weightValid.get())
+		while (!stationData.getWeightValidScanner())
 		{
-			waitingForWeightChangeEvent.compareAndSet(false, true);
+			stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
 		}
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
 		
 		// Weight is now valid, unblock and remove touchscreen message
-		enableDevices();
-		touchScreen.doneWaitingForScannedItem();	
+		stationData.enableScannerDevices();
+		stationSoftware.getTouchScreenSoftware().doneWaitingForScannedItem();	
 		
-		resetWeightFlags();
+		stationData.resetScannerWeightFlags();
 	}
 	
 	private void handleInvalidWeight() throws InterruptedException {
 		
-		waitingForWeightChangeEvent.compareAndSet(false, true);
+		stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
 		
-		disableDevices();
-		touchScreen.invalidWeightAfterScan();
+		stationData.disableScannerDevices();
+		stationSoftware.getTouchScreenSoftware().invalidWeightAfterScan();
 		System.out.println("Informing Touch Screen of Invalid weight.");
 		// Loop until scale observer reports a valid weight
-		while (!weightValid.get())
+		while (!stationData.getWeightValidScanner())
 		{
-			waitingForWeightChangeEvent.compareAndSet(false, true);
+			stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
 		}
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
 		
 		// Weight is now valid, unblock and remove touchscreen message
-		enableDevices();
-		touchScreen.validWeightAfterScan();		
+		stationData.enableScannerDevices();
+		stationSoftware.getTouchScreenSoftware().validWeightAfterScan();		
 		
-		resetWeightFlags();
-	}
-
-	private void disableDevices() {
-		// Disable all devices associated with this observer
-		scanner.disable();
-		
-	}
-
-	private void enableDevices() {
-		// Enable all devices associated with this observer
-		scanner.enable();
-		
-	}
-
-	public double getTargetWeight() {
-		return targetWeight;
-	}
-	public boolean isWaitingForWeightChange() {
-		return waitingForWeightChangeEvent.get();
-	}
-	public void setWaitingForWeightChange(boolean bool) {
-		this.waitingForWeightChangeEvent.set(bool);
-	}
-	public boolean isWeightValid() {
-		return weightValid.get();
-	}
-	public void setWeightValid(boolean bool) {
-		this.weightValid.set(bool);
-	}
-	
+		stationData.resetScannerWeightFlags();
+	}	
 }

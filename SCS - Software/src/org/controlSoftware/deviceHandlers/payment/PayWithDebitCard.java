@@ -3,8 +3,9 @@ package org.controlSoftware.deviceHandlers.payment;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.data.BankClientInfo;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -25,6 +26,7 @@ public class PayWithDebitCard implements CardReaderObserver {
 	private String pin;
 	private BankClientInfo bankInfo;
 	private boolean wasCardSwiped = false;
+	private SelfCheckoutData stationData;
 	
 	/**
 	 * @param scs
@@ -34,8 +36,9 @@ public class PayWithDebitCard implements CardReaderObserver {
 	 * @param bankInfo
 	 * Creates a new PayWithDebitCard Simulation
 	 */
-	public PayWithDebitCard(SelfCheckoutStation scs, Card card, CardData cardData, String pin, BankClientInfo bankInfo) {
-		this.scs = scs;
+	public PayWithDebitCard(SelfCheckoutData stationData, Card card, CardData cardData, String pin, BankClientInfo bankInfo) {
+		this.stationData = stationData;
+		this.scs = stationData.getStation();
 		this.card = card;
 //		this.cardData = cardData;
 		this.pin = pin;
@@ -152,7 +155,7 @@ public class PayWithDebitCard implements CardReaderObserver {
 
 	private void completeTransaction(BigDecimal totalDue)
 	{
-		CheckoutSoftware.addToTotalPaid(totalDue);
+		stationData.addToTotalPaid(totalDue);
 		bankInfo.updateBalance(totalDue);
 	}
 	

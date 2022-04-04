@@ -27,10 +27,10 @@ public class TestApproveWeightListener implements ActionListener {
 	//the station via their command
 	
 	//E.g The attendant presses a 'Correct Weight Issue' button that appears on
-	//their touch screen when the supervisor station is in its normal running state.
+	//their touch screen when the supervision station is in its normal running state.
 	//Pressing this button opens a new window that creates and displays a button for every checkout station 
 	//that is connected to the supervisor station. 
-	//Since the SupervisorStation class's supervisedStations() method returns a list of checkout stations
+	//Since the SupervisionStation class's supervisedStations() method returns a list of checkout stations
 	//we can treat the first station in the list as station #0, the second as station #1, and so on.		
 	//So then for each station we create button and set its command using the setActionCommand(String) to
 	//be the corresponding station number. Allowing us to determine which station was chosen for the override. 
@@ -38,6 +38,7 @@ public class TestApproveWeightListener implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//This assumes that each button command string is just the number corresponding to its index in SupervisionStation's list
 		
 		String cmd = e.getActionCommand();
 		int stationIndex;

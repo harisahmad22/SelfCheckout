@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Map;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BanknoteValidator;
@@ -18,17 +19,19 @@ import org.lsmr.selfcheckout.devices.observers.CoinDispenserObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinStorageUnitObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 
-public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObserver, CoinDispenserObserver, CoinStorageUnitObserver {
+public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValidatorObserver, CoinDispenserObserver, CoinStorageUnitObserver {
     private SelfCheckoutStation station;
 	private BanknoteValidator banknoteValidator;
     private CoinValidator coinValidator;
     private CoinStorageUnit coinStorageUnit;
     private Map<BigDecimal, CoinDispenser> coinDispensers;
-    private BigDecimal lastValidCoinInserted; 
+    private BigDecimal lastValidCoinInserted;
+	private SelfCheckoutData stationData; 
+	private boolean isInValidDetected = false;
 
-
-    public PayWithCash(SelfCheckoutStation aStation){
-        this.station = aStation;
+    public CashPaymentHandler(SelfCheckoutData stationData){
+        this.stationData = stationData;
+        this.station = stationData.getStation();
         this.banknoteValidator = this.station.banknoteValidator;
         this.coinValidator = this.station.coinValidator;
         this.coinDispensers = this.station.coinDispensers;
@@ -46,12 +49,13 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     //banknotes
 	@Override
 	public void validBanknoteDetected(BanknoteValidator validator, Currency currency, int value) {
-		CheckoutSoftware.addToTotalPaid(new BigDecimal(value));
+		stationData.addToTotalPaid(new BigDecimal(value));
 	}
 
 	@Override
 	public void invalidBanknoteDetected(BanknoteValidator validator) {
         System.out.println("Invalid Banknote.");
+        setInValidDetected(true);
 	}
 
 
@@ -64,18 +68,19 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
     @Override
     public void invalidCoinDetected(CoinValidator validator) {
         System.out.println("Invalid coin.");
+        setInValidDetected(true);
     }
 
     // valid coin makes its way to the dispenser
     @Override
     public void coinAdded(CoinDispenser dispenser, Coin coin) {
-        CheckoutSoftware.addToTotalPaid(coin.getValue());
+    	stationData.addToTotalPaid(coin.getValue());
     }
 
     // valid coin makes its way to the storage unit
     @Override
     public void coinAdded(CoinStorageUnit unit) {
-        CheckoutSoftware.addToTotalPaid(lastValidCoinInserted);
+    	stationData.addToTotalPaid(lastValidCoinInserted);
     }
 
 
@@ -117,5 +122,11 @@ public class PayWithCash implements BanknoteValidatorObserver, CoinValidatorObse
 
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+	}
+	public boolean isInValidDetected() {
+		return isInValidDetected;
+	}
+	public void setInValidDetected(boolean isValidDetected) {
+		this.isInValidDetected = isValidDetected;
 	}
 }

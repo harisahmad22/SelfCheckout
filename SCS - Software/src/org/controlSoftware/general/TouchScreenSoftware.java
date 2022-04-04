@@ -11,10 +11,12 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
+import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
 
@@ -45,16 +47,25 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
 	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
+	private AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
+	private AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
 	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
 	private InputStream inputStream; //So we can change Input stream for testing
 	private Scanner userInputScanner;
+	private SelfCheckoutData stationData;
+	private TouchScreen touchScreen;
 	
-	public TouchScreenSoftware(InputStream inputStream)
+	
+	public TouchScreenSoftware(InputStream inputStream, TouchScreen touchScreen, SelfCheckoutData stationData)
 	{
 		this.inputStream = inputStream;
 		this.userInputScanner = new Scanner(inputStream);
+		this.touchScreen = touchScreen;
+		this.stationData = stationData;
+		
+		this.touchScreen.attach(this);
 	}
 	
 
@@ -337,7 +348,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		
 	}
 	
-	public void inputMembershipPrompt(CheckoutSoftware checkout) throws InterruptedException {
+	public void inputMembershipPrompt(CheckoutHandler checkout) throws InterruptedException {
 		//For now default choice to swipe
 		//Could maybe have a loop that runs until hardware detects a valid swipe
 		//or user can press a button to bring up a keypad to enter in their ID
@@ -355,16 +366,16 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 				userInputScanner.nextLine();
 				
 				String membership_num = Integer.toString(inputID);
-				checkout.setMembershipNumber(membership_num);
+				stationData.setMembershipID(membership_num);
 			}
 			else if (choice.equals("swipe"))
 			{	//Wait for swipe				
 				System.out.println("Please Swipe you Membership Card.");
-				while(!checkout.getCardSwiped())
+				while(!stationData.getCardSwiped())
 				{
 					TimeUnit.MILLISECONDS.sleep(100);
 				}
-				checkout.setCardSwiped(false); //Reset flag for next event		
+				stationData.setCardSwiped(false); //Reset flag for next event		
 			}
 //			userInputScanner.close();
 						
@@ -384,6 +395,17 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public void bagsPutInBaggingArea() {
 		System.out.println("Thank you!");
 		
+	}
+
+
+	public void invalidWeightInNormalMode() {
+		normalModeWeightIssueDetected.set(true);
+		System.out.println("Invalid Weight detected in NORMAL state! Please correct the issue before continuing!");
+		// Put message on screen that does not go away until weight is valid
+	}
+	public void validWeightInNormalMode() {
+		System.out.println("Weight issue in NORMAL state corrected!");
+		normalModeWeightIssueCorrected.set(true);
 	}
 	
 

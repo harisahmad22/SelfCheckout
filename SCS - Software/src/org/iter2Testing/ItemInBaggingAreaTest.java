@@ -5,9 +5,9 @@ package org.iter2Testing;
 import static org.junit.Assert.assertTrue;
 
 import org.controlSoftware.*;
-import org.controlSoftware.customer.CheckoutSoftware;
-import org.controlSoftware.deviceHandlers.ItemInBaggingArea;
-import org.controlSoftware.deviceHandlers.ProcessScannedItem;
+import org.controlSoftware.customer.CheckoutHandler;
+import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
+import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.junit.*;
@@ -21,9 +21,9 @@ public class ItemInBaggingAreaTest {
 	
 	private SelfCheckoutStation Station;
 	private TouchScreenSoftware touchScreen;
-	private CheckoutSoftware checkout;
-	private ItemInBaggingArea customObserver; // changed from Object to ItemInBaggingArea
-	private ProcessScannedItem customScannerObserver;
+	private CheckoutHandler checkout;
+	private BaggingAreaScaleHandler customObserver; // changed from Object to ItemInBaggingArea
+	private ScannerHandler customScannerObserver;
 	private DummyBarcodeLookup lookup;
 	private DummyItemProducts itemProducts;
 	private ReceiptHandler receiptHandler;
@@ -36,7 +36,7 @@ public class ItemInBaggingAreaTest {
 		this.lookup = new DummyBarcodeLookup(itemProducts.IPList);
 		this.touchScreen = new TouchScreenSoftware(System.in);
 		this.receiptHandler = new ReceiptHandler(this.Station.printer);
-		this.checkout = new CheckoutSoftware(this.touchScreen, 
+		this.checkout = new CheckoutHandler(this.touchScreen, 
 									 this.Station.mainScanner, 
 									 this.Station.banknoteInput, //Checkout can disable banknote slot
 									 this.Station.coinSlot,      //Checkout can disable coin slot
@@ -47,7 +47,7 @@ public class ItemInBaggingAreaTest {
 									 null,
 									 this.Station.cardReader);
 		//Initialize a new custom Barcode scanner observer
-		this.customScannerObserver = new ProcessScannedItem(this.Station.mainScanner,
+		this.customScannerObserver = new ScannerHandler(this.Station.mainScanner,
 															this.lookup, 
 															this.Station.baggingArea, 
 															touchScreen,
@@ -57,7 +57,7 @@ public class ItemInBaggingAreaTest {
 		this.Station.mainScanner.attach(customScannerObserver);
 		
 		//Initialize a new custom scale observer
-		this.customObserver = new ItemInBaggingArea(this.Station.baggingArea, 
+		this.customObserver = new BaggingAreaScaleHandler(this.Station.baggingArea, 
 													this.customScannerObserver, 
 													touchScreen, 
 													checkout);

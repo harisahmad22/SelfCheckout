@@ -2,7 +2,8 @@ package org.controlSoftware.deviceHandlers.membership;
 
 import java.io.IOException;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -11,11 +12,11 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
-public class ScansMembershipCard implements CardReaderObserver{
-	private CheckoutSoftware checkout;
+public class MembershipCardScannerHandler implements CardReaderObserver{
+	private SelfCheckoutData stationData;
 	
-	public ScansMembershipCard(CheckoutSoftware checkout_instance) {
-		this.checkout = checkout_instance;
+	public MembershipCardScannerHandler(SelfCheckoutData stationData) {
+		this.stationData = stationData;
 	}
 	
 	/**
@@ -76,7 +77,7 @@ public class ScansMembershipCard implements CardReaderObserver{
 	@Override
 	public void cardSwiped(CardReader reader) {
 		System.out.println("A Card has been Swiped!");
-		checkout.setCardSwiped(true); //Inform checkout of swipe
+		stationData.setCardSwiped(true); //Inform checkout of swipe
 	}
 
 	/**
@@ -89,8 +90,8 @@ public class ScansMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (checkout.getCardSwiped() && (data.getType() == "Membership") && (checkout.isWaitingForMembership())) {
-			checkout.setMembershipNumber(data.getNumber());
+		if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.isWaitingForMembership())) {
+			stationData.setMembershipID(data.getNumber());
 		}
 	}
 
