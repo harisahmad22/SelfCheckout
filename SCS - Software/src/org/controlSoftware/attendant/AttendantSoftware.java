@@ -100,6 +100,15 @@ public class AttendantSoftware {
 		System.out.println("Unblocking station: " + stationID);
 		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().unBlockStation();
 	}
+
+	public void setCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> newCheckoutStationUnits) {
+		this.checkoutStationUnits = newCheckoutStationUnits;
+		
+	}
+	public ArrayList<SelfCheckoutStationUnit> getCheckoutStationUnits() {
+		return this.checkoutStationUnits;
+		
+	}
 	
 	
 

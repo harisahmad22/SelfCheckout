@@ -94,6 +94,82 @@ public class SelfCheckoutSoftware {
 	public BaggingAreaScaleHandler getBaggingAreaScaleHandler() {
 		return this.baggingAreaScaleHandler;
 	}
+	
+	public void startupStation()
+	{
+		//ONLY start up station if it is in the INACTIVE state
+		//Otherwise ignore
+		if (stationData.getCurrentState() != StationState.INACTIVE)
+		{
+			System.out.println("Error! Cannot startup a system if it's already running!");
+			return;
+		}
+		
+		//Perform pre-startup checks
+		if (preStartupChecks())
+		{
+			//Pre startup checks succeeded, now transition to WELCOME state
+			
+			//Inform Attendant of startup
+			stationUnit.informAttendantOfStartup();
+			
+			//Switch to WELCOME state, which will inform GUI to display the welcome screen
+			//and wait for user interaction
+			stationData.changeState(StationState.WELCOME);
+			return;
+		}
+		
+	}
+	
+
+	private boolean preStartupChecks() {
+		
+		return true;
+	}
+
+	public void shutdownStation()
+	{
+		//ONLY shutdown station if it is WELCOME state
+		//Otherwise ignore, to prevent attendant being able to shut down station
+		//while a customer is using it
+		
+		if (stationData.getCurrentState() != StationState.WELCOME)
+		{
+			System.out.println("Error! Cannot shutdown system while it's in use!");
+			return;
+		}
+		
+		//Inform Attendant of shutdown
+		stationUnit.informAttendantOfShutdown();
+		
+		//Switch to INACTIVE state, which will inform GUI to close all active windows
+		//Will wipe session data
+		stationData.setCurrentState(StationState.INACTIVE);
+		return;		
+		//Not sure if this is a good idea:
+//		this.stationUnit = null;
+//		
+//		this.stationHardware = null;
+//		
+//		this.stationData = null;
+//		
+//		this.touchScreenSoftware = null;
+//		
+//		this.receiptHandler = null;
+//		
+//		this.checkoutHandler = null;
+//		
+//		this.scannerHandler = null;
+//		
+//		this.baggingAreaScaleHandler = null;
+//		
+//		this.membershipCardScannerHandler = null;
+//		
+//		//CashPaymentHandler will deal with attaching to hardware
+//		this.cashPaymentHandler = null;
+		//Not sure if this is a good idea ^
+		
+	}
 
 	public void performAttendantWeightOverride() {
 		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true

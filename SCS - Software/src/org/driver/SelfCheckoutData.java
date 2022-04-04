@@ -9,12 +9,12 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.data.NegativeNumberException;
-import org.controlSoftware.data.ProductInfo;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.TestProducts;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.PLUDatabase;
+import org.driver.databases.ProductInfo;
 import org.driver.databases.StoreInventory;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.Numeral;
@@ -191,7 +191,14 @@ public class SelfCheckoutData {
 		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?
-		ERROR
+		ERROR, 
+		
+		//State that Checkout station will default to on initialization
+		//Represents the 'off' state, No GUI.
+		//Any other state would represent an 'on' state.
+		//This State can only be entered if system is in WELCOME state. (Not being used by a customer)
+		//Later could have all system's methods except startupStation() not work if the state == INACTIVE
+		INACTIVE
 	}
 
 	private StationState currentState = StationState.WELCOME;
@@ -252,12 +259,25 @@ public class SelfCheckoutData {
 		// Enable hardware for new state
 		switch(targetState) {
 		
+		case INACTIVE:
+			station.mainScanner.disable();
+			station.handheldScanner.disable();
+			station.scanningArea.disable();
+			disableAllDevices();
+			wipeSessionData();
+			
+			//SIGNAL GUI TO CLOSE ALL WINDOWS
+			break;
+		
 		case WELCOME:
 			station.mainScanner.disable();
 			station.handheldScanner.disable();
 			station.scanningArea.disable();
 			disablePaymentDevices();
 			wipeSessionData();
+			
+			//SIGNAL GUI TO DISPLAY WELCOME SCREEN WINDOW
+			
 			break;
 		
 		case NORMAL:
@@ -334,6 +354,10 @@ public class SelfCheckoutData {
 	
 	private void exitState(StationState state) {
 		switch(state) {
+		
+		case INACTIVE:
+			break;
+		
 		case WELCOME:
 			station.mainScanner.enable();
 			station.handheldScanner.enable();
