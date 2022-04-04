@@ -10,28 +10,28 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 public class PLUTestProducts {
 	private ArrayList<PriceLookupCode> PLUList = new ArrayList<PriceLookupCode>();
 
-	private ArrayList<PLUCodedProduct> PPList = new ArrayList<PLUCodedProduct>();
+	private ArrayList<PLUCodedProduct> PLUProductList = new ArrayList<PLUCodedProduct>();
 
 	public PLUTestProducts() {
 		// Product 1
 		PriceLookupCode PLUCode1 = new PriceLookupCode("1234");
 		PLUCodedProduct P1 = new PLUCodedProduct(PLUCode1, "Rice-1kg.", new BigDecimal("7.43"));
 		PLUList.add(PLUCode1);
-		PPList.add(P1);
+		PLUProductList.add(P1);
 		// Product 1
 
 		// Product 2
 		PriceLookupCode PLUCode2 = new PriceLookupCode("2345");
 		PLUCodedProduct P2 = new PLUCodedProduct(PLUCode2, "Pear-0.178kg.", new BigDecimal("1.43"));
 		PLUList.add(PLUCode2);
-		PPList.add(P2);
+		PLUProductList.add(P2);
 		// Product 2
 
 		// Product 3
 		PriceLookupCode PLUCode3 = new PriceLookupCode("3456");
 		PLUCodedProduct P3 = new PLUCodedProduct(PLUCode3, "Banana-0.05kg", new BigDecimal("1.00"));
 		PLUList.add(PLUCode3);
-		PPList.add(P3);
+		PLUProductList.add(P3);
 		// ItemProduct 3
 		// ===============================================================================
 
@@ -46,7 +46,7 @@ public class PLUTestProducts {
 		return PLUList;
 	}
 
-	public ArrayList<PLUCodedProduct> PPList() {
-		return PPList;
+	public ArrayList<PLUCodedProduct> getPLUProductList() {
+		return PLUProductList;
 	}
 }
