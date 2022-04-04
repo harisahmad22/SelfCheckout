@@ -32,7 +32,7 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
-import org.driver.databases.TestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.iter2Testing.PayWithBanknotesRunnable;
 import org.iter2Testing.PayWithCoinsRunnable;
 import org.iter2Testing.PlaceItemOnScaleRunnable;
@@ -103,7 +103,7 @@ public class StationUnitTest {
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
 	private TouchScreenSoftware touchScreenSoftware;
-	private TestProducts testProducts;
+	private TestBarcodedProducts testProducts;
 	
 	private ScheduledExecutorService scheduler;
 	
@@ -122,7 +122,7 @@ public class StationUnitTest {
 		
 		
 		//Create some test products/items
-		this.testProducts = new TestProducts();
+		this.testProducts = new TestBarcodedProducts();
 		
 		milkJug = stationData.getBarcodedProductDatabase()
 					.get(testProducts.getBarcodeList().get(0));

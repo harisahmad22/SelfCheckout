@@ -21,7 +21,7 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
-import org.driver.databases.TestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.iter2Testing.PlaceItemOnScaleRunnable;
 import org.iter2Testing.RemoveItemOnScaleRunnable;
 import org.junit.*;
@@ -55,7 +55,7 @@ public class ScannerHandlerTest {
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
 	private TouchScreenSoftware touchScreenSoftware;
-	private TestProducts testProducts;
+	private TestBarcodedProducts testProducts;
 	
 	private ScheduledExecutorService addItemsToScaleScheduler;
 	
@@ -73,7 +73,7 @@ public class ScannerHandlerTest {
 		
 		
 		//Create some test products/items
-		this.testProducts = new TestProducts();
+		this.testProducts = new TestBarcodedProducts();
 		
 		milkJug = stationData.getBarcodedProductDatabase()
 					.get(testProducts.getBarcodeList().get(0));
