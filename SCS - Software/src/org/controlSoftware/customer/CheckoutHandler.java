@@ -16,6 +16,7 @@ import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
 import org.driver.SelfCheckoutSoftware;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -37,16 +38,22 @@ public class CheckoutHandler {
 		
 	}
 
+		
 	public void startCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 		// User has begun checkout
-		stationData.setInCheckout(true); // Could use this as a signal to scale observer that weight is not allowed to change
-
+//		stationData.setInCheckout(true); // Could use this as a signal to scale observer that weight is not allowed to change
+		
+		stationData.changeState(StationState.CHECKOUT);
+		
 		// Set our expected Weight to the current scale weight
 		// Allows scale observer to set weightValid
 		stationData.setExpectedWeightCheckout(stationData.getBaggingAreaScale().getCurrentWeight());
 
 		// First Disable scanner
-		stationData.getScanner().disable();
+//		stationData.getScanner().disable();
+		
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
 		
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
@@ -64,15 +71,23 @@ public class CheckoutHandler {
 				handleWaitingForBagWeight();
 			}
 			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
+			
 			// If the user has bags to add, the weight of all their bags will be added to
 			// expectedWeight, which will then
 			// be checked for validity after the user chooses payment options
+			stationData.changeState(StationState.ADD_MEMBERSHIP);
 			stationData.setWaitingForMembership(true);
 			stationSoftware.getTouchScreenSoftware().inputMembershipPrompt(this);
 			stationSoftware.getReceiptHandler().setMembershipID(stationData.getMembershipID());
 			stationData.setWaitingForMembership(false);
+			stationData.changeState(StationState.CHECKOUT);
 			
-			stationData.setIsFirstCheckout(false); 
+			stationData.setIsFirstCheckout(false);
+			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
 		}
 		
 		//Ask user if they would like to pay partial or full
@@ -80,12 +95,18 @@ public class CheckoutHandler {
 				stationSoftware.getTouchScreenSoftware().choosePaymentAmount(
 						stationData.getTotalDue(), stationData.getTotalMoneyPaid());
 
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
+		
 		// Then prompt touch screen to ask user how they would like to pay
 		// Method will block until user input is received
 		// Returns an int: 0 = Cash, 1 = Credit, 2 = Debt
 		// TESTING - always chooses to pay with cash!
 		int paymentMethod = stationSoftware.getTouchScreenSoftware().showPaymentOption(); 
 
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
+		
 		// Check if weight is still valid after waiting for user input
 		if (!stationData.getWeightValidCheckout()) 
 		{
@@ -93,7 +114,8 @@ public class CheckoutHandler {
 		}
 		
 		if (paymentMethod == 1) 
-		{ 
+		{ 	
+			stationData.changeState(StationState.PAY_CREDIT);
 //			// Idea for how payWithCreditCard(BigDecimal paymentAmount) will work: 
 //			/*
 //			 * 1) Inform user to input their card
@@ -126,9 +148,14 @@ public class CheckoutHandler {
 //			} else {
 //				creditCard.cardRemoved(reader);
 //			}
+			stationData.changeState(StationState.CHECKOUT);
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
+			
 		}
 		else if (paymentMethod == 2) 
 		{ 
+			stationData.changeState(StationState.PAY_DEBIT);
 //			boolean cardPaymentVerified = false;
 //			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
 //			if (cardPaymentMethod == 0) {
@@ -152,12 +179,18 @@ public class CheckoutHandler {
 //			} else {
 //				debitCard.cardRemoved(reader);
 //			}
-      
+			stationData.changeState(StationState.CHECKOUT);
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
+			
 		}
 		else 
 		{
+			stationData.changeState(StationState.PAY_CASH);
 			System.out.println("Cash Payment Chosen");
 			payWithCash(paymentAmount);
+			stationData.changeState(StationState.CHECKOUT);
+			
 		}
 		
 		//Need to handle when they pay partially, maybe payWithCash etc returns a boolean informing us
@@ -193,13 +226,21 @@ public class CheckoutHandler {
 			// method call to handler that deals with waiting for all items in
 			// bagging area to be picked up before reseting system to be ready for a new
 			// user
+			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
+			
+			
+			stationData.changeState(StationState.CLEANUP);
 			handlePostPaymentCleanup();
+			stationData.changeState(StationState.CHECKOUT);
 
 			// Maybe Re-enable devices here?
-			stationData.enableAllDevices();
+//			stationData.enableAllDevices();
 
-			stationData.setInCheckout(false);
+//			stationData.setInCheckout(false);
 			stationSoftware.getTouchScreenSoftware().resetToWelcomeScreen();
+			stationData.changeState(StationState.WELCOME); //Should maybe move this into Touch screen software
 		}
 		else
 		{ //Total Paid < total Due, Ask to Print Receipt, and return to Adding Items mode 
@@ -213,10 +254,15 @@ public class CheckoutHandler {
 			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
 			
 			// Maybe Re-enable devices here?
-			stationData.enableAllDevices();
+//			stationData.enableAllDevices();
+			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
+			
 
-			stationData.setInCheckout(false);
+//			stationData.setInCheckout(false);
 			stationSoftware.getTouchScreenSoftware().returnToAddingItems();
+			stationData.changeState(StationState.NORMAL); //Should maybe move this into Touch screen software
 		}
 		//================================================================================================
 	}
@@ -252,10 +298,17 @@ public class CheckoutHandler {
 			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
 			// checking
 			
-			TimeUnit.MILLISECONDS.sleep(50); 
+			TimeUnit.MILLISECONDS.sleep(50);
+			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
 		}
 		System.out.println("(TESTING) Finished payWithCash!");
 		stationData.resetTotalPaidThisTransaction(); //Payment complete, reset for next payment run
+		
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
+		
 		return;
 	}
   
@@ -274,6 +327,9 @@ public class CheckoutHandler {
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
 		// Weight on scale is now equal to 0
+		
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();		
 
 		stationData.resetCheckoutTotals();
 		stationData.setInCleanup(false);
@@ -291,6 +347,9 @@ public class CheckoutHandler {
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
 
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
+		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enablePaymentDevices();
 		stationSoftware.getTouchScreenSoftware().validWeightInCheckout();
@@ -308,6 +367,9 @@ public class CheckoutHandler {
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
 
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
+		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enablePaymentDevices();
 		stationSoftware.getTouchScreenSoftware().bagsPutInBaggingArea();

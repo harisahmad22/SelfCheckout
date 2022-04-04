@@ -1,5 +1,7 @@
 package org.driver;
 
+import java.util.concurrent.TimeUnit;
+
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
@@ -7,6 +9,7 @@ import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
@@ -98,7 +101,24 @@ public class SelfCheckoutSoftware {
 	}
 
 	public void blockStation() {
-		// TODO Auto-generated method stub
-		
+		this.stationData.changeState(StationState.BLOCKED);
+	}
+	public void unBlockStation() {
+		this.stationData.changeState(stationData.getPreBlockedState());
+	}
+	
+	public void attendantBlockCheck() {
+		if (stationData.getATTENDANT_BLOCK()) { 
+			try { handleAttendantBlock("Scanner Handler"); } 
+			catch (InterruptedException e) {} }
+	}
+	
+	public void handleAttendantBlock(String tag) throws InterruptedException {
+		System.out.println("Method called from: " + tag);
+		while(stationData.getATTENDANT_BLOCK())
+		{
+			TimeUnit.MILLISECONDS.sleep(500);
+		}
+		System.out.println("Unblocked! Returning to caller: " + tag);
 	}
 }

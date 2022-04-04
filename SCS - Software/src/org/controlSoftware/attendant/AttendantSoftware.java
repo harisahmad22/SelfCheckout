@@ -83,6 +83,24 @@ public class AttendantSoftware {
 		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().blockStation();
 	}
 	
+	public void unBlockStation(SelfCheckoutStationUnit station)
+	{
+		System.out.println("Blocking station: " + station.getStationID());
+		station.getSelfCheckoutSoftware().unBlockStation();
+	}
+	
+	public void unBlockStation(int stationID)
+	{
+		System.out.println("Blocking station: " + stationID);
+		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().unBlockStation();
+	}
+	
+	public void unBlockStation(String stationID)
+	{
+		System.out.println("Unblocking station: " + stationID);
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().unBlockStation();
+	}
+	
 	
 
 	

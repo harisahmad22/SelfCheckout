@@ -105,6 +105,8 @@ public class SelfCheckoutData {
 	private AtomicBoolean isCheckoutWaitingForDebitCard = new AtomicBoolean(false);
 	private AtomicBoolean isCheckoutWaitingForGiftCard = new AtomicBoolean(false);
 	private AtomicBoolean isCheckoutWaitingForMembership = new AtomicBoolean(false);
+	
+	private AtomicBoolean ATTENDANT_BLOCK = new AtomicBoolean(false);
 	//============================Software Flags============================
 	
 	private PLUDatabase PLU_Product_Database;
@@ -147,12 +149,15 @@ public class SelfCheckoutData {
 	 * 
 	 *		**I have no idea how this is going to mesh with multithreading. Consultation needed.
 	 */
-	protected enum State {
+	public enum StationState {
 		// Welcome screen
 		WELCOME,
 		
-		// Ready for item to be scanned. Could proceed to checkout from here
-		SCANNING,
+		//Default state when waiting for items to be added
+		NORMAL,
+		
+		// Item has been scanned, enter processing state to block new scans/additions until item has been put in bagging area. 
+		PROCESSING_SCAN,
 		
 		// Scanned item need be bagged. Should return to scanning once bagged.
 		BAGGING,
@@ -162,6 +167,9 @@ public class SelfCheckoutData {
 		
 		// Interim checkout menu, can go back and scan more items or proceed to some payment option
 		CHECKOUT,
+		
+		//State for when user has paid total due, and system is waiting for them to take their items
+		CLEANUP,
 		
 		// Make full or partial cash payment. Return to CHECKOUT when completed.
 		PAY_CASH,		// **Only change with cash payment?
@@ -178,13 +186,16 @@ public class SelfCheckoutData {
 		// General post-checkout state. Print receipt? Dispense change? Just a thank you message? Returns to WELCOME
 		FINISHED,
 		
+		//Blocking State, triggered by the attendant
+		BLOCKED,
+		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?
 		ERROR
 	}
 
-	protected State state = State.WELCOME;
-
+	private StationState currentState = StationState.WELCOME;
+	private StationState preBlockedState = getCurrentState();
 	
 	// Getters/setters
 	
@@ -235,25 +246,48 @@ public class SelfCheckoutData {
 	 */
 	
 	// Changes to new state while properly exiting old one (enabling/disabling relevant hardware)
-	public void changeState(State targetState) {
+	public void changeState(StationState targetState) {
 		// Disable hardware for old state
-		exitState(state);
-		state = targetState;
+		exitState(getCurrentState());
 		// Enable hardware for new state
 		switch(targetState) {
 		
 		case WELCOME:
-			wipeData();
+			station.mainScanner.disable();
+			station.handheldScanner.disable();
+			station.scanningArea.disable();
+			disablePaymentDevices();
+			wipeSessionData();
 			break;
 		
-		case SCANNING:
+		case NORMAL:
 			station.mainScanner.enable();
 			station.handheldScanner.enable();
 			station.scanningArea.enable();
 			break;
 		
+		case PROCESSING_SCAN:
+			station.mainScanner.disable();
+			station.handheldScanner.disable();
+			station.scanningArea.disable();
+			break;
+			
+		case CHECKOUT:
+			station.mainScanner.disable();
+			station.handheldScanner.disable();
+			disablePaymentDevices();
+			break;
+		
+		case CLEANUP:
+			station.mainScanner.disable();
+			station.handheldScanner.disable();
+			station.scanningArea.disable();
+			disablePaymentDevices();
+			break;
+			
 		case BAGGING:
-			station.baggingArea.enable();
+			//Bagging Area should always be enabled
+//			station.baggingArea.enable(); 
 			break;
 			
 		case ADDING_BAGS:
@@ -281,28 +315,49 @@ public class SelfCheckoutData {
 			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed.
 			break;
 		
+		case BLOCKED:
+			ATTENDANT_BLOCK.set(true);
+			setPreBlockedState(this.getCurrentState());
+			disableAllDevices();
+			//Add a method to inform the station of the block
+			break;
 			
 		case ERROR:
 			break;
 			
 		default:
-			break;
+			return;
 		} 
+		//Made it here, assume target state is valid
+		setCurrentState(targetState);
 	}
 	
-	private void exitState(State state) {
+	private void exitState(StationState state) {
 		switch(state) {
 		case WELCOME:
+			station.mainScanner.enable();
+			station.handheldScanner.enable();
+			station.scanningArea.enable();
 			break;
 		
-		case SCANNING:
-			station.mainScanner.disable();
-			station.handheldScanner.disable();
-			station.scanningArea.disable();
+		case NORMAL:
 			break;
 		
+		case PROCESSING_SCAN:
+			station.mainScanner.enable();
+			station.handheldScanner.enable();
+			station.scanningArea.enable();
+			break;
+		
+		case CHECKOUT:
+			break;
+			
+		case CLEANUP:
+			break;
+			
 		case BAGGING:
-			station.baggingArea.disable();
+			//Should always be enabled
+//			station.baggingArea.disable();
 			break;
 			
 		case ADDING_BAGS:
@@ -330,15 +385,21 @@ public class SelfCheckoutData {
 			station.printer.disable();
 			break;
 			
+		case BLOCKED:
+			ATTENDANT_BLOCK.set(false);
+			//Add a method to inform the station of the block removal
+			
+			break;
+			
 		case ERROR:
 			break;
 			
 		default:
-			break;
+			return;
 		}
 	}
 		
-	private void wipeData() {
+	private void wipeSessionData() {
 		totalDue = BigDecimal.ZERO;
 		totalMoneyPaid = BigDecimal.ZERO;
 		expectedWeightNormalMode = 0.0;
@@ -644,23 +705,27 @@ public class SelfCheckoutData {
 		isScannerWaitingForWeightChange.compareAndSet(expected, update);
 		
 	}
-	
+
 	//===========================For ScannerHandler===========================
+	
+	public StationState getCurrentState() {
+		return currentState;
+	}
+	public void setCurrentState(StationState currentState) {
+		this.currentState = currentState;
+	}
+	public StationState getPreBlockedState() {
+		return preBlockedState;
+	}
+	public void setPreBlockedState(StationState preBlockedState) {
+		this.preBlockedState = preBlockedState;
+	}
+	
+
+	public boolean getATTENDANT_BLOCK() {
+		return ATTENDANT_BLOCK.get();
+	}
+	public void setATTENDANT_BLOCK(boolean bool) {
+		ATTENDANT_BLOCK.set(bool);
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
