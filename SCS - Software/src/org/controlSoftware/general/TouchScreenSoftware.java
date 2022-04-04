@@ -47,6 +47,8 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
 	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
+	private AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
+	private AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
 	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
@@ -54,6 +56,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	private Scanner userInputScanner;
 	private SelfCheckoutData stationData;
 	private TouchScreen touchScreen;
+	
 	
 	public TouchScreenSoftware(InputStream inputStream, TouchScreen touchScreen, SelfCheckoutData stationData)
 	{
@@ -392,6 +395,17 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public void bagsPutInBaggingArea() {
 		System.out.println("Thank you!");
 		
+	}
+
+
+	public void invalidWeightInNormalMode() {
+		normalModeWeightIssueDetected.set(true);
+		System.out.println("Invalid Weight detected in NORMAL state! Please correct the issue before continuing!");
+		// Put message on screen that does not go away until weight is valid
+	}
+	public void validWeightInNormalMode() {
+		System.out.println("Weight issue in NORMAL state corrected!");
+		normalModeWeightIssueCorrected.set(true);
 	}
 	
 

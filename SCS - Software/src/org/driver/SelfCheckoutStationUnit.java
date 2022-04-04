@@ -20,6 +20,7 @@ public class SelfCheckoutStationUnit {
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
 	
+	private AttendantUnit attendantUnit;
 
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
@@ -57,7 +58,6 @@ public class SelfCheckoutStationUnit {
 				for (int i = 0; i < 100; i++) { station.coinDispensers.get(val).load(new Coin(CAD, val)); }
 				
 			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};
 		}
@@ -67,7 +67,6 @@ public class SelfCheckoutStationUnit {
 				for (int i = 0; i < 50; i++) { station.banknoteDispensers.get(val).load(new Banknote(CAD, val)); }
 				
 			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};
 		}
@@ -120,4 +119,22 @@ public class SelfCheckoutStationUnit {
 	public int getStationID() {
 		return stationID;
 	}
+
+	//==============================ATTENDANT RELATED METHODS===================================
+	
+	public void attachAttendant(AttendantUnit attendantUnit) {
+		this.attendantUnit = attendantUnit;
+	}
+	
+	public void informAttendantOfStartup() {
+		this.attendantUnit.stationStarted(this.stationID);
+	}
+
+	public void informAttendantOfShutdown() {
+		this.attendantUnit.stationShutdown(this.stationID);
+		
+	}
+
+	//==============================ATTENDANT RELATED METHODS===================================
+
 }

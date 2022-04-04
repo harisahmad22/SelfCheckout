@@ -11,6 +11,7 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -61,8 +62,12 @@ public class ScannerHandler implements BarcodeScannerObserver
 	}
 	@Override
 	public void barcodeScanned(BarcodeScanner barcodeScanner, Barcode barcode) {
-		stationData.getScanner("main").disable(); //Disable scanning while we process this item
-		stationData.getScanner("hand").disable(); //Disable handheld scanning while we process this item
+		stationData.changeState(StationState.PROCESSING_SCAN);
+//		stationData.getScanner("main").disable(); //Disable scanning while we process this item
+//		stationData.getScanner("hand").disable(); //Disable handheld scanning while we process this item
+		
+		stationSoftware.attendantBlockCheck();
+		
 		// Lookup Barcode in out lookup
 		BarcodedProduct scannedProduct = stationData.getBarcodedProductDatabase().get(barcode);
 		if (scannedProduct != null)
@@ -89,15 +94,17 @@ public class ScannerHandler implements BarcodeScannerObserver
 			}
 			
 			//Add product info to the receipt handler list
-			//!!! THIS SHOULD BE CHANGED TO ADD TO THE scannedProduct
 			stationData.addProductToCheckout(scannedProduct);
+			
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
 			
 			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
 			// Not sure if this is the best way to handle it VVV
 			try {
 				waitForWeightChange(scannedItemWeight);
-				stationData.getScanner("main").enable();
-				stationData.getScanner("hand").enable(); 
+				//Attendant Block check
+				stationSoftware.attendantBlockCheck();
 			} catch (OverloadException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -115,9 +122,10 @@ public class ScannerHandler implements BarcodeScannerObserver
 			//Report Error to touchscreen
 			System.out.println("Informing Touch Screen of invalid barcode.");
 			stationSoftware.getTouchScreenSoftware().invalidBarcodeScanned();
-			barcodeScanner.enable(); //Re-enable scanning 
+			stationData.changeState(StationState.NORMAL); 
 			return;
 		}
+		stationData.changeState(StationState.NORMAL);
 	}
 	
 	private void waitForWeightChange(double scannedItemWeight) throws OverloadException, InterruptedException {
@@ -134,11 +142,13 @@ public class ScannerHandler implements BarcodeScannerObserver
 		
 		//Wait for 3 seconds
 		TimeUnit.SECONDS.sleep(3);
-
+		
 		// Check if the weight has increased by approximately the weight of the scanned item since we last checked
 		if (stationData.getIsScannerWaitingForWeightChange())
 		{	// We are still waiting for a weight change event, signal screen that Item must be put in bagging area
 			handleItemNotPlacedInBaggingArea();
+//			Attendant Block check
+//			stationSoftware.attendantBlockCheck();
 			return;
 		}
 		else
@@ -157,6 +167,8 @@ public class ScannerHandler implements BarcodeScannerObserver
 				//Weight change is not valid, need to inform relevant observers and 
 				//block input/scanning from user until issue is corrected
 				handleInvalidWeight();
+//				//Attendant Block check
+//				stationSoftware.attendantBlockCheck();
 				return;
 			}
 		}
@@ -173,7 +185,11 @@ public class ScannerHandler implements BarcodeScannerObserver
 		while (!stationData.getWeightValidScanner())
 		{
 			stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
+			//Attendant Block check
+			stationSoftware.attendantBlockCheck();
 		}
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
 		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enableScannerDevices();
@@ -194,6 +210,8 @@ public class ScannerHandler implements BarcodeScannerObserver
 		{
 			stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
 		}
+		//Attendant Block check
+		stationSoftware.attendantBlockCheck();
 		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enableScannerDevices();

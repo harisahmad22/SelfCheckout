@@ -65,10 +65,89 @@ public class AttendantSoftware {
 		
 	}
 	
+	public void startupStation(SelfCheckoutStationUnit station)
+	{
+		System.out.println("Starting station: " + station.getStationID());
+		station.getSelfCheckoutSoftware().startupStation();
+	}
+	
+	public void startupStation(int stationID)
+	{
+		System.out.println("Starting station: " + stationID);
+		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().startupStation();
+	}
+	
+	public void startupStation(String stationID)
+	{
+		System.out.println("Starting station: " + stationID);
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().startupStation();
+	}
+	
+	public void shutdownStation(SelfCheckoutStationUnit station)
+	{
+		System.out.println("Shutting down station: " + station.getStationID());
+		station.getSelfCheckoutSoftware().shutdownStation();
+	}
+	
+	public void shutdownStation(int stationID)
+	{
+		System.out.println("Shutting down station: " + stationID);
+		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().shutdownStation();
+	}
+	
+	public void shutdownStation(String stationID)
+	{
+		System.out.println("Shutting down station: " + stationID);
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().shutdownStation();
+	}
+	
+	
 	public void blockStation(SelfCheckoutStationUnit station)
 	{
-		//TODO not implemented yet
+		System.out.println("Blocking station: " + station.getStationID());
+		station.getSelfCheckoutSoftware().blockStation();
 	}
+	
+	public void blockStation(int stationID)
+	{
+		System.out.println("Blocking station: " + stationID);
+		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().blockStation();
+	}
+	
+	public void blockStation(String stationID)
+	{
+		System.out.println("Blocking station: " + stationID);
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().blockStation();
+	}
+	
+	public void unBlockStation(SelfCheckoutStationUnit station)
+	{
+		System.out.println("Blocking station: " + station.getStationID());
+		station.getSelfCheckoutSoftware().unBlockStation();
+	}
+	
+	public void unBlockStation(int stationID)
+	{
+		System.out.println("Blocking station: " + stationID);
+		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().unBlockStation();
+	}
+	
+	public void unBlockStation(String stationID)
+	{
+		System.out.println("Unblocking station: " + stationID);
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().unBlockStation();
+	}
+
+	public void setCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> newCheckoutStationUnits) {
+		this.checkoutStationUnits = newCheckoutStationUnits;
+		
+	}
+	public ArrayList<SelfCheckoutStationUnit> getCheckoutStationUnits() {
+		return this.checkoutStationUnits;
+		
+	}
+	
+	
 
 	
 

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.controlSoftware.data.ProductInfo;
 import org.driver.SelfCheckoutData;
+import org.driver.databases.ProductInfo;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
