@@ -8,17 +8,17 @@ import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
-public class PLUDatabase {
+public class PLUProductDatabase {
 	private Map<PriceLookupCode, PLUCodedProduct> database;
 
-	public PLUDatabase() {
+	public PLUProductDatabase() {
 		this.database = ProductDatabases.PLU_PRODUCT_DATABASE;
 
 		// Populate the database with some products and their PLU codes
 //		database.put(null, null)
 	}
 
-	public PLUDatabase(ArrayList<PLUCodedProduct> objects) {
+	public PLUProductDatabase(ArrayList<PLUCodedProduct> objects) {
 		this.database = ProductDatabases.PLU_PRODUCT_DATABASE;
 
 		// Populate the database with some products and their PLU codes
