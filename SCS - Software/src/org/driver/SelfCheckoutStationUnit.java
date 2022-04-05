@@ -134,6 +134,14 @@ public class SelfCheckoutStationUnit {
 		this.attendantUnit.stationShutdown(this.stationID);
 		
 	}
+	
+	public void informAttendantOfNoPaper() {
+		this.attendantUnit.handleNoPaper(this.stationID);
+	}
+	
+	public void informAttendantOfNoInk() {
+		this.attendantUnit.handleNoInk(this.stationID);
+	}
 
 	//==============================ATTENDANT RELATED METHODS===================================
 

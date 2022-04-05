@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutStationUnit;
 import org.driver.databases.ProductInfo;
+import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
+import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
+import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
 
-public class ReceiptHandler {
+public class ReceiptHandler implements ReceiptPrinterObserver {
 	
 //	private ArrayList<String> scannedProductList = new ArrayList<String>();
 	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
@@ -19,11 +23,11 @@ public class ReceiptHandler {
 	private String finalChange = "$0.0\n";
 	private String moneyPaid;
 	private ReceiptPrinter printer;
-	private SelfCheckoutData stationData;
+	private SelfCheckoutStationUnit station;
 	
-	public ReceiptHandler(SelfCheckoutData stationData, ReceiptPrinter printer)
+	public ReceiptHandler(SelfCheckoutStationUnit station, ReceiptPrinter printer)
 	{
-		this.stationData = stationData;
+		this.station = station;
 		this.printer = printer;
 	}
 	
@@ -33,7 +37,7 @@ public class ReceiptHandler {
 		//to a byte array, and loop over each character printing it via the printer
 		//The print can print a MAX of 60 chars on a single line
 		
-		HashMap<String, ProductInfo> productsInCheckout = stationData.getProductsAddedToCheckoutHashMap();
+		HashMap<String, ProductInfo> productsInCheckout = station.getSelfCheckoutData().getProductsAddedToCheckoutHashMap();
 		for (String productDescription : productsInCheckout.keySet())
 		{
 			//Get the price via description as key, then get Product from ProductInfo wrapper, then get the price.
@@ -142,5 +146,37 @@ public class ReceiptHandler {
 
 	public void setMoneyPaid(String paid) {
 		this.moneyPaid = "$" + paid + "\n";
+	}
+
+	@Override
+	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		
+	}
+
+	@Override
+	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		
+	}
+
+	@Override
+	public void outOfPaper(ReceiptPrinter printer) {
+		this.station.informAttendantOfNoPaper();
+	}
+
+	@Override
+	public void outOfInk(ReceiptPrinter printer) {
+		this.station.informAttendantOfNoInk();
+	}
+
+	@Override
+	public void paperAdded(ReceiptPrinter printer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void inkAdded(ReceiptPrinter printer) {
+		// TODO Auto-generated method stub
+		
 	}
 }
