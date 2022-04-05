@@ -12,6 +12,9 @@ public class SelfCheckoutGUIMaster {
 	
 	private JFrame frame;
 	
+	private final int WIDTH = 1000;
+	private final int HEIGHT = 600;
+	
 	private SelfCheckoutGUIWelcome welcomeGUI;
 	// private SelfCheckoutGUIOther otherGUI;
 	// private SelfCheckoutGUIOther otherGUI;
@@ -24,6 +27,8 @@ public class SelfCheckoutGUIMaster {
 		stationData.registerGUI(this);
 		
 		frame = station.screen.getFrame();
+		frame.setSize(WIDTH,HEIGHT);
+		frame.setLayout(null);
 		
 		welcomeGUI = new SelfCheckoutGUIWelcome(station, stationData);
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)

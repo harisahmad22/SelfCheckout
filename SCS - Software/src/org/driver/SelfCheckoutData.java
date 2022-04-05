@@ -30,6 +30,8 @@ public class SelfCheckoutData {
     
 	private SelfCheckoutStation station;
 	
+	private String guiBuffer = null;
+	
 	private TouchScreenSoftware touchScreen;
 	private double expectedWeight;
 	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
@@ -58,17 +60,22 @@ public class SelfCheckoutData {
 	 *		**I have no idea how this is going to mesh with multithreading. Consultation needed.
 	 */
 	public enum State {
+		
 		// Welcome screen
 		WELCOME,
+		
+		// Membership related states. Need only enable disable card reader for SCAN state.
+		ASK_MEMBERSHIP, SCAN_MEMBERSHIP, TYPE_MEMBERSHIP, TEST_MEMBERSHIP,
+		
+		// Customer uses own bags related states.
+		ASK_BAGS, ADDING_BAGS, ADDED_BAGS,
+		
 		
 		// Ready for item to be scanned. Could proceed to checkout from here
 		SCANNING,
 		
 		// Scanned item need be bagged. Should return to scanning once bagged.
-		BAGGING,
-		
-		// State for adding bags. Help scale observers differentiate reason for weight change.
-		ADDING_BAGS,
+		BAGGING,		
 		
 		// Interim checkout menu, can go back and scan more items or proceed to some payment option
 		CHECKOUT,
@@ -116,6 +123,14 @@ public class SelfCheckoutData {
 	}
 	public String getMembershipID() {
 		return membershipID;
+	}
+	
+	public void setGuiBuffer(String text) {
+		guiBuffer = text;
+		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+	}
+	public String getGuiBuffer() {
+		return guiBuffer;
 	}
 	
 	public void addScannedProduct(Product product) {

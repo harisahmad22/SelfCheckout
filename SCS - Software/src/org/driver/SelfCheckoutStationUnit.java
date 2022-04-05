@@ -48,6 +48,7 @@ public class SelfCheckoutStationUnit {
 		station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		stationData = new SelfCheckoutData(station);
 		stationGUI = new SelfCheckoutGUIMaster(station, stationData);
+		
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
 			try { //Load half full

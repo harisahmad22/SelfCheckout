@@ -1,17 +1,22 @@
 package org.controlSoftware.GUI;
 
+import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutStationUnit;
-import org.lsmr.selfcheckout.devices.TouchScreen;
+import org.driver.SelfCheckoutData.State;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 public class TestingTEMP {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		//SelfCheckoutStationUnit unit = new SelfCheckoutStationUnit();
 		
-		TouchScreen screen;
+		SelfCheckoutStationUnit unit = new SelfCheckoutStationUnit();
 		
-		screen = new TouchScreen();
+		SelfCheckoutStation station = unit.getSelfCheckoutStation();
+		SelfCheckoutData data = unit.getSelfCheckoutData();
 		
+		data.changeState(State.WELCOME);
+	
 	}
 
 }
