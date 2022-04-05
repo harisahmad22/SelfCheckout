@@ -3,6 +3,7 @@ package org.driver;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
@@ -40,11 +41,15 @@ public class SelfCheckoutData {
 	// **Future problem: PLU products are going to have a weight at checkout not part of its object definition
 	private ArrayList<Product> scannedProductList = new ArrayList<Product>();
 	
+	private SelfCheckoutGUIMaster gui;
 	
 	public SelfCheckoutData(SelfCheckoutStation newStation) {
 		station = newStation;
 	}
 	
+	public void registerGUI(SelfCheckoutGUIMaster newGui) {
+		gui = newGui;
+	}
 	
 	/* 
 	 * High level states the self checkout station can be in
@@ -52,7 +57,7 @@ public class SelfCheckoutData {
 	 * 
 	 *		**I have no idea how this is going to mesh with multithreading. Consultation needed.
 	 */
-	protected enum State {
+	public enum State {
 		// Welcome screen
 		WELCOME,
 		
@@ -176,7 +181,8 @@ public class SelfCheckoutData {
 			
 		default:
 			break;
-		} 
+		}
+		notifyStateChanged();
 	}
 	
 	private void exitState(State state) {
@@ -225,6 +231,14 @@ public class SelfCheckoutData {
 		default:
 			break;
 		}
+	}
+	
+	public State getState() {
+		return state;
+	}
+	
+	private void notifyStateChanged() {
+		gui.stateChanged();
 	}
 		
 	private void wipeData() {

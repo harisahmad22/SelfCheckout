@@ -3,6 +3,7 @@ package org.driver;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
@@ -17,6 +18,7 @@ public class SelfCheckoutStationUnit {
 	
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
+	private SelfCheckoutGUIMaster stationGUI;
 
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
@@ -43,7 +45,9 @@ public class SelfCheckoutStationUnit {
 	private static Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 	
 	public SelfCheckoutStationUnit() {
-		SelfCheckoutStation station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+		station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+		stationData = new SelfCheckoutData(station);
+		stationGUI = new SelfCheckoutGUIMaster(station, stationData);
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
 			try { //Load half full
@@ -69,5 +73,13 @@ public class SelfCheckoutStationUnit {
 	public Currency getCurrency()
 	{
 		return CAD;
+	}
+	
+	public SelfCheckoutStation getSelfCheckoutStation() {
+		return station;
+	}
+	
+	public SelfCheckoutData getSelfCheckoutData() {
+		return stationData;
 	}
 }
