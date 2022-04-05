@@ -135,25 +135,74 @@ public class SelfCheckoutSoftware {
 	}
 
 	public void shutdownStation()
-	{
-		//ONLY shutdown station if it is WELCOME state
-		//Otherwise ignore, to prevent attendant being able to shut down station
-		//while a customer is using it
-		
-		if (stationData.getCurrentState() != StationState.WELCOME)
+    {
+        //ONLY shutdown station if it is WELCOME state
+        //Otherwise ignore, to prevent attendant being able to shut down station
+        //while a customer is using it
+
+        if (stationData.getCurrentState() != StationState.WELCOME)
+        {
+            System.out.println("Error! Cannot shutdown system while it's in use!");
+            return;
+        }
+
+        //Inform Attendant of shutdown
+        stationUnit.informAttendantOfShutdown();
+
+        //Switch to INACTIVE state, which will inform GUI to close all active windows
+        //Will wipe session data
+        stationData.changeState(StationState.INACTIVE);
+        return;
+    }
+
+	public void LogInStation(String AttendantID, String password)
+    {
+        //ONLY shutdown station if it is WELCOME state
+        //Otherwise ignore, to prevent attendant being able to shut down station
+        //while a customer is using it
+
+        if (stationData.getCurrentState() != StationState.INACTIVE)
+        {
+            System.out.println("Error! Only Log in system while it's in use!");
+            return;
+        }
+
+		if (preStartupChecks())
 		{
-			System.out.println("Error! Cannot shutdown system while it's in use!");
+			//Pre startup checks succeeded, now transition to WELCOME state
+			
+			//Inform Attendant of startup
+			stationUnit.informAttendantLogin(AttendantID, password);
+			
+			//Switch to WELCOME state, which will inform GUI to display the welcome screen
+			//and wait for user interaction
+			stationData.changeState(StationState.WELCOME);
 			return;
 		}
-		
-		//Inform Attendant of shutdown
-		stationUnit.informAttendantOfShutdown();
-		
-		//Switch to INACTIVE state, which will inform GUI to close all active windows
-		//Will wipe session data
-		stationData.setCurrentState(StationState.INACTIVE);
-		return;				
-	}
+
+    }
+
+	public void LogOutStation()
+    {
+        //ONLY shutdown station if it is WELCOME state
+        //Otherwise ignore, to prevent attendant being able to shut down station
+        //while a customer is using it
+
+        if (stationData.getCurrentState() != StationState.WELCOME)
+        {
+            System.out.println("Error! Cannot shutdown system while it's in use!");
+            return;
+        }
+
+        //Inform Attendant of shutdown
+        stationUnit.informAttendantLogout();
+
+        //Switch to INACTIVE state, which will inform GUI to close all active windows
+        //Will wipe session data
+        stationData.changeState(StationState.INACTIVE);
+        return;
+    }
+
 
 	public void performAttendantWeightOverride() {
 		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true

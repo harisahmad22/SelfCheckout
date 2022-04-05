@@ -137,4 +137,14 @@ public class SelfCheckoutStationUnit {
 
 	//==============================ATTENDANT RELATED METHODS===================================
 
+	public void informAttendantLogin(String AttendantID, String password) {
+		this.attendantUnit.stationLogin(AttendantID, password);
+		
+	}
+
+	public void informAttendantLogout() {
+		this.attendantUnit.stationLogout();
+		
+	}
+
 }

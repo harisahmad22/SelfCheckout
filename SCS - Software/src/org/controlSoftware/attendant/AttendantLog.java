@@ -1,3 +1,4 @@
+
 //Brody Long - 30022870 
 
 package org.controlSoftware.attendant;
@@ -26,7 +27,7 @@ import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
 
-public class AttendantSoftware {
+public class AttendantLog {
 
 	// (Brody)
 	//Software for performing various tasks via the Supervisor station
@@ -47,7 +48,7 @@ public class AttendantSoftware {
 	private ArrayList<SelfCheckoutStationUnit> checkoutStationUnits;
 	
 	
-	public AttendantSoftware(SupervisionStation supervisionStation, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
+	public AttendantLog(SupervisionStation supervisionStation, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
 	{
 		this.supervisionStation = supervisionStation;
 		this.touchScreenDevice = supervisionStation.screen;
@@ -126,7 +127,7 @@ public class AttendantSoftware {
 		station.getSelfCheckoutSoftware().unBlockStation();
 	}
 	
-	public void BlockStation(int stationID)
+	public void unBlockStation(int stationID)
 	{
 		System.out.println("Blocking station: " + stationID);
 		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().unBlockStation();
