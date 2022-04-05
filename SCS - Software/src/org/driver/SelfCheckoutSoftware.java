@@ -1,5 +1,8 @@
 package org.driver;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,6 +35,8 @@ public class SelfCheckoutSoftware {
 	private CardReaderObserver membershipCardScannerHandler;
 	
 	private AtomicBoolean weightIssueHandlerRunning = new AtomicBoolean(false);
+	
+	ScheduledExecutorService blockedStateChecker = Executors.newScheduledThreadPool(1); 
 	
 	/***
 	 * This Class will deal with initializing all the handlers in the system and attaching them
@@ -70,6 +75,7 @@ public class SelfCheckoutSoftware {
 				
 		this.stationHardware.cardReader.attach(membershipCardScannerHandler);
 		
+
 	}
 
 	public ReceiptHandler getReceiptHandler() {
@@ -123,6 +129,7 @@ public class SelfCheckoutSoftware {
 			//Switch to WELCOME state, which will inform GUI to display the welcome screen
 			//and wait for user interaction
 			stationData.changeState(StationState.WELCOME);
+			
 			return;
 		}
 		
@@ -151,7 +158,7 @@ public class SelfCheckoutSoftware {
 		
 		//Switch to INACTIVE state, which will inform GUI to close all active windows
 		//Will wipe session data
-		stationData.setCurrentState(StationState.INACTIVE);
+		stationData.changeState(StationState.INACTIVE);
 		return;				
 	}
 
@@ -161,25 +168,61 @@ public class SelfCheckoutSoftware {
 	}
 
 	public void blockStation() {
-		this.stationData.changeState(StationState.BLOCKED);
+		if (stationData.getCurrentState() == StationState.NORMAL
+		 || stationData.getCurrentState() == StationState.WELCOME)
+		{
+			//In normal/welcome state, need to change to blocked state and immediately perform 
+			//an attendant block check
+			this.stationData.changeState(StationState.BLOCKED);
+			attendantBlockCheck("Normal State");
+			return;
+		}
+		else if (stationData.getCurrentState() != StationState.PAY_CASH
+			  || stationData.getCurrentState() != StationState.PAY_CREDIT
+			  || stationData.getCurrentState() != StationState.PAY_DEBIT
+			  || stationData.getCurrentState() != StationState.INACTIVE)
+		{ 
+			//Station is not mid payment, inactive, or in welcome/normal state
+			//Station must be in some handling state (Checkout, processing scan, lookup product)
+			//When in these states there are checkes for the attendant block before and after
+			//methods that wait for User input, and methods that block when an issue is detected
+			this.stationData.changeState(StationState.BLOCKED); 
+		}
+		
+		else { System.out.println("Error! Cannot block state during payment process."); }
+			
 	}
 	public void unBlockStation() {
-		this.stationData.changeState(stationData.getPreBlockedState());
+		if (stationData.getCurrentState() == StationState.BLOCKED)
+		{
+			this.stationData.changeState(stationData.getPreBlockedState());
+		}
+		else 
+		{
+			System.out.println("Error! Cannot unblock a non-blocked station.");
+		}
 	}
 	
 	public void attendantBlockCheck() {
 		if (stationData.getATTENDANT_BLOCK()) { 
-			try { handleAttendantBlock("Scanner Handler"); } 
+			try { handleAttendantBlock("Unknown"); } 
+			catch (InterruptedException e) {} }
+	}
+	
+	public void attendantBlockCheck(String tag) {
+		if (stationData.getATTENDANT_BLOCK()) { 
+			try { handleAttendantBlock(tag); } 
 			catch (InterruptedException e) {} }
 	}
 	
 	public void handleAttendantBlock(String tag) throws InterruptedException {
 		System.out.println("Method called from: " + tag);
+		
 		while(stationData.getATTENDANT_BLOCK())
 		{
 			TimeUnit.MILLISECONDS.sleep(500);
 		}
-		System.out.println("Unblocked! Returning to caller: " + tag);
+		System.out.println("Unblocked!");
 	}
 
 	public void handleInvalidWeightNormalMode() {
@@ -192,7 +235,7 @@ public class SelfCheckoutSoftware {
 		}
 
 		//Attendant Block check
-		attendantBlockCheck();
+		attendantBlockCheck("SCSoftware");
 		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enableAllDevices();
