@@ -53,14 +53,12 @@ public class AttendantUnit {
 	}
 	
 	public void handleNoPaper(int stationID) {
-		attendantSoftware.blockStation(stationID);
 		// SIGNAL GUI TO DISPLAY LOW INK ALERT
 		// For now, print to console
 		System.out.println("Station " + stationID + " is out of paper in its receipt printer!");
 	}
 	
 	public void handleNoInk(int stationID) {
-		attendantSoftware.blockStation(stationID);
 		// SIGNAL GUI TO DISPLAY LOW INK ALERT
 		// For now, print to console
 		System.out.println("Station " + stationID + " is out of ink in its receipt printer!");
