@@ -11,13 +11,13 @@ import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 
-public class TestProducts {
+public class TestBarcodedProducts {
 	
 	private ArrayList<Barcode> BarcodeList = new ArrayList<Barcode>();
 
 	private ArrayList<BarcodedProduct> BPList = new ArrayList<BarcodedProduct>();
 	
-	public TestProducts()
+	public TestBarcodedProducts()
 	{
 		// Product 1
 		Barcode barcode1 = new Barcode(new Numeral[] {Numeral.one});

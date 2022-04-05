@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.databases.BarcodedProductDatabase;
-import org.driver.databases.TestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.PLUDatabase;
 import org.driver.databases.ProductInfo;
@@ -135,7 +135,7 @@ public class SelfCheckoutData {
 		
 		//Initialize some test Proudcts
 		//3 Products, milk, orange juice, and corn flakes
-		TestProducts testProducts = new TestProducts();
+		TestBarcodedProducts testProducts = new TestBarcodedProducts();
 		Barcoded_Product_Database = new BarcodedProductDatabase(testProducts.getBarcodedProductList());
 		
 		//TODO
