@@ -63,7 +63,7 @@ public class AttendantData {
 		
 		//State for when attendant has chosen the station to refill its receipt printer
 		//Chosen station will be blocked and attendant station will display a new GUI window with a Continue button
-		//Once the attendant presses the continue button, the station is unblocked and it returns to the ACTIVE state 
+		//Once the attendant presses the continue button, the station is unblocked and the attendant station returns to the ACTIVE state 
 		EMPTY_OR_REFILL_STATION,
 		
 		//State for when a station notifies the attendant of some event, will inform the GUI to display a window with a 
@@ -75,113 +75,113 @@ public class AttendantData {
 	private AttendantState currentState = AttendantState.INACTIVE;
 	
 	// Changes to new state while properly exiting old one (enabling/disabling relevant hardware)
-		public void changeState(AttendantState targetState) {
-			// Disable hardware for old state
-			exitState(getCurrentState(), targetState);
-			// Enable hardware for new state
-			switch(targetState) {
-			
-			case INACTIVE:
-								
-				//SIGNAL GUI TO CLOSE ALL WINDOWS
-				break;
-			
-			case ACTIVE:
-				
-				//SIGNAL GUI TO DISPLAY MAIN ATTENDANT WINDOW
-				break;
-				
-			case LOG_IN:
-				//SIGNAL GUI TO DISPLAY LOG IN WINDOW  
-				break;
-				
-			case ERROR:
-				break;
-				
-			case STATIONS_TO_OVERRIDE_WEIGHT:
-				break;
-			
-			case STATIONS_TO_REMOVE_ITEM: 
-				break;
-				
-			case REMOVE_ITEM_AT_STATION:
-				break;
-				
-			case STATIONS_TO_LOOKUP_ITEM:
-				break;
-	
-			case PRODUCT_LOOKUP:
-				break;
-			
-			case STATIONS_TO_EMPTY_OR_REFILL:
-				break;
-			 
-			case EMPTY_OR_REFILL_STATION: 
-				break;
-			
-			case NOTIFIED_BY_STATION:
-				break;
-				
-			default:
-				return;
-			} 
-			//Made it here, assume target state is valid
-			setCurrentState(targetState);
-		}
+	public void changeState(AttendantState targetState) {
+		// Disable hardware for old state
+		exitState(getCurrentState(), targetState);
+		// Enable hardware for new state
+		switch(targetState) {
 		
-
-		private void exitState(AttendantState currentState, AttendantState newState) {
-			switch(currentState) {
-			
-			case INACTIVE:
-				//Let the enter state method handle the transition out of this state
-				break;
-			
-			case ACTIVE:
-				//Let the enter state method handle the transition out of this state
-				break;
-				
-			case LOG_IN:
-				
-				break;
-				
-			case ERROR:
-				break;
-				
-			case STATIONS_TO_OVERRIDE_WEIGHT:
-				break;
-			
-			case STATIONS_TO_REMOVE_ITEM: 
-				break;
-				
-			case REMOVE_ITEM_AT_STATION:
-				break;
-				
-			case STATIONS_TO_LOOKUP_ITEM:
-				break;
-	
-			case PRODUCT_LOOKUP:
-				break;
-			
-			case STATIONS_TO_EMPTY_OR_REFILL:
-				break;
-			 
-			case EMPTY_OR_REFILL_STATION: 
-				break;
-			
-			case NOTIFIED_BY_STATION:
-				break;
-				
-			default:
-				return;
-			}
-		}
+		case INACTIVE:
+							
+			//SIGNAL GUI TO CLOSE ALL WINDOWS
+			break;
 		
-		private AttendantState getCurrentState() {
-			return currentState;
-		}
+		case ACTIVE:
+			
+			//SIGNAL GUI TO DISPLAY MAIN ATTENDANT WINDOW
+			break;
+			
+		case LOG_IN:
+			//SIGNAL GUI TO DISPLAY LOG IN WINDOW  
+			break;
+			
+		case ERROR:
+			break;
+			
+		case STATIONS_TO_OVERRIDE_WEIGHT:
+			break;
+		
+		case STATIONS_TO_REMOVE_ITEM: 
+			break;
+			
+		case REMOVE_ITEM_AT_STATION:
+			break;
+			
+		case STATIONS_TO_LOOKUP_ITEM:
+			break;
 
-		private void setCurrentState(AttendantState targetState) {
-			this.currentState = targetState;
+		case PRODUCT_LOOKUP:
+			break;
+		
+		case STATIONS_TO_EMPTY_OR_REFILL:
+			break;
+		 
+		case EMPTY_OR_REFILL_STATION: 
+			break;
+		
+		case NOTIFIED_BY_STATION:
+			break;
+			
+		default:
+			return;
+		} 
+		//Made it here, assume target state is valid
+		setCurrentState(targetState);
+	}
+	
+
+	private void exitState(AttendantState currentState, AttendantState newState) {
+		switch(currentState) {
+		
+		case INACTIVE:
+			//Let the enter state method handle the transition out of this state
+			break;
+		
+		case ACTIVE:
+			//Let the enter state method handle the transition out of this state
+			break;
+			
+		case LOG_IN:
+			
+			break;
+			
+		case ERROR:
+			break;
+			
+		case STATIONS_TO_OVERRIDE_WEIGHT:
+			break;
+		
+		case STATIONS_TO_REMOVE_ITEM: 
+			break;
+			
+		case REMOVE_ITEM_AT_STATION:
+			break;
+			
+		case STATIONS_TO_LOOKUP_ITEM:
+			break;
+
+		case PRODUCT_LOOKUP:
+			break;
+		
+		case STATIONS_TO_EMPTY_OR_REFILL:
+			break;
+		 
+		case EMPTY_OR_REFILL_STATION: 
+			break;
+		
+		case NOTIFIED_BY_STATION:
+			break;
+			
+		default:
+			return;
 		}
+	}
+	
+	private AttendantState getCurrentState() {
+		return currentState;
+	}
+
+	private void setCurrentState(AttendantState targetState) {
+		this.currentState = targetState;
+	}
 }
