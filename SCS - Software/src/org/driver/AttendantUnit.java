@@ -56,7 +56,7 @@ public class AttendantUnit {
 		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION STARTUP
 		
 		//For now just print to console
-		//System.out.println("Station " + AttendantID + " has been successfully started up!");
+		System.out.println("Attendant: " + AttendantID + " has been successfully logged in!");
 		
 	}
 	
@@ -64,7 +64,7 @@ public class AttendantUnit {
 		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION shutdown
 		
 		//For now just print to console
-		//System.out.println("Station " + " is being shutdown!");		
+		System.out.println("Successfully logged out!");		
 	}
 
 

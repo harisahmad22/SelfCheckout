@@ -1,5 +1,5 @@
 
-//Brody Long - 30022870 
+//Jingke Huang - 30115284
 
 package org.controlSoftware.attendant;
 
@@ -26,6 +26,8 @@ import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
+
+import apple.laf.JRSUIConstants.Size;
 
 public class AttendantLog {
 
@@ -57,49 +59,30 @@ public class AttendantLog {
 		//Use this array list to access all the data/software/hardware of any connected checkout station
 		this.checkoutStationUnits = checkoutStationUnits;
 	}
-	
-	public void overrideWeightIssue(int stationIndex) {
-		// Idea: Set the weight_valid flag for the corresponding station to true
-		// maybe check if station is in checkout or just scanned something also
-		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
-		stationToOverride.getSelfCheckoutSoftware().performAttendantWeightOverride();
-		
+
+	public void LogInStation(SelfCheckoutStationUnit station, String attendantIdEntered,  String passwordEntered)
+	{
+		//System.out.println("Starting station: " + station.getStationID());
+        System.out.println("Log in: " + station.getStationID());
+
+        ArrayList<String> AttendantIdStored = station.getAttendantID();
+        ArrayList<String> PasswordStored = station.getPassword();
+        for(int i = 0 ; i < AttendantIdStored.size(); i++){
+            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
+                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
+                unBlockStation(station);
+                break;
+            }
+        }
+        System.out.println("Error! Wrong ID or password. Fail to log in.");
 	}
 	
-	public void startupStation(SelfCheckoutStationUnit station)
-	{
-		System.out.println("Starting station: " + station.getStationID());
-		station.getSelfCheckoutSoftware().startupStation();
-	}
 	
-	public void startupStation(int stationID)
+	public void logOutStation(SelfCheckoutStationUnit station)
 	{
-		System.out.println("Starting station: " + stationID);
-		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().startupStation();
-	}
-	
-	public void startupStation(String stationID)
-	{
-		System.out.println("Starting station: " + stationID);
-		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().startupStation();
-	}
-	
-	public void shutdownStation(SelfCheckoutStationUnit station)
-	{
-		System.out.println("Shutting down station: " + station.getStationID());
-		station.getSelfCheckoutSoftware().shutdownStation();
-	}
-	
-	public void shutdownStation(int stationID)
-	{
-		System.out.println("Shutting down station: " + stationID);
-		checkoutStationUnits.get(stationID).getSelfCheckoutSoftware().shutdownStation();
-	}
-	
-	public void shutdownStation(String stationID)
-	{
-		System.out.println("Shutting down station: " + stationID);
-		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().shutdownStation();
+		System.out.println("Log out: " + station.getStationID());
+		station.getSelfCheckoutSoftware().LogOutStation();
+        blockStation(station);
 	}
 	
 	
@@ -149,7 +132,4 @@ public class AttendantLog {
 	}
 	
 	
-
-	
-
 }

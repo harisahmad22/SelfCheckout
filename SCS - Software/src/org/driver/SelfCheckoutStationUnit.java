@@ -1,6 +1,8 @@
 package org.driver;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -26,6 +28,9 @@ public class SelfCheckoutStationUnit {
 	private TouchScreenSoftware touchScreenSoftware;
 	
 	private int stationID; //The Number of this station
+
+	private ArrayList<String> AttendantID; // Attendant ID, datebase
+	private ArrayList<String> Password;
 	
 	public static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
@@ -120,6 +125,13 @@ public class SelfCheckoutStationUnit {
 		return stationID;
 	}
 
+	public ArrayList getAttendantID() {
+		return AttendantID;
+	}
+
+	public ArrayList getPassword() {
+		return Password;
+	}
 	//==============================ATTENDANT RELATED METHODS===================================
 	
 	public void attachAttendant(AttendantUnit attendantUnit) {
