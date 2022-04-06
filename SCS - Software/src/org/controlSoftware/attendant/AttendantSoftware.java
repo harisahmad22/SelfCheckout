@@ -43,13 +43,16 @@ public class AttendantSoftware {
 	private TouchScreen touchScreenDevice;
 //	private JFrame guiFrame;
 	private SupervisionStation supervisionStation;
+	private AttendantData attendantData;
 	private Keyboard keyboard;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStationUnits;
 	
 	
-	public AttendantSoftware(SupervisionStation supervisionStation, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
+	
+	public AttendantSoftware(SupervisionStation supervisionStation, AttendantData attendantData, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
 	{
 		this.supervisionStation = supervisionStation;
+		this.attendantData = attendantData;
 		this.touchScreenDevice = supervisionStation.screen;
 		this.keyboard = supervisionStation.keyboard;
 		
@@ -145,6 +148,10 @@ public class AttendantSoftware {
 	public ArrayList<SelfCheckoutStationUnit> getCheckoutStationUnits() {
 		return this.checkoutStationUnits;
 		
+	}
+
+	public AttendantData getAttendantData() {
+		return attendantData;
 	}
 	
 	
