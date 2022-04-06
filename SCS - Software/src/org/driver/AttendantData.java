@@ -1,4 +1,4 @@
-package org.controlSoftware.attendant;
+package org.driver;
 
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.OverloadException;
