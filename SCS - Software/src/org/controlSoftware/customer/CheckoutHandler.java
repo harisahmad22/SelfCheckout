@@ -76,6 +76,10 @@ public class CheckoutHandler {
 			
 			// If the user has bags to add, the weight of all their bags will be added to
 			// expectedWeight, which will then
+			
+			//NEEDS TO BE CHANGED TO JUST HAVE USER PUT BAGS DOWN, SIGNAL GUI
+			//THEN UPDATE EXPECTED WEIGHTS TO WHATS ON THE SCALE
+			
 			// be checked for validity after the user chooses payment options
 			stationData.changeState(StationState.ADD_MEMBERSHIP);
 			stationData.setWaitingForMembership(true);

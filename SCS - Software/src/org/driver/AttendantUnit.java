@@ -2,7 +2,6 @@ package org.driver;
 
 import java.util.ArrayList;
 
-import org.controlSoftware.attendant.AttendantData;
 import org.controlSoftware.attendant.AttendantSoftware;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
