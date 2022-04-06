@@ -59,7 +59,11 @@ public class CheckoutHandler {
 		// and how many if they do. If user does not have bags they will enter 0 bags
 		if (stationData.isFirstCheckout())
 		{ //Only prompt user for bags and membership if they haven't already been
+			
+			//If user has bags, system will change to adding bags state and wait for user to inform system that
+			//they have put their bags down
 			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
+			
 			int bag_num = stationSoftware.getTouchScreenSoftware().getNumberOfPersonalBags();
 			double bagWeight = stationData.getBagWeight();
 			if (bag_num > 0)
@@ -215,7 +219,7 @@ public class CheckoutHandler {
 			if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) == 1)
 			{ //Payment has exceeded totalDue, get the change amount
 				changeAmount = stationData.getTotalMoneyPaid().subtract(stationData.getTotalDue());
-				GiveChange someChange = new GiveChange(stationData.getStation(), changeAmount);
+				GiveChange someChange = new GiveChange(stationData.getStationHardware(), changeAmount);
 	            someChange.dispense();
 				stationSoftware.getTouchScreenSoftware().informChangeDispensed();
 			}//Otherwise change is defaulted to 0 when a partial payment is completed

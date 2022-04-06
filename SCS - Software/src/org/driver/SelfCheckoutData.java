@@ -51,7 +51,7 @@ public class SelfCheckoutData {
 //	private TouchScreenSoftware touchScreenSoftware;
 	
 	//============================Hardware Devices============================ 
-	private SelfCheckoutStation station;
+	private SelfCheckoutStation stationHardware;
 	private BarcodeScanner handScanner;
 	private BarcodeScanner mainScanner;
 	private BanknoteSlot banknoteInputSlot;
@@ -118,15 +118,15 @@ public class SelfCheckoutData {
 	public SelfCheckoutData(SelfCheckoutStation station) {
 		//This class will give the software access to 
 		//the hardware devices
-		this.station = station;
+		this.stationHardware = station;
 //		this.touchScreenSoftware = touchScreenSoftware;
-		this.mainScanner = this.station.mainScanner;
-		this.handScanner = this.station.handheldScanner;
-		this.banknoteInputSlot = this.station.banknoteInput;
-		this.coinSlot = this.station.coinSlot;
-		this.baggingAreaScale = this.station.baggingArea;
-		this.scanningAreaScale = this.station.scanningArea;
-		this.cardReader = this.station.cardReader;
+		this.mainScanner = this.stationHardware.mainScanner;
+		this.handScanner = this.stationHardware.handheldScanner;
+		this.banknoteInputSlot = this.stationHardware.banknoteInput;
+		this.coinSlot = this.stationHardware.coinSlot;
+		this.baggingAreaScale = this.stationHardware.baggingArea;
+		this.scanningAreaScale = this.stationHardware.scanningArea;
+		this.cardReader = this.stationHardware.cardReader;
 		
 		//Initialize Product Databases
 		
@@ -261,9 +261,9 @@ public class SelfCheckoutData {
 		switch(targetState) {
 		
 		case INACTIVE:
-			station.mainScanner.disable();
-			station.handheldScanner.disable();
-			station.scanningArea.disable();
+			stationHardware.mainScanner.disable();
+			stationHardware.handheldScanner.disable();
+			stationHardware.scanningArea.disable();
 			disableAllDevices();
 			wipeSessionData();
 			
@@ -271,9 +271,9 @@ public class SelfCheckoutData {
 			break;
 		
 		case WELCOME:
-			station.mainScanner.disable();
-			station.handheldScanner.disable();
-			station.scanningArea.disable();
+			stationHardware.mainScanner.disable();
+			stationHardware.handheldScanner.disable();
+			stationHardware.scanningArea.disable();
 			disablePaymentDevices();
 			wipeSessionData();
 			
@@ -282,11 +282,11 @@ public class SelfCheckoutData {
 			break;
 		
 		case NORMAL:
-			station.mainScanner.enable();
-			station.handheldScanner.enable();
-			station.scanningArea.enable();
+			stationHardware.mainScanner.enable();
+			stationHardware.handheldScanner.enable();
+			stationHardware.scanningArea.enable();
 			try {
-				setExpectedWeightNormalMode(station.baggingArea.getCurrentWeight());
+				setExpectedWeightNormalMode(stationHardware.baggingArea.getCurrentWeight());
 			} catch (OverloadException e) {
 				System.out.println("Error! Scale overloaded during transition to NORMAL state!");
 				e.printStackTrace();
@@ -294,21 +294,21 @@ public class SelfCheckoutData {
 			break;
 		
 		case PROCESSING_SCAN:
-			station.mainScanner.disable();
-			station.handheldScanner.disable();
-			station.scanningArea.disable();
+			stationHardware.mainScanner.disable();
+			stationHardware.handheldScanner.disable();
+			stationHardware.scanningArea.disable();
 			break;
 			
 		case CHECKOUT:
-			station.mainScanner.disable();
-			station.handheldScanner.disable();
+			stationHardware.mainScanner.disable();
+			stationHardware.handheldScanner.disable();
 			disablePaymentDevices();
 			break;
 		
 		case CLEANUP:
-			station.mainScanner.disable();
-			station.handheldScanner.disable();
-			station.scanningArea.disable();
+			stationHardware.mainScanner.disable();
+			stationHardware.handheldScanner.disable();
+			stationHardware.scanningArea.disable();
 			disablePaymentDevices();
 			break;
 			
@@ -318,28 +318,28 @@ public class SelfCheckoutData {
 			break;
 			
 		case ADDING_BAGS:
-			station.baggingArea.enable();
+			stationHardware.baggingArea.enable();
 			break;
 			
 		case PAY_CASH:
-			station.banknoteInput.enable();
-			station.coinSlot.enable();
+			stationHardware.banknoteInput.enable();
+			stationHardware.coinSlot.enable();
 			break;
 			
 		case PAY_CREDIT:
-			station.cardReader.enable();
+			stationHardware.cardReader.enable();
 			break;
 			
 		case PAY_DEBIT:
-			station.cardReader.enable();
+			stationHardware.cardReader.enable();
 			break;
 			
 		case ADD_MEMBERSHIP:
-			station.cardReader.enable();
+			stationHardware.cardReader.enable();
 			break;
 			
 		case FINISHED:
-			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed.
+			stationHardware.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed.
 			break;
 		
 		case BLOCKED:
@@ -366,18 +366,18 @@ public class SelfCheckoutData {
 			break;
 		
 		case WELCOME:
-			station.mainScanner.enable();
-			station.handheldScanner.enable();
-			station.scanningArea.enable();
+			stationHardware.mainScanner.enable();
+			stationHardware.handheldScanner.enable();
+			stationHardware.scanningArea.enable();
 			break;
 		
 		case NORMAL:
 			break;
 		
 		case PROCESSING_SCAN:
-			station.mainScanner.enable();
-			station.handheldScanner.enable();
-			station.scanningArea.enable();
+			stationHardware.mainScanner.enable();
+			stationHardware.handheldScanner.enable();
+			stationHardware.scanningArea.enable();
 			break;
 		
 		case CHECKOUT:
@@ -392,28 +392,28 @@ public class SelfCheckoutData {
 			break;
 			
 		case ADDING_BAGS:
-			station.baggingArea.disable();
+			stationHardware.baggingArea.disable();
 			break;
 			
 		case PAY_CASH:
-			station.banknoteInput.disable();
-			station.coinSlot.disable();
+			stationHardware.banknoteInput.disable();
+			stationHardware.coinSlot.disable();
 			break;
 			
 		case PAY_CREDIT:
-			station.cardReader.disable();
+			stationHardware.cardReader.disable();
 			break;
 			
 		case PAY_DEBIT:
-			station.cardReader.disable();
+			stationHardware.cardReader.disable();
 			break;
 			
 		case ADD_MEMBERSHIP:
-			station.cardReader.disable();
+			stationHardware.cardReader.disable();
 			break;
 			
 		case FINISHED:
-			station.printer.disable();
+			stationHardware.printer.disable();
 			break;
 			
 		case BLOCKED:
@@ -477,8 +477,8 @@ public class SelfCheckoutData {
 	public CardReader getCardReader() {
 		return cardReader;
 	}
-	public SelfCheckoutStation getStation() {
-		return station;
+	public SelfCheckoutStation getStationHardware() {
+		return stationHardware;
 	}
 	public void setExpectedWeightCheckout(double weight) {
 		expectedWeightCheckout = weight;
@@ -509,6 +509,13 @@ public class SelfCheckoutData {
 		return expectedWeightScanner;
 		
 	}
+	
+	public void setAllExpectedWeights(double currentWeight) {
+		setExpectedWeightCheckout(currentWeight);
+		setExpectedWeightNormalMode(currentWeight);
+		setExpectedWeightScanner(currentWeight);
+	}
+	
 	public double getBagWeight() {
 		return bagWeight;
 	}
@@ -651,40 +658,40 @@ public class SelfCheckoutData {
 	}
 	
 	public void disablePaymentDevices() {
-		this.station.coinSlot.disable();
-		this.station.banknoteInput.disable();
-		this.station.cardReader.disable();
+		this.stationHardware.coinSlot.disable();
+		this.stationHardware.banknoteInput.disable();
+		this.stationHardware.cardReader.disable();
 	}
 
 	public void enablePaymentDevices() {
-		this.station.coinSlot.enable();
-		this.station.banknoteInput.enable();
-		this.station.cardReader.enable();
+		this.stationHardware.coinSlot.enable();
+		this.stationHardware.banknoteInput.enable();
+		this.stationHardware.cardReader.enable();
 	}
 
 	// Disable all devices - NOT FULLY IMPLEMENTED
 	public void disableAllDevices() {
-		this.station.baggingArea.disable();
-		this.station.mainScanner.disable();
+		this.stationHardware.baggingArea.disable();
+		this.stationHardware.mainScanner.disable();
 		disablePaymentDevices();
 	}
 
 	// Enable all devices - NOT FULLY IMPLEMENTED
 	public void enableAllDevices() {
-		this.station.baggingArea.enable();
-		this.station.mainScanner.enable();
+		this.stationHardware.baggingArea.enable();
+		this.stationHardware.mainScanner.enable();
 		enablePaymentDevices();
 	}
 	
 	public void disableScannerDevices() {
-		this.station.mainScanner.disable();
-		this.station.handheldScanner.disable();
+		this.stationHardware.mainScanner.disable();
+		this.stationHardware.handheldScanner.disable();
 		
 	}
 
 	public void enableScannerDevices() {
-		this.station.mainScanner.enable();
-		this.station.handheldScanner.enable();
+		this.stationHardware.mainScanner.enable();
+		this.stationHardware.handheldScanner.enable();
 	}
 	
 	public boolean isFirstCheckout() {

@@ -33,7 +33,7 @@ public class PayWithCreditCard implements CardReaderObserver
 	public PayWithCreditCard(SelfCheckoutData stationData, Card CreditCard, CardData cardData, String pin, BankClientInfo bankClientsInfo) 
 	{
 		this.stationData = stationData;
-		this.station = stationData.getStation();
+		this.station = stationData.getStationHardware();
 		this.CreditCard=CreditCard;
 //		this.cardData=cardData;
 		this.pin=pin;

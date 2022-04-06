@@ -38,7 +38,7 @@ public class PayWithDebitCard implements CardReaderObserver {
 	 */
 	public PayWithDebitCard(SelfCheckoutData stationData, Card card, CardData cardData, String pin, BankClientInfo bankInfo) {
 		this.stationData = stationData;
-		this.scs = stationData.getStation();
+		this.scs = stationData.getStationHardware();
 		this.card = card;
 //		this.cardData = cardData;
 		this.pin = pin;
