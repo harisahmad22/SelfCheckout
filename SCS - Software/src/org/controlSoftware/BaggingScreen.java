@@ -3,173 +3,194 @@ package org.lsmr.selfcheckout.devices;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class BaggingScreen {}
+import testing.Numpad;
 
-public class main(){
-	JFrame main;
-	JLabel itemList;
-	JLabel totalPrice;
-	JPanel options;
-	JButton itemButton;
-	JButton pluButton;
-	JButton assistButton;
-	JButton checkoutButton;
-	JButton exitButton;
-		
-	main = new JFrame("Scanning and Bagging");
-	main.setSize(1920,1080);
+public class BaggingScreen(SelfCheckoutStation newStation, SelfCheckoutData newData){
+	station = newStation;
+	stationData = newData;
+	
+	frame = station.screen.getFrame();
+	width = frame.getWidth();
+	height = frame.getHeight();
+}
+
+private static void Main(JFrame main){
 	main.setLayout(null);
 	
-	itemList = new JLabel("Placeholder for list of scanned items");
-	main.add(itemList);
-	itemList.setBounds(20,20,1300,800);
+	JLabel itemList = new JLabel("Placeholder for list of scanned items");
+	itemList.setBounds(20,20,700,420);
 	itemList.setBackground(Color.blue);
 	itemList.setOpaque(true);
+	main.getContentPane().add(itemList);
 	
-	totalPrice = new JLabel("Placeholder for total price");
-	main.add(totalPrice);
-	totalPrice.setBounds(20,850,1300,150);
+	JLabel totalPrice = new JLabel("Placeholder for total price");
+	totalPrice.setBounds(20,460,700,80);
 	totalPrice.setBackground(Color.red);
 	totalPrice.setOpaque(true);
+	main.getContentPane().add(totalPrice);
 	
-	options = new JPanel();
+	JPanel options = new JPanel();
 	options.setLayout(new GridLayout(0,1));
-	itemButton = new JButton("Item Lookup");
+	JButton itemButton = new JButton("Item Lookup");
 	options.add(itemButton);
-	pluButton = new JButton("PLU Lookup");
+	itemButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	main.getContentPane().removeAll();
+        	main.getContentPane().revalidate();
+        	main.getContentPane().repaint();
+        	LetterSearch(main);
+        }
+    });
+	JButton pluButton = new JButton("PLU Lookup");
 	options.add(pluButton);
-	assistButton = new JButton("Ask Attendant for Assistance");
+	pluButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	main.getContentPane().removeAll();
+        	main.getContentPane().revalidate();
+        	main.getContentPane().repaint();
+            PluSearch(main);
+        }
+    });
+	JButton assistButton = new JButton("Ask Attendant for Assistance");
 	options.add(assistButton);
-	checkoutButton = new JButton("Proceed to checkout");
+	assistButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	//I don't know how we're doing this
+        }
+    });
+	JButton checkoutButton = new JButton("Proceed to checkout");
 	options.add(checkoutButton);
-	exitButton = new JButton("Cancel Purchase");
-	options.add(exitButton);
-	main.add(options);
-	options.setBounds(1340,20,540,980);
+	checkoutButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	JOptionPane.showMessageDialog(null, "alert", "alert", JOptionPane.PLAIN_MESSAGE);
+        }
+    });
+	options.setBounds(740,20,200,520);
+	main.getContentPane().add(options);
 	
 	main.setVisible(true);
 }
 
-public class PluSearch(){
-
-	JFrame searchPLU;
-	JLabel inventoryPLU;
-	JLabel codePLU;
-	JPanel numpad;
-	JButton numpad1;
-	JButton numpad2;
-	JButton numpad3;
-	JButton numpad4;
-	JButton numpad5;
-	JButton numpad6;
-	JButton numpad7;
-	JButton numpad8;
-	JButton numpad9;
-	JButton numpad0;
-	JButton numpadDel;
-	JButton pluReturn;
-	
-	searchPLU = new JFrame("Search by PLU Code");
-	searchPLU.setSize(1920,1080);
+private static void PluSearch(JFrame searchPLU){
 	searchPLU.setLayout(null);
 	
-	inventoryPLU = new JLabel("Placeholder for inventory");
+	JLabel inventoryPLU = new JLabel("Placeholder for inventory");
 	searchPLU.add(inventoryPLU);
-	inventoryPLU.setBounds(20,20,1300,1000);
+	inventoryPLU.setBounds(20,20,700,520);
 	inventoryPLU.setBackground(Color.blue);
 	inventoryPLU.setOpaque(true);
 	
-	codePLU = new JLabel("Placeholder for PLU input");
+	JLabel codePLU = new JLabel("Placeholder for PLU input");
 	searchPLU.add(codePLU);
-	codePLU.setBounds(1340,140,540,160);
+	codePLU.setBounds(740,100,220,100);
 	codePLU.setBackground(Color.red);
 	codePLU.setOpaque(true);
 	
-	numpad = new JPanel();
+	JPanel numpad = new JPanel();
 	numpad.setLayout(new GridLayout(0,3));
-	numpad1 = new JButton("1");
+	JButton numpad1 = new JButton("1");
+	numpad1.addActionListener(new Numpad());
 	numpad.add(numpad1);
-	numpad2 = new JButton("2");
+	JButton numpad2 = new JButton("2");
+	numpad2.addActionListener(new Numpad());
 	numpad.add(numpad2);
-	numpad3 = new JButton("3");
+	JButton numpad3 = new JButton("3");
+	numpad3.addActionListener(new Numpad());
 	numpad.add(numpad3);
-	numpad4 = new JButton("4");
+	JButton numpad4 = new JButton("4");
+	numpad4.addActionListener(new Numpad());
 	numpad.add(numpad4);
-	numpad5 = new JButton("5");
+	JButton numpad5 = new JButton("5");
+	numpad5.addActionListener(new Numpad());
 	numpad.add(numpad5);
-	numpad6 = new JButton("6");
+	JButton numpad6 = new JButton("6");
+	numpad6.addActionListener(new Numpad());
 	numpad.add(numpad6);
-	numpad7 = new JButton("7");
+	JButton numpad7 = new JButton("7");
+	numpad7.addActionListener(new Numpad());
 	numpad.add(numpad7);
-	numpad8 = new JButton("8");
+	JButton numpad8 = new JButton("8");
+	numpad8.addActionListener(new Numpad());
 	numpad.add(numpad8);
-	numpad9 = new JButton("9");
+	JButton numpad9 = new JButton("9");
+	numpad9.addActionListener(new Numpad());
 	numpad.add(numpad9);
-	numpad0 = new JButton("0");
+	JButton numpad0 = new JButton("0");
+	numpad0.addActionListener(new Numpad());
 	numpad.add(numpad0);
-	numpadDel = new JButton("Del");
+	JButton numpadDel = new JButton("Del");
+	numpadDel.addActionListener(new Numpad());
 	numpad.add(numpadDel);
 	searchPLU.add(numpad);
-	numpad.setBounds(1340,320,540,700);
+	numpad.setBounds(740,220,220,320);
 	
-	pluReturn = new JButton("Return to Scanning");
+	JButton pluReturn = new JButton("Return");
 	searchPLU.add(pluReturn);
-	pluReturn.setBounds(1620,20, 260, 100);
+	pluReturn.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	searchPLU.getContentPane().removeAll();
+        	searchPLU.getContentPane().revalidate();
+        	searchPLU.getContentPane().repaint();
+            Main(searchPLU);
+        }
+    });
+	pluReturn.setBounds(740,20, 220, 60);
 	
 	searchPLU.setVisible(true);
 	
 }
 
-public class letterSearch(){
+private static void LetterSearch(JFrame searchLetter){
 	String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
-	JFrame searchLetter;
-	JLabel inventoryLetter;
-	JScrollPane alphabetContainer;
-	JList alphabetList;
-	JButton alphabetReturn;
-	
-	searchLetter = new JFrame("Search by Letter");
 	searchLetter.setLayout(null);
 
-	inventoryLetter = new JLabel("Placeholder for inventory");
+	JLabel inventoryLetter = new JLabel("Placeholder for inventory");
 	searchLetter.add(inventoryLetter);
-	inventoryLetter.setBounds(20,20,1550,1000);
+	inventoryLetter.setBounds(20,20,700,520);
 	inventoryLetter.setBackground(Color.blue);
 	inventoryLetter.setOpaque(true);
 	
-	alphabetContainer = new JScrollPane();
-	alphabetList = new JList(letters);
+	JScrollPane alphabetContainer = new JScrollPane();
+	JList alphabetList = new JList(letters);
 	alphabetContainer.setViewportView(alphabetList);
     alphabetList.setLayoutOrientation(JList.VERTICAL);
 	searchLetter.add(alphabetContainer);
-	alphabetList.setFont(new Font("Arial", Font.PLAIN, 80));
-	alphabetContainer.setBounds(1680,150,160,870);
+	alphabetList.setFont(new Font("Tahoma", Font.PLAIN, 80));
+	alphabetContainer.setBounds(740,100,220,440);
 	
-	alphabetReturn = new JButton("Return to Scanning");
+	JButton alphabetReturn = new JButton("Return to Scanning");
 	searchLetter.add(alphabetReturn);
-	alphabetReturn.setBounds(1620,20, 260, 100);
+	alphabetReturn.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        	searchLetter.getContentPane().removeAll();
+        	searchLetter.getContentPane().revalidate();
+        	searchLetter.getContentPane().repaint();
+            Main(searchLetter);
+        }
+    });
+	alphabetReturn.setBounds(740,20,220,60);
 	
-	searchLetter.setSize(1920,1080);
 	searchLetter.setVisible(true);
 }
 
-public class checkoutPopup(){
-	JFrame popupCheckout;
-	JDialog dialogCheckout;
+private static void checkoutPopup(JFrame popupCheckout){
+	JOptionPane dialogCheckout;
 	JLabel confirmCheckout;
 	JButton outYesButton;
 	JButton outNoButton;
 	
-	popupCheckout = new JFrame("Confirm Checkout");
-    dialogCheckout = new JDialog(popupCheckout);
+    dialogCheckout = new JOptionPane(popupCheckout);
     dialogCheckout.setLayout(null);
-    dialogCheckout.setBounds(200, 200, 800, 400);
+    dialogCheckout.setBounds(200, 100, 400, 400);
+    
 
     confirmCheckout = new JLabel("Are you sure you want to proceed to checkout?", SwingConstants.CENTER);
-    confirmCheckout.setFont(new Font("Arial", Font.PLAIN, 25));
+    confirmCheckout.setFont(new Font("Tahoma", Font.PLAIN, 25));
     dialogCheckout.add(confirmCheckout);
     confirmCheckout.setBounds(100,20,600,100);
     
@@ -184,8 +205,7 @@ public class checkoutPopup(){
     dialogCheckout.setVisible(true);
 }
 
-public class scanPopup(){
-	JFrame popupScan;
+private static void scanPopup(JFrame popupScan){
 	JDialog dialogScan;
 	JLabel askBag;
 	JButton scanYesButton;
@@ -195,9 +215,12 @@ public class scanPopup(){
     dialogScan = new JDialog(popupScan);
     dialogScan.setLayout(null);
     dialogScan.setBounds(200, 200, 800, 400);
+    dialogScan.setUndecorated(true);
+    dialogScan.setResizable(false);
+    dialogScan.setAlwaysOnTop(true);  
 
     askBag = new JLabel("Do you want to bag this item?", SwingConstants.CENTER);
-    askBag.setFont(new Font("Arial", Font.PLAIN, 40));
+    askBag.setFont(new Font("Tahoma", Font.PLAIN, 40));
     dialogScan.add(askBag);
     askBag.setBounds(100,20,600,100);
     
@@ -210,6 +233,22 @@ public class scanPopup(){
     scanNoButton.setBounds(450,200,200,100);
     
     dialogScan.setVisible(true);
+}
+
+class Numpad implements ActionListener{
+public void actionPerformed(ActionEvent e) {
+	if(e.getActionCommand() != "Del") {
+		int num = Integer.parseInt(e.getActionCommand());
+		if (l1.getText().length() < 12) {
+			l1.setText(l1.getText() + val);
+		}
+		
+		System.out.println(num);
+	}
+	else {
+		l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+	}
+}
 }
 
 	
