@@ -3,6 +3,10 @@ package org.controlSoftwareGUI;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
+/**
+ * @author Harrison Drew
+ * Stub GUI Test Method. To be removed upon release
+ */
 public class GUITest {
 
 	public static void main(String[] args) {

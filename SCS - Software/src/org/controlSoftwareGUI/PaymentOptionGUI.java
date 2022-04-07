@@ -110,8 +110,7 @@ public class PaymentOptionGUI {
 		debit.setBackground(color);
 		
 		debit.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  
-				
+			public void actionPerformed(ActionEvent e){  				
 				//card options screen
 			}  
 		});
@@ -148,20 +147,20 @@ public class PaymentOptionGUI {
 	 */
 	private void cashButton() {
 		Color color = new Color(128, 255, 128);
-		JButton credit = new JButton();
-		credit.setBounds(1250,300,600,400);
-		credit.setText("Cash");
-		credit.setFont(new Font("Calibri", Font.BOLD,64));
-		credit.setBackground(color);
+		JButton cash = new JButton();
+		cash.setBounds(1250,300,600,400);
+		cash.setText("Cash");
+		cash.setFont(new Font("Calibri", Font.BOLD,64));
+		cash.setBackground(color);
 		
-		credit.addActionListener(new ActionListener(){  
+		cash.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
 				//cash payment GUI
 			}  
 		});
 		
-		frame.add(credit);
-		credit.setVisible(true);
+		frame.add(cash);
+		cash.setVisible(true);
 		
 	}
 	
