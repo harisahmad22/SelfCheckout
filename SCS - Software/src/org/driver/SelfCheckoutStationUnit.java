@@ -91,6 +91,11 @@ public class SelfCheckoutStationUnit {
 		return this;
 	}
 	
+	public AttendantUnit getAttendantUnit()
+	{
+		return attendantUnit;
+	}
+	
 	public SelfCheckoutStation getSelfCheckoutStationHardware()
 	{
 		return this.station;
@@ -155,6 +160,11 @@ public class SelfCheckoutStationUnit {
 		this.attendantUnit.handleNoInk(this.stationID);
 	}
 
+	public void sendAttendantMessage(String message) {
+		String id = "(Station ID: " + Integer.toString(getStationID()) + ") ";
+		getAttendantUnit().displayMessage(id + message);
+		
+	}
 	//==============================ATTENDANT RELATED METHODS===================================
 
 	public void informAttendantLogin(String AttendantID, String password) {

@@ -31,7 +31,7 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
 
     public CashPaymentHandler(SelfCheckoutData stationData){
         this.stationData = stationData;
-        this.station = stationData.getStation();
+        this.station = stationData.getStationHardware();
         this.banknoteValidator = this.station.banknoteValidator;
         this.coinValidator = this.station.coinValidator;
         this.coinDispensers = this.station.coinDispensers;

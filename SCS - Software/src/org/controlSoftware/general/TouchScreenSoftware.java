@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
@@ -47,8 +49,9 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
 	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
-	private AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
-	private AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
+	public AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
+	public AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
+	public AtomicBoolean askedForBagsPrompt = new AtomicBoolean(false);
 	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
@@ -255,26 +258,66 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 
 
 	public void usingOwnBagsPrompt() {
-		try {
-			System.out.println("How many bags did you bring today?");
-			numberOfPersonalBags = Integer.parseInt(userInputScanner.nextLine());
-//			numberOfPersonalBags = userInputScanner.nextInt();
-			if (numberOfPersonalBags < 0 || numberOfPersonalBags > 10) { throw new InputMismatchException(); }
-			// determine # of bags customer brought
-			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI
-		} catch (InputMismatchException inputMismatchExcpetion) {
-			System.out.println("Sorry, please try again!");
-			userInputScanner.nextLine();
-			usingOwnBagsPrompt();
-		} catch (NoSuchElementException NoSuchElementException) {
-			System.out.println("Sorry, please try again!!");
-			userInputScanner.nextLine();
-			usingOwnBagsPrompt();
-		} catch (NumberFormatException NumberFormatException) {
-			System.out.println("Sorry, please try again!!");
-			userInputScanner.nextLine();
-			usingOwnBagsPrompt();
-		}  
+		askedForBagsPrompt.set(true);
+		System.out.println("Did you bring any personal bags today? (Yes or No)");
+		String choice = userInputScanner.nextLine();
+		choice.toLowerCase();
+		if (choice.equals("yes"))
+		{
+			System.out.println("Please put your bags on the scale.");
+			stationData.changeState(StationState.ADDING_BAGS);
+			while(stationData.getCurrentState() == StationState.ADDING_BAGS)
+			{
+				//Loop while we wait for state to change
+				//State change will occur once GUI is informed by user that
+				//they have put their bags down
+				
+				//(TESTING) JUST WAIT A FEW SECONDS FOR TESTING METHOD TO  
+				//PLACE A COUPLE BAGS DOWN
+				//THEN RETURN TO CHECKOUT STATE
+				try { TimeUnit.SECONDS.sleep(5); } catch (InterruptedException e) { }
+				//TESTING
+				stationData.changeState(StationState.CHECKOUT);				
+			}
+			//No longer in Adding bags state, update the expected weights to the current weight on the scale
+			System.out.println("Thank You!");
+			try {
+				stationData.setAllExpectedWeights(stationData.getStationHardware().baggingArea.getCurrentWeight());
+			} catch (OverloadException e) {
+				System.out.println("Error! Scale overloaded after placing bags!");
+				e.printStackTrace();
+			}
+			return;
+		}
+		else if (choice.equals("no"))
+		{
+			System.out.println("No bags to add.");
+			return;
+		}
+		else 
+		{
+			System.out.println("Error Bad Bag prompt input!");
+			return;
+		}
+//		try {
+//			
+////			numberOfPersonalBags = userInputScanner.nextInt();
+//			if (numberOfPersonalBags < 0 || numberOfPersonalBags > 10) { throw new InputMismatchException(); }
+//			// determine # of bags customer brought
+//			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI
+//		} catch (InputMismatchException inputMismatchExcpetion) {
+//			System.out.println("Sorry, please try again!");
+//			userInputScanner.nextLine();
+//			usingOwnBagsPrompt();
+//		} catch (NoSuchElementException NoSuchElementException) {
+//			System.out.println("Sorry, please try again!!");
+//			userInputScanner.nextLine();
+//			usingOwnBagsPrompt();
+//		} catch (NumberFormatException NumberFormatException) {
+//			System.out.println("Sorry, please try again!!");
+//			userInputScanner.nextLine();
+//			usingOwnBagsPrompt();
+//		}  
 	}
 
 	public int getNumberOfPersonalBags() {

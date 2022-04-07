@@ -210,7 +210,11 @@ public class SelfCheckoutSoftware {
 		return;
 	}
 
->>>>>>> Jessie
+
+//	public void performAttendantWeightOverride() {
+//		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+//		
+//	}
 
 	public void performAttendantWeightOverride() {
 		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
@@ -227,21 +231,29 @@ public class SelfCheckoutSoftware {
 			attendantBlockCheck("Normal State");
 			return;
 		}
+		else if (stationData.getCurrentState() == StationState.INACTIVE)
+		{
+			System.out.println("Error cannot block Inactive station!");
+			this.stationUnit.sendAttendantMessage("Error cannot block Inactive station!");
+		}
 		else if (stationData.getCurrentState() != StationState.PAY_CASH
 			  || stationData.getCurrentState() != StationState.PAY_CREDIT
-			  || stationData.getCurrentState() != StationState.PAY_DEBIT
-			  || stationData.getCurrentState() != StationState.INACTIVE)
+			  || stationData.getCurrentState() != StationState.PAY_DEBIT)
 		{ 
 			//Station is not mid payment, inactive, or in welcome/normal state
 			//Station must be in some handling state (Checkout, processing scan, lookup product)
 			//When in these states there are checkes for the attendant block before and after
 			//methods that wait for User input, and methods that block when an issue is detected
 			this.stationData.changeState(StationState.BLOCKED); 
+		}		
+		else 
+		{ 
+			System.out.println("Error! Cannot block state during payment process.");
+			this.stationUnit.sendAttendantMessage("Error! Cannot block state during payment process.");
 		}
-		
-		else { System.out.println("Error! Cannot block state during payment process."); }
 			
 	}
+	
 	public void unBlockStation() {
 		if (stationData.getCurrentState() == StationState.BLOCKED)
 		{
@@ -250,6 +262,7 @@ public class SelfCheckoutSoftware {
 		else 
 		{
 			System.out.println("Error! Cannot unblock a non-blocked station.");
+			this.stationUnit.sendAttendantMessage("Error! Cannot unblock a non-blocked station.");
 		}
 	}
 	
@@ -268,10 +281,12 @@ public class SelfCheckoutSoftware {
 	public void handleAttendantBlock(String tag) throws InterruptedException {
 		System.out.println("Method called from: " + tag);
 		
-		while(stationData.getATTENDANT_BLOCK())
-		{
-			TimeUnit.MILLISECONDS.sleep(500);
-		}
+		System.out.println("(TESTING) SIMULATING GUI BLOCK");
+//		while(stationData.getATTENDANT_BLOCK())
+//		{
+			TimeUnit.MILLISECONDS.sleep(1000);
+//		}
+			System.out.println("(TESTING) SIMULATING GUI UNBLOCK");
 		System.out.println("Unblocked!");
 	}
 
@@ -292,5 +307,19 @@ public class SelfCheckoutSoftware {
 		getTouchScreenSoftware().validWeightInNormalMode();
 		weightIssueHandlerRunning.set(false);
 	}
+	
+	//Hannah Ku
+	public void performAttendantWeightOverride() {
+		stationData.setIsWeightOverride(true);
+		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+	}
+	
+	//Hannah Ku
+	public void removeProduct(String description) {
+		stationData.removeProductFromCheckoutHashMap(description);
+	}
+
+	
+	
 
 }

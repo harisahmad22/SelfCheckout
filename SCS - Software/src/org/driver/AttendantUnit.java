@@ -99,4 +99,10 @@ public class AttendantUnit {
 		this.attendantSoftware = attendantSoftware;
 	}
 
+	public void displayMessage(String message) {
+		System.out.println("Received a message from a station!");
+		System.out.println(message);
+		
+	}
+
 }

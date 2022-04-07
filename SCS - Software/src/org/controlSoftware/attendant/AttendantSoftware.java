@@ -61,13 +61,13 @@ public class AttendantSoftware {
 		this.checkoutStationUnits = checkoutStationUnits;
 	}
 	
-	public void overrideWeightIssue(int stationIndex) {
-		// Idea: Set the weight_valid flag for the corresponding station to true
-		// maybe check if station is in checkout or just scanned something also
-		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
-		stationToOverride.getSelfCheckoutSoftware().performAttendantWeightOverride();
-		
-	}
+//	public void overrideWeightIssue(int stationIndex) {
+//		// Idea: Set the weight_valid flag for the corresponding station to true
+//		// maybe check if station is in checkout or just scanned something also
+//		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
+//		stationToOverride.getSelfCheckoutSoftware().performAttendantWeightOverride();
+//		
+//	}
 	
 	public void startupStation(SelfCheckoutStationUnit station)
 	{
@@ -153,6 +153,23 @@ public class AttendantSoftware {
 
 	public AttendantData getAttendantData() {
 		return attendantData;
+	}
+	
+	//Hannah Ku
+	public void overrideWeightIssue(int stationIndex) {
+		// Idea: Set the weight_valid flag for the corresponding station to true
+		// maybe check if station is in checkout or just scanned something also
+		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
+		stationToOverride.getSelfCheckoutSoftware().performAttendantWeightOverride();
+		
+	}
+	//Hannah Ku
+	public void removeProduct(int stationIndex, String description) {
+		// Idea: Set the weight_valid flag for the corresponding station to true
+		// maybe check if station is in checkout or just scanned something also
+		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
+		stationToOverride.getSelfCheckoutSoftware().removeProduct(description);
+		
 	}
 	
 	

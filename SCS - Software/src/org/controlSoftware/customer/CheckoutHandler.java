@@ -59,26 +59,28 @@ public class CheckoutHandler {
 		// and how many if they do. If user does not have bags they will enter 0 bags
 		if (stationData.isFirstCheckout())
 		{ //Only prompt user for bags and membership if they haven't already been
+			
+			//If user has bags, system will change to adding bags state and wait for user to inform system that
+			//they have put their bags down
+			//Once bags have been put down, the expected scale weight is updated to the current scale weight
 			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
-			int bag_num = stationSoftware.getTouchScreenSoftware().getNumberOfPersonalBags();
-			double bagWeight = stationData.getBagWeight();
-			if (bag_num > 0)
-			{
-				double newExpectedWeight = stationData.getExpectedWeightCheckout() + (bag_num * bagWeight);
-				stationData.setExpectedWeightCheckout(newExpectedWeight);
-				 // If user selects 0 bags expected does not change
-				stationData.setWeightValidCheckout(false);
-				handleWaitingForBagWeight();
-			}
+//			
+//			int bag_num = stationSoftware.getTouchScreenSoftware().getNumberOfPersonalBags();
+//			double bagWeight = stationData.getBagWeight();
+//			if (bag_num > 0)
+//			{
+//				double newExpectedWeight = stationData.getExpectedWeightCheckout() + (bag_num * bagWeight);
+//				stationData.setExpectedWeightCheckout(newExpectedWeight);
+//				 // If user selects 0 bags expected does not change
+//				stationData.setWeightValidCheckout(false);
+//				handleWaitingForBagWeight();
+//			}
 			
 			//Attendant Block check
 			stationSoftware.attendantBlockCheck();
 			
 			// If the user has bags to add, the weight of all their bags will be added to
 			// expectedWeight, which will then
-			
-			//NEEDS TO BE CHANGED TO JUST HAVE USER PUT BAGS DOWN, SIGNAL GUI
-			//THEN UPDATE EXPECTED WEIGHTS TO WHATS ON THE SCALE
 			
 			// be checked for validity after the user chooses payment options
 			stationData.changeState(StationState.ADD_MEMBERSHIP);
@@ -112,7 +114,9 @@ public class CheckoutHandler {
 		stationSoftware.attendantBlockCheck();
 		
 		// Check if weight is still valid after waiting for user input
-		if (!stationData.getWeightValidCheckout()) 
+		//Hannah Ku
+		if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) 
+//		if (!stationData.getWeightValidCheckout()) 
 		{
 			handleInvalidWeight();
 		}
@@ -120,38 +124,9 @@ public class CheckoutHandler {
 		if (paymentMethod == 1) 
 		{ 	
 			stationData.changeState(StationState.PAY_CREDIT);
-//			// Idea for how payWithCreditCard(BigDecimal paymentAmount) will work: 
-//			/*
-//			 * 1) Inform user to input their card
-//			 * 2) Wait until a credit card has been inserted, swiped, tapped
-//			 * 3) Once card has been input, get the relevant card data
-//			 * 4) Send this to the 'bank' card issuer
-//			 * 5) if the bank authorizes the card data, then add paymentAmount to Checkout's totalMoneyPaid
-//			 * 6) return 
-//			 */
-//			boolean cardPaymentVerified = false;
-//			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
-//			if (cardPaymentMethod == 0) {
-//				creditCard.cardInserted(reader);
-//				
-//			}
-//			
-//			else if (cardPaymentMethod == 1) {
-//				creditCard.cardTapped(reader);
-//			}
-//
-//			else {
-//				creditCard.cardSwiped(reader);
-//			}	
-//			
-//			cardPaymentVerified = creditCard.checkBankClientInfo(reader, paymentAmount);
-//			
-//			if(cardPaymentVerified == false) {
-//				System.out.println("Transaction Error: Please try again");
-////				startCheckout();
-//			} else {
-//				creditCard.cardRemoved(reader);
-//			}
+
+			//Payment			
+			
 			stationData.changeState(StationState.CHECKOUT);
 			//Attendant Block check
 			stationSoftware.attendantBlockCheck();
@@ -160,29 +135,9 @@ public class CheckoutHandler {
 		else if (paymentMethod == 2) 
 		{ 
 			stationData.changeState(StationState.PAY_DEBIT);
-//			boolean cardPaymentVerified = false;
-//			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
-//			if (cardPaymentMethod == 0) {
-//				debitCard.cardInserted(reader);
-//				
-//			}
-//			
-//			else if (cardPaymentMethod == 1) {
-//				debitCard.cardTapped(reader);
-//			}
-//
-//			else {
-//				debitCard.cardSwiped(reader);
-//			}	
-//			
-//			cardPaymentVerified = debitCard.verifyBankingInfo(reader, paymentAmount);
-//			
-//			if(cardPaymentVerified == false) {
-//				System.out.println("Transaction Error: Please try again");
-////				startCheckout();
-//			} else {
-//				debitCard.cardRemoved(reader);
-//			}
+			
+			//Payment
+			
 			stationData.changeState(StationState.CHECKOUT);
 			//Attendant Block check
 			stationSoftware.attendantBlockCheck();
@@ -215,7 +170,7 @@ public class CheckoutHandler {
 			if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) == 1)
 			{ //Payment has exceeded totalDue, get the change amount
 				changeAmount = stationData.getTotalMoneyPaid().subtract(stationData.getTotalDue());
-				GiveChange someChange = new GiveChange(stationData.getStation(), changeAmount);
+				GiveChange someChange = new GiveChange(stationData.getStationHardware(), changeAmount);
 	            someChange.dispense();
 				stationSoftware.getTouchScreenSoftware().informChangeDispensed();
 			}//Otherwise change is defaulted to 0 when a partial payment is completed
@@ -297,7 +252,9 @@ public class CheckoutHandler {
 				initialExpectedWeight = stationData.getExpectedWeightCheckout();
 			}
 			
-			if (!stationData.getWeightValidCheckout()) { handleInvalidWeight(); }
+			//Hannah Ku
+			if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) { handleInvalidWeight(); }
+//			if (!stationData.getWeightValidCheckout()) { handleInvalidWeight(); }
  
 			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
 			// checking
@@ -326,7 +283,9 @@ public class CheckoutHandler {
 		if (stationData.getBaggingAreaScale().getCurrentWeight() > 0.1) { stationData.setWeightValidCheckout(false); } // 0.1 to account for floating point issues
 		else { stationData.setWeightValidCheckout(true); }
 		
-		while (!stationData.getWeightValidCheckout()) 
+		//Hannah Ku
+		while (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) 
+//		while (!stationData.getWeightValidCheckout()) 
 		{
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
@@ -345,8 +304,12 @@ public class CheckoutHandler {
 
 		stationData.disablePaymentDevices();
 		stationSoftware.getTouchScreenSoftware().invalidWeightInCheckout();
+		
+		
 		// Loop until scale observer reports a valid weight
-		while (!stationData.getWeightValidCheckout()) {
+		//Hannah Ku
+		while (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) {
+//		while (!stationData.getWeightValidCheckout()) {
 //			waitingForWeightChangeEvent.compareAndSet(false, true);
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
@@ -365,8 +328,11 @@ public class CheckoutHandler {
 
 		stationData.disablePaymentDevices();
 		stationSoftware.getTouchScreenSoftware().addBagsToBaggingArea();
+		
 		// Loop until scale observer reports a valid weight
-		while (!stationData.getWeightValidCheckout()) {
+		//Hannah Ku
+		while (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) {
+//		while (!stationData.getWeightValidCheckout()) {
 //			waitingForWeightChangeEvent.compareAndSet(false, true);
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
