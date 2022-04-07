@@ -392,7 +392,7 @@ public class SelfCheckoutData {
 			break;
 			
 		case ADDING_BAGS:
-			stationHardware.baggingArea.disable();
+			System.out.println("Add bags state change");
 			break;
 			
 		case PAY_CASH:
@@ -433,9 +433,7 @@ public class SelfCheckoutData {
 	private void wipeSessionData() {
 		totalDue = BigDecimal.ZERO;
 		totalMoneyPaid = BigDecimal.ZERO;
-		expectedWeightNormalMode = 0.0;
-		expectedWeightCheckout = 0.0;
-		expectedWeightScanner = 0.0;
+		setAllExpectedWeights(0.0);
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		membershipPoints = "0\n";
 		productsAddedToCheckout = new HashMap<String, ProductInfo>();

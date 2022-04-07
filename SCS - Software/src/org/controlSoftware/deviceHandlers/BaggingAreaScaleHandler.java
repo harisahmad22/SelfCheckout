@@ -69,7 +69,9 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 				handleScannerWeightEvent(weightOnScale, scannerExpectedWeight);
 			}
 //			if (stationData.isInCheckout()) {
-			if (stationData.getCurrentState() == StationState.CHECKOUT || stationData.getCurrentState() == StationState.PAY_CASH) {
+			if (stationData.getCurrentState() == StationState.CHECKOUT 
+					|| stationData.getCurrentState() == StationState.PAY_CASH
+					|| stationData.getCurrentState() == StationState.CLEANUP) {
 				handleCheckoutWeightEvent(weightOnScale, checkoutExpectedWeight);
 			}
 		}
@@ -102,7 +104,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	private void handleCheckoutWeightEvent(double weightOnScale, double checkoutExpectedWeight) {
 	// Weight is not supposed to change during checkout, unless during cleanup
 	  // where all items on the scale need to be removed
-		if (stationData.isInCleanup())
+		if (stationData.getCurrentState() == StationState.CLEANUP)
 		{ 
 			if (weightOnScale != 0) 
 			{

@@ -49,8 +49,9 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
 	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
-	private AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
-	private AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
+	public AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
+	public AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
+	public AtomicBoolean askedForBagsPrompt = new AtomicBoolean(false);
 	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
@@ -257,6 +258,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 
 
 	public void usingOwnBagsPrompt() {
+		askedForBagsPrompt.set(true);
 		System.out.println("Did you bring any personal bags today? (Yes or No)");
 		String choice = userInputScanner.nextLine();
 		choice.toLowerCase();
@@ -269,8 +271,16 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 				//Loop while we wait for state to change
 				//State change will occur once GUI is informed by user that
 				//they have put their bags down
+				
+				//(TESTING) JUST WAIT A FEW SECONDS FOR TESTING METHOD TO  
+				//PLACE A COUPLE BAGS DOWN
+				//THEN RETURN TO CHECKOUT STATE
+				try { TimeUnit.SECONDS.sleep(5); } catch (InterruptedException e) { }
+				//TESTING
+				stationData.changeState(StationState.CHECKOUT);				
 			}
 			//No longer in Adding bags state, update the expected weights to the current weight on the scale
+			System.out.println("Thank You!");
 			try {
 				stationData.setAllExpectedWeights(stationData.getStationHardware().baggingArea.getCurrentWeight());
 			} catch (OverloadException e) {

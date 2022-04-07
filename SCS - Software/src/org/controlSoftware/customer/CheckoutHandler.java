@@ -62,27 +62,25 @@ public class CheckoutHandler {
 			
 			//If user has bags, system will change to adding bags state and wait for user to inform system that
 			//they have put their bags down
+			//Once bags have been put down, the expected scale weight is updated to the current scale weight
 			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
-			
-			int bag_num = stationSoftware.getTouchScreenSoftware().getNumberOfPersonalBags();
-			double bagWeight = stationData.getBagWeight();
-			if (bag_num > 0)
-			{
-				double newExpectedWeight = stationData.getExpectedWeightCheckout() + (bag_num * bagWeight);
-				stationData.setExpectedWeightCheckout(newExpectedWeight);
-				 // If user selects 0 bags expected does not change
-				stationData.setWeightValidCheckout(false);
-				handleWaitingForBagWeight();
-			}
+//			
+//			int bag_num = stationSoftware.getTouchScreenSoftware().getNumberOfPersonalBags();
+//			double bagWeight = stationData.getBagWeight();
+//			if (bag_num > 0)
+//			{
+//				double newExpectedWeight = stationData.getExpectedWeightCheckout() + (bag_num * bagWeight);
+//				stationData.setExpectedWeightCheckout(newExpectedWeight);
+//				 // If user selects 0 bags expected does not change
+//				stationData.setWeightValidCheckout(false);
+//				handleWaitingForBagWeight();
+//			}
 			
 			//Attendant Block check
 			stationSoftware.attendantBlockCheck();
 			
 			// If the user has bags to add, the weight of all their bags will be added to
 			// expectedWeight, which will then
-			
-			//NEEDS TO BE CHANGED TO JUST HAVE USER PUT BAGS DOWN, SIGNAL GUI
-			//THEN UPDATE EXPECTED WEIGHTS TO WHATS ON THE SCALE
 			
 			// be checked for validity after the user chooses payment options
 			stationData.changeState(StationState.ADD_MEMBERSHIP);
@@ -124,38 +122,9 @@ public class CheckoutHandler {
 		if (paymentMethod == 1) 
 		{ 	
 			stationData.changeState(StationState.PAY_CREDIT);
-//			// Idea for how payWithCreditCard(BigDecimal paymentAmount) will work: 
-//			/*
-//			 * 1) Inform user to input their card
-//			 * 2) Wait until a credit card has been inserted, swiped, tapped
-//			 * 3) Once card has been input, get the relevant card data
-//			 * 4) Send this to the 'bank' card issuer
-//			 * 5) if the bank authorizes the card data, then add paymentAmount to Checkout's totalMoneyPaid
-//			 * 6) return 
-//			 */
-//			boolean cardPaymentVerified = false;
-//			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
-//			if (cardPaymentMethod == 0) {
-//				creditCard.cardInserted(reader);
-//				
-//			}
-//			
-//			else if (cardPaymentMethod == 1) {
-//				creditCard.cardTapped(reader);
-//			}
-//
-//			else {
-//				creditCard.cardSwiped(reader);
-//			}	
-//			
-//			cardPaymentVerified = creditCard.checkBankClientInfo(reader, paymentAmount);
-//			
-//			if(cardPaymentVerified == false) {
-//				System.out.println("Transaction Error: Please try again");
-////				startCheckout();
-//			} else {
-//				creditCard.cardRemoved(reader);
-//			}
+
+			//Payment			
+			
 			stationData.changeState(StationState.CHECKOUT);
 			//Attendant Block check
 			stationSoftware.attendantBlockCheck();
@@ -164,29 +133,9 @@ public class CheckoutHandler {
 		else if (paymentMethod == 2) 
 		{ 
 			stationData.changeState(StationState.PAY_DEBIT);
-//			boolean cardPaymentVerified = false;
-//			int cardPaymentMethod = touchScreen.showCardPaymentOption(); 
-//			if (cardPaymentMethod == 0) {
-//				debitCard.cardInserted(reader);
-//				
-//			}
-//			
-//			else if (cardPaymentMethod == 1) {
-//				debitCard.cardTapped(reader);
-//			}
-//
-//			else {
-//				debitCard.cardSwiped(reader);
-//			}	
-//			
-//			cardPaymentVerified = debitCard.verifyBankingInfo(reader, paymentAmount);
-//			
-//			if(cardPaymentVerified == false) {
-//				System.out.println("Transaction Error: Please try again");
-////				startCheckout();
-//			} else {
-//				debitCard.cardRemoved(reader);
-//			}
+			
+			//Payment
+			
 			stationData.changeState(StationState.CHECKOUT);
 			//Attendant Block check
 			stationSoftware.attendantBlockCheck();

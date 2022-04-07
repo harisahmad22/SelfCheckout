@@ -86,6 +86,11 @@ public class SelfCheckoutStationUnit {
 		return this;
 	}
 	
+	public AttendantUnit getAttendantUnit()
+	{
+		return attendantUnit;
+	}
+	
 	public SelfCheckoutStation getSelfCheckoutStationHardware()
 	{
 		return this.station;
@@ -135,6 +140,11 @@ public class SelfCheckoutStationUnit {
 		
 	}
 
+	public void sendAttendantMessage(String message) {
+		String id = "(Station ID: " + Integer.toString(getStationID()) + ") ";
+		getAttendantUnit().displayMessage(id + message);
+		
+	}
 	//==============================ATTENDANT RELATED METHODS===================================
 
 }
