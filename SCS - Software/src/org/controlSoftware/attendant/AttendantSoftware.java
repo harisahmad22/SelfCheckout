@@ -16,10 +16,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 
-import org.driver.AttendantData;
 import org.driver.SelfCheckoutStationUnit;
+import org.lsmr.selfcheckout.Banknote;
+import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.Keyboard;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
@@ -44,16 +47,13 @@ public class AttendantSoftware {
 	private TouchScreen touchScreenDevice;
 //	private JFrame guiFrame;
 	private SupervisionStation supervisionStation;
-	private AttendantData attendantData;
 	private Keyboard keyboard;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStationUnits;
 	
 	
-	
-	public AttendantSoftware(SupervisionStation supervisionStation, AttendantData attendantData, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
+	public AttendantSoftware(SupervisionStation supervisionStation, ArrayList<SelfCheckoutStationUnit> checkoutStationUnits)
 	{
 		this.supervisionStation = supervisionStation;
-		this.attendantData = attendantData;
 		this.touchScreenDevice = supervisionStation.screen;
 		this.keyboard = supervisionStation.keyboard;
 		
@@ -150,13 +150,67 @@ public class AttendantSoftware {
 		return this.checkoutStationUnits;
 		
 	}
-
-	public AttendantData getAttendantData() {
-		return attendantData;
+	
+	/*
+	 * Attendant empties the coin storage unit
+	 * takes in stationID, either in form of integer, or string
+	 * return all the coins that have been emptied from the storage unit
+	 */
+	public List<Coin> emptyCoinStorageUnit(int stationID)
+	{
+		return checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinStorage.unload();
+	}
+	
+	public List<Coin> emptyCoinStorageUnit(String stationID)
+	{
+		return checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinStorage.unload();
+	}
+	
+	/*
+	 * Attendant empties the banknote storage unit
+	 * takes in stationID, either in form of integer, or string
+	 * return all the banknotes that have been emptied from the storage unit
+	 */
+	public List<Banknote> emptyBanknoteStorageUnit(int stationID)
+	{
+		return checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteStorage.unload();
+	}
+	
+	public List<Banknote> emptyBanknoteStorageUnit(String stationID)
+	{
+		return checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteStorage.unload();
 	}
 	
 	
+	/*
+	 * Attendant refills the coin dispenser 
+	 * takes in stationID, either in form of integer, or string, and coins that are to be refilled into the station
+	 */
+	public void refillCoinDispenser(int stationID, Coin... coins) throws SimulationException, OverloadException
+	{
+		checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinStorage.load(coins);
+	}
+	
+	
+	public void refillCoinDispenser(String stationID, Coin... coins) throws SimulationException, OverloadException
+	{
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinStorage.load(coins);
+	}
 
+	
+	/*
+	 * Attendant refills the banknote dispenser 
+	 * takes in stationID, either in form of integer, or string, and banknotes that are to be refilled into the station
+	 */
+	public void refillbanknoteDispenser(int stationID, Banknote... banknotes) throws SimulationException, OverloadException
+	{
+		checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteStorage.load(banknotes);
+	}
+	
+	public void refillbanknoteDispenser(String stationID, Banknote... banknotes) throws SimulationException, OverloadException
+	{
+		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteStorage.load(banknotes);
+	}
 	
 
 }
