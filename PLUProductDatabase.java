@@ -54,7 +54,7 @@ public class PLUProductDatabase {
 		database.put(product.getPLUCode(), product);
 	}
 
-	public void removePLUProductToDatabase(PriceLookupCode pluCode) {
+	public void removePLUProductFromDatabase(PriceLookupCode pluCode) {
 		database.remove(pluCode);
 	}
 

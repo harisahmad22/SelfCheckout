@@ -1,7 +1,6 @@
 package org.iter3Testing;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 
@@ -29,27 +28,35 @@ public class PLUProductDatabaseTest {
 	}
 
 	@Test
-	public void testaddPLUProductToDatabase1() {
+	public void testAddPLUProductToDatabase1() {
 		PLU_Product_Database.addPLUProductToDatabase(PLUCode, description, price);
 		assertTrue(PLU_Product_Database.getDatabase().size() == 4);
 	}
 
 	@Test
-	public void testaddPLUProductToDatabase2() {
+	public void testAddPLUProductToDatabase2() {
 		double price2 = 1.79;
 		PLU_Product_Database.addPLUProductToDatabase(PLUCode, description, price2);
 		assertTrue(PLU_Product_Database.getDatabase().size() == 4);
 	}
 
 	@Test
-	public void testgetPLUProductFromDatabase() {
+	public void testGetPLUProductFromDatabase() {
 		PLU_Product_Database.addPLUProductToDatabase(PLUCode, description, price);
-		assertTrue(PLU_Product_Database.getPLUProductFromDatabase(PLUCode).getDescription() == "Apricot-0.05kg")
+		assertTrue(PLU_Product_Database.getPLUProductFromDatabase(PLUCode).getDescription() == "Apricot-0.05kg");
 	}
 
 	@Test
-	public void testproductSearch() {
+	public void testProductSearch() {
 		// target is Rice-1kg.
 		assertTrue(PLU_Product_Database.productSearch('R').contains(PLUTestProducts.getPLUProductList().get(0)));
 	}
+
+	@Test
+	public void testRemovePLUProductFromDatabase() {
+		PLU_Product_Database.addPLUProductToDatabase(PLUCode, description, price);
+		PLU_Product_Database.removePLUProductFromDatabase(PLUCode);
+		assertTrue(PLU_Product_Database.getDatabase().size() == 3);
+	}
+
 }
