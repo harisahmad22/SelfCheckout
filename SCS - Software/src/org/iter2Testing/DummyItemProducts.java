@@ -4,7 +4,7 @@ package org.iter2Testing;
 
 import java.util.ArrayList;
 
-import org.controlSoftware.ItemProduct;
+import org.controlSoftware.data.ItemProduct;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.Numeral;
 

@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.DisabledException;
+import org.lsmr.selfcheckout.devices.OverloadException;
 
 public class PayWithCoinsRunnable implements Runnable {
 
@@ -17,6 +18,7 @@ public class PayWithCoinsRunnable implements Runnable {
 	{
 		this.coins = coins;
 		this.coinSlot = coinSlot;
+		this.coinSlot.enable();
 	}
 	@Override
 	public void run() {
@@ -24,7 +26,12 @@ public class PayWithCoinsRunnable implements Runnable {
 		{
 			try {
 				System.out.println("Inserting a $" + coin.getValue() + " coin.");
-				coinSlot.accept(coin);
+				try {
+					coinSlot.accept(coin);
+				} catch (OverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				TimeUnit.SECONDS.sleep(1);
 				
 			} catch (DisabledException e) {
@@ -32,7 +39,7 @@ public class PayWithCoinsRunnable implements Runnable {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 			
 		}

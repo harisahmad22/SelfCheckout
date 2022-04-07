@@ -5,8 +5,8 @@ package org.iter2Testing;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import org.controlSoftware.BarcodeLookup;
-import org.controlSoftware.ItemProduct;
+import org.controlSoftware.data.BarcodeLookup;
+import org.controlSoftware.data.ItemProduct;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -26,7 +26,7 @@ public class DummyBarcodeLookup extends BarcodeLookup{
 		Barcode IPbarcode = barcode;
 		double IPWeightInGrams = weightInGrams;
 		String IPDescription = description;
-		BigDecimal IPPrice = new BigDecimal(price);
+		BigDecimal IPPrice = new BigDecimal(Double.toString(price));
 		
 		BarcodedItem IPItem = new BarcodedItem(IPbarcode, IPWeightInGrams);
 		BarcodedProduct IPProduct = new BarcodedProduct(IPbarcode, IPDescription, IPPrice, IPWeightInGrams);
