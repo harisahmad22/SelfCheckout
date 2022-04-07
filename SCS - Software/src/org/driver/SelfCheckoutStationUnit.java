@@ -1,6 +1,8 @@
 package org.driver;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -26,6 +28,9 @@ public class SelfCheckoutStationUnit {
 	private TouchScreenSoftware touchScreenSoftware;
 	
 	private int stationID; //The Number of this station
+
+	private ArrayList<String> AttendantID; // Attendant ID, datebase
+	private ArrayList<String> Password;
 	
 	public static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
@@ -125,6 +130,13 @@ public class SelfCheckoutStationUnit {
 		return stationID;
 	}
 
+	public ArrayList getAttendantID() {
+		return AttendantID;
+	}
+
+	public ArrayList getPassword() {
+		return Password;
+	}
 	//==============================ATTENDANT RELATED METHODS===================================
 	
 	public void attachAttendant(AttendantUnit attendantUnit) {
@@ -139,6 +151,14 @@ public class SelfCheckoutStationUnit {
 		this.attendantUnit.stationShutdown(this.stationID);
 		
 	}
+	
+	public void informAttendantOfNoPaper() {
+		this.attendantUnit.handleNoPaper(this.stationID);
+	}
+	
+	public void informAttendantOfNoInk() {
+		this.attendantUnit.handleNoInk(this.stationID);
+	}
 
 	public void sendAttendantMessage(String message) {
 		String id = "(Station ID: " + Integer.toString(getStationID()) + ") ";
@@ -146,5 +166,15 @@ public class SelfCheckoutStationUnit {
 		
 	}
 	//==============================ATTENDANT RELATED METHODS===================================
+
+	public void informAttendantLogin(String AttendantID, String password) {
+		this.attendantUnit.stationLogin(AttendantID, password);
+		
+	}
+
+	public void informAttendantLogout() {
+		this.attendantUnit.stationLogout();
+		
+	}
 
 }
