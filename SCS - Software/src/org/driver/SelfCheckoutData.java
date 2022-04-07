@@ -37,6 +37,13 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
  *  **TO-DO
  *  Exception handling
  *  Input validation?
+ *Divyansh Rana
+ *1)Implemented Customer removes purchased items from bagging Area
+ *  in exitState() and changeState() FINISHED state
+ * 
+ *2)Customer Enters number of plastic bags used
+ *  
+ *3)Customer Pays with gift card
  *  
  */
 
@@ -291,7 +298,17 @@ public class SelfCheckoutData {
 			break;
 
 		case FINISHED:
-			station.printer.enable(); // **Not sure where we want receipt printed. Can be changed.
+			this.disableAllDevices();
+			this.setInCleanup(true);
+			this.setWeightValidCheckout(false);
+			while(this.isWeightValidCheckout.get() == false)
+			{
+				// if weight changes on the scale then weightChanged method is called and the observer can set isWeightValidCheckout = true if weight = 0
+
+				// wait for customer to remove all the items
+			}
+			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed. // prints receipt first of all
+			// don't enable all the devices, do that while existing the FINISHED state
 			break;
 
 		case ERROR:
@@ -339,6 +356,7 @@ public class SelfCheckoutData {
 			break;
 
 		case FINISHED:
+			this.enableAllDevices();
 			station.printer.disable();
 			break;
 
@@ -667,3 +685,20 @@ public class SelfCheckoutData {
 
 	// ===========================For ScannerHandler===========================
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
