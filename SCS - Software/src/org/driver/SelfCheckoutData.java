@@ -97,6 +97,9 @@ public class SelfCheckoutData {
 	private AtomicBoolean isUsingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean cardSwipedCheckout = new AtomicBoolean(false);
 
+	//Hannah Ku
+	private AtomicBoolean isWeightOverride = new AtomicBoolean(false);
+	
 	private AtomicBoolean isFirstCheckout = new AtomicBoolean(true);
 	private AtomicBoolean isBaggingAreaScaleOverloaded = new AtomicBoolean(false);
 	private AtomicBoolean isScanningAreaScaleOverloaded = new AtomicBoolean(false);
@@ -512,6 +515,15 @@ public class SelfCheckoutData {
 		setExpectedWeightCheckout(currentWeight);
 		setExpectedWeightNormalMode(currentWeight);
 		setExpectedWeightScanner(currentWeight);
+	}
+	
+	//Hannah Ku
+	public boolean isWeightOverride() {
+		return isWeightOverride.get();
+	}
+	//Hannah Ku
+	public void setIsWeightOverride(boolean bool) {
+		isWeightOverride.set(bool);
 	}
 	
 	public double getBagWeight() {

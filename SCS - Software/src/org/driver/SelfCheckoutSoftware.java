@@ -162,10 +162,10 @@ public class SelfCheckoutSoftware {
 		return;				
 	}
 
-	public void performAttendantWeightOverride() {
-		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
-		
-	}
+//	public void performAttendantWeightOverride() {
+//		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+//		
+//	}
 
 	public void blockStation() {
 		if (stationData.getCurrentState() == StationState.NORMAL
@@ -253,5 +253,19 @@ public class SelfCheckoutSoftware {
 		getTouchScreenSoftware().validWeightInNormalMode();
 		weightIssueHandlerRunning.set(false);
 	}
+	
+	//Hannah Ku
+	public void performAttendantWeightOverride() {
+		stationData.setIsWeightOverride(true);
+		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+	}
+	
+	//Hannah Ku
+	public void removeProduct(String description) {
+		stationData.removeProductFromCheckoutHashMap(description);
+	}
+
+	
+	
 
 }

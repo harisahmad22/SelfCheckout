@@ -114,7 +114,9 @@ public class CheckoutHandler {
 		stationSoftware.attendantBlockCheck();
 		
 		// Check if weight is still valid after waiting for user input
-		if (!stationData.getWeightValidCheckout()) 
+		//Hannah Ku
+		if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) 
+//		if (!stationData.getWeightValidCheckout()) 
 		{
 			handleInvalidWeight();
 		}
@@ -250,7 +252,9 @@ public class CheckoutHandler {
 				initialExpectedWeight = stationData.getExpectedWeightCheckout();
 			}
 			
-			if (!stationData.getWeightValidCheckout()) { handleInvalidWeight(); }
+			//Hannah Ku
+			if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) { handleInvalidWeight(); }
+//			if (!stationData.getWeightValidCheckout()) { handleInvalidWeight(); }
  
 			// CoinValidator/BanknotValidator observer will handle updating the total paid, just need to keep
 			// checking
@@ -279,7 +283,9 @@ public class CheckoutHandler {
 		if (stationData.getBaggingAreaScale().getCurrentWeight() > 0.1) { stationData.setWeightValidCheckout(false); } // 0.1 to account for floating point issues
 		else { stationData.setWeightValidCheckout(true); }
 		
-		while (!stationData.getWeightValidCheckout()) 
+		//Hannah Ku
+		while (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) 
+//		while (!stationData.getWeightValidCheckout()) 
 		{
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
@@ -298,8 +304,12 @@ public class CheckoutHandler {
 
 		stationData.disablePaymentDevices();
 		stationSoftware.getTouchScreenSoftware().invalidWeightInCheckout();
+		
+		
 		// Loop until scale observer reports a valid weight
-		while (!stationData.getWeightValidCheckout()) {
+		//Hannah Ku
+		while (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) {
+//		while (!stationData.getWeightValidCheckout()) {
 //			waitingForWeightChangeEvent.compareAndSet(false, true);
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
@@ -318,8 +328,11 @@ public class CheckoutHandler {
 
 		stationData.disablePaymentDevices();
 		stationSoftware.getTouchScreenSoftware().addBagsToBaggingArea();
+		
 		// Loop until scale observer reports a valid weight
-		while (!stationData.getWeightValidCheckout()) {
+		//Hannah Ku
+		while (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) {
+//		while (!stationData.getWeightValidCheckout()) {
 //			waitingForWeightChangeEvent.compareAndSet(false, true);
 //			TimeUnit.SECONDS.sleep(1); //Check every second
 		}
