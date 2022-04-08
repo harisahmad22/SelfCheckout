@@ -46,8 +46,30 @@ public class PLUProductDatabase {
 		database.put(pluCode, product);
 	}
 
+	public PLUCodedProduct getPLUProductFromDatabase(PriceLookupCode pluCode) {
+		return database.get(pluCode);
+	}
+
 	public void addPLUProductToDatabase(PLUCodedProduct product) {
 		database.put(product.getPLUCode(), product);
 	}
 
+	public void removePLUProductFromDatabase(PriceLookupCode pluCode) {
+		database.remove(pluCode);
+	}
+
+	// *** don't think this is in the right spot
+	// Checks the PLU database for products starting with the specified letter
+	// inputed by the customer
+	// returns list of products whose first letter matches the inputed letter
+	@SuppressWarnings("null")
+	public ArrayList<PLUCodedProduct> productSearch(char c) {
+		ArrayList<PLUCodedProduct> searchOutcomes = null;
+
+		for (PLUCodedProduct p : database.values())
+			if (p.getDescription().charAt(0) == c) {
+				searchOutcomes.add(p);
+			}
+		return searchOutcomes;
+	}
 }
