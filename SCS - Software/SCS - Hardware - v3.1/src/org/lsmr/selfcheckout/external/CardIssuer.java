@@ -36,6 +36,14 @@ public class CardIssuer {
 		this.name = name;
 	}
 
+	/**
+	 * Blocks the card corresponding to the indicated number, thereby preventing new
+	 * transactions.
+	 * 
+	 * @param cardNumber
+	 *            The number of the card to block.
+	 * @return true, if the card has been successfully blocked; otherwise, false.
+	 */
 	public boolean block(String cardNumber) {
 		CardRecord cr = database.get(cardNumber);
 
@@ -49,6 +57,14 @@ public class CardIssuer {
 		return true;
 	}
 
+	/**
+	 * Eliminates the block on the card corresponding to the indicated number,
+	 * thereby permitting new transactions.
+	 * 
+	 * @param cardNumber
+	 *            The number of the card to unblock.
+	 * @return true, if the card has been successfully unblocked; otherwise, false.
+	 */
 	public boolean unblock(String cardNumber) {
 		CardRecord cr = database.get(cardNumber);
 
@@ -142,6 +158,8 @@ public class CardIssuer {
 	 *            The name of the cardholder.
 	 * @param expiry
 	 *            The expiry date of the card. Must be in the future.
+	 * @param ccv
+	 *            The security code on the back of the card.
 	 * @param amount
 	 *            For a credit card, this represents the credit limit. For a debit
 	 *            card, this is how much money is available. (Yes, it is a
@@ -221,6 +239,16 @@ public class CardIssuer {
 		return -1;
 	}
 
+	/**
+	 * Eliminates the hold corresponding to the indicated hold number, on the card
+	 * corresponding to the indicated card number.
+	 * 
+	 * @param cardNumber
+	 *            The card on which to release the hold.
+	 * @param holdNumber
+	 *            The identifier of the hold to be released.
+	 * @return true, if the hold has been successfully released; otherwise, false.
+	 */
 	public boolean releaseHold(String cardNumber, int holdNumber) {
 		if(holdNumber < 0)
 			return false;
@@ -240,6 +268,22 @@ public class CardIssuer {
 		return true;
 	}
 
+	/**
+	 * Records a transaction against the card corresponding to the indicated card
+	 * number. A hold must have been successfully placed on the card prior to this
+	 * transaction, corresponding to the indicated hold number.
+	 * <p>
+	 * The actual amount should be less than or equal to the amount in the
+	 * corresponding hold. Otherwise, this transaction will fail.
+	 * 
+	 * @param cardNumber
+	 *            The number of the card on which the transaction is to be posted.
+	 * @param holdNumber
+	 *            The number of the initial hold placed on the card.
+	 * @param actualAmount
+	 *            The amount to be charged against the card.
+	 * @return true, if the posting was successful; otherwise, false.
+	 */
 	public boolean postTransaction(String cardNumber, int holdNumber, BigDecimal actualAmount) {
 		if(holdNumber < 0)
 			return false;
