@@ -3,8 +3,12 @@ package org.driver;
 import java.util.ArrayList;
 
 import org.controlSoftware.attendant.AttendantSoftware;
+import org.driver.databases.PLUProductDatabase;
+import org.driver.databases.PLUTestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 public class AttendantUnit {
 	
@@ -17,7 +21,8 @@ public class AttendantUnit {
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantStation = new SupervisionStation();
-		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations);
+		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
+		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
 		//Have to add in attendant touch screen software 
 	}
 	
