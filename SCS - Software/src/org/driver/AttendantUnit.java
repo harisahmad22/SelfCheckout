@@ -53,6 +53,35 @@ public class AttendantUnit {
 		//For now just print to console
 		System.out.println("Station " + stationID + " is being shutdown!");		
 	}
+
+	public void stationLogin(String AttendantID, String password) {
+		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION STARTUP
+		
+		//For now just print to console
+		System.out.println("Attendant: " + AttendantID + " has been successfully logged in!");
+		
+	}
+	
+	public void stationLogout() {
+		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION shutdown
+		
+		//For now just print to console
+		System.out.println("Successfully logged out!");		
+	}
+
+
+	
+	public void handleNoPaper(int stationID) {
+		// SIGNAL GUI TO DISPLAY LOW INK ALERT
+		// For now, print to console
+		System.out.println("Station " + stationID + " is out of paper in its receipt printer!");
+	}
+	
+	public void handleNoInk(int stationID) {
+		// SIGNAL GUI TO DISPLAY LOW INK ALERT
+		// For now, print to console
+		System.out.println("Station " + stationID + " is out of ink in its receipt printer!");
+	}
 	
 	public SupervisionStation getAttendantStation() {
 		return attendantStation;

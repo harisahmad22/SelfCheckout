@@ -55,7 +55,7 @@ public class SelfCheckoutSoftware {
 		
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationUnit.getTouchScreen(), stationData);
 		
-		this.receiptHandler = new ReceiptHandler(this.stationData, this.stationHardware.printer);
+		this.receiptHandler = new ReceiptHandler(this.stationUnit, this.stationHardware.printer);
 		
 		this.checkoutHandler = new CheckoutHandler(this.stationData, this);
 		
@@ -142,30 +142,84 @@ public class SelfCheckoutSoftware {
 	}
 
 	public void shutdownStation()
-	{
+    	{
 		//ONLY shutdown station if it is WELCOME state
 		//Otherwise ignore, to prevent attendant being able to shut down station
 		//while a customer is using it
-		
+
 		if (stationData.getCurrentState() != StationState.WELCOME)
 		{
-			System.out.println("Error! Cannot shutdown system while it's in use!");
-			return;
+		    System.out.println("Error! Cannot shutdown system while it's in use!");
+		    return;
 		}
-		
+
 		//Inform Attendant of shutdown
 		stationUnit.informAttendantOfShutdown();
-		
+
 		//Switch to INACTIVE state, which will inform GUI to close all active windows
 		//Will wipe session data
 		stationData.changeState(StationState.INACTIVE);
-		return;				
+		return;
+    	}
+
+	// Login and logout
+	public void LogInStation(String AttendantID, String password)
+    	{
+		//ONLY shutdown station if it is WELCOME state
+		//Otherwise ignore, to prevent attendant being able to shut down station
+		//while a customer is using it
+
+		if (stationData.getCurrentState() != StationState.INACTIVE)
+		{
+		    System.out.println("Error! Only Log in system while it's in use!");
+		    return;
+		}
+
+			if (preStartupChecks())
+			{
+				//Pre startup checks succeeded, now transition to WELCOME state
+
+				//Inform Attendant of log in
+				stationUnit.informAttendantLogin(AttendantID, password);
+
+				//Switch to WELCOME state, which will inform GUI to display the welcome screen
+				//and wait for user interaction
+				stationData.changeState(StationState.WELCOME);
+				return;
+			}
+
 	}
+
+
+	public void LogOutStation()
+    	{
+		//ONLY shutdown station if it is WELCOME state
+
+		if (stationData.getCurrentState() != StationState.WELCOME)
+		{
+		    System.out.println("Error! Cannot shutdown system while it's in use!");
+		    return;
+		}
+
+		//Inform Attendant of log out
+		stationUnit.informAttendantLogout();
+
+		//Switch to INACTIVE state, which will inform GUI to close all active windows
+		//Will wipe session data
+		stationData.changeState(StationState.INACTIVE);
+		return;
+	}
+
 
 //	public void performAttendantWeightOverride() {
 //		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
 //		
 //	}
+
+	public void performAttendantWeightOverride() {
+		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+		
+	}
 
 	public void blockStation() {
 		if (stationData.getCurrentState() == StationState.NORMAL
