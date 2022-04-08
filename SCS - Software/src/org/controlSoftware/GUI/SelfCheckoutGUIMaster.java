@@ -17,7 +17,7 @@ public class SelfCheckoutGUIMaster {
 	
 	private SelfCheckoutGUIWelcome welcomeGUI;
 	private ScanningScreenGUI scanningGUI;
-	// private SelfCheckoutGUIOther otherGUI;
+	private SelfCheckoutGUIPayments paymentGUI;
 	// private SelfCheckoutGUIOther otherGUI;
 	// private SelfCheckoutGUIOther otherGUI;
 	
@@ -32,7 +32,7 @@ public class SelfCheckoutGUIMaster {
 		
 		welcomeGUI = new SelfCheckoutGUIWelcome(station, stationData);
 		scanningGUI = new ScanningScreenGUI(station, stationData);
-		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
+		paymentGUI = new SelfCheckoutGUIPayments(station, stationData);
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 	}
@@ -40,7 +40,7 @@ public class SelfCheckoutGUIMaster {
 	public void stateChanged() {
 		welcomeGUI.stateChanged();
 		scanningGUI.stateChanged();
-		// otherGUI.stateChanged;
+		paymentGUI.stateChanged();
 		// otherGUI.stateChanged;
 		// otherGUI.stateChanged;
 	}
