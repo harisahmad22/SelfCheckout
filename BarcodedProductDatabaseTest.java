@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 
 import org.driver.databases.BarcodedProductDatabase;
-import org.driver.databases.BarcodedTestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Barcode;
@@ -18,12 +18,12 @@ public class BarcodedProductDatabaseTest {
 	private Barcode barcode;
 	private String description;
 	private BigDecimal price;
-	private BarcodedTestProducts BarcodedTestProducts;
+	private TestBarcodedProducts BarcodedTestProducts;
 	private double weight;
 
 	@Before
 	public void setUp() {
-		BarcodedTestProducts = new BarcodedTestProducts();
+		BarcodedTestProducts = new TestBarcodedProducts();
 		Barcoded_Product_Database = new BarcodedProductDatabase(BarcodedTestProducts.getBarcodedProductList());
 		barcode = new Barcode(new Numeral[] { Numeral.four });
 		description = "Apple Juice 1L";

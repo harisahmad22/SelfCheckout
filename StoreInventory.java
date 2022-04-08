@@ -17,7 +17,7 @@ public class StoreInventory {
 	}
 
 	// quantity of goods is set to same amount for all products. Need to update
-	public StoreInventory(PLUTestProducts PLUInventory, int PLUQuantity, BarcodedTestProducts barcodeInventory,
+	public StoreInventory(PLUTestProducts PLUInventory, int PLUQuantity, TestBarcodedProducts barcodeInventory,
 			int barcodeQuantity) {
 
 		this.database = ProductDatabases.INVENTORY;

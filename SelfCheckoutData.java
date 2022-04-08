@@ -13,7 +13,7 @@ import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.PLUProductDatabase;
 import org.driver.databases.PLUTestProducts;
 import org.driver.databases.StoreInventory;
-import org.driver.databases.BarcodedTestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -135,7 +135,7 @@ public class SelfCheckoutData {
 
 		// Initialize some test Products
 		// 3 Products, milk, orange juice, and corn flakes
-		BarcodedTestProducts testProducts = new BarcodedTestProducts();
+		TestBarcodedProducts testProducts = new TestBarcodedProducts();
 		Barcoded_Product_Database = new BarcodedProductDatabase(testProducts.getBarcodedProductList());
 
 		// Initialize some test quantities for test Products within inventory
