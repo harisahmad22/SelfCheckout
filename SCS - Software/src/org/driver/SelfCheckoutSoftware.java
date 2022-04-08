@@ -188,9 +188,9 @@ public class SelfCheckoutSoftware {
 		{ 
 			//Station is not mid payment, inactive, or in welcome/normal state
 			//Station must be in some handling state (Checkout, processing scan, lookup product)
-			//When in these states there are checkes for the attendant block before and after
+			//When in these states there are checks for the attendant block before and after
 			//methods that wait for User input, and methods that block when an issue is detected
-			this.stationData.changeState(StationState.BLOCKED); 
+			this.stationData.setATTENDANT_BLOCK(true); 
 		}		
 		else 
 		{ 
@@ -226,14 +226,14 @@ public class SelfCheckoutSoftware {
 	
 	public void handleAttendantBlock(String tag) throws InterruptedException {
 		System.out.println("Method called from: " + tag);
-		
-		System.out.println("(TESTING) SIMULATING GUI BLOCK");
-//		while(stationData.getATTENDANT_BLOCK())
-//		{
-			TimeUnit.MILLISECONDS.sleep(1000);
-//		}
-			System.out.println("(TESTING) SIMULATING GUI UNBLOCK");
-		System.out.println("Unblocked!");
+		this.stationData.changeState(StationState.BLOCKED);
+//		System.out.println("(TESTING) SIMULATING GUI BLOCK");
+////		while(stationData.getATTENDANT_BLOCK())
+////		{
+//			TimeUnit.MILLISECONDS.sleep(1000);
+////		}
+//			System.out.println("(TESTING) SIMULATING GUI UNBLOCK");
+//		System.out.println("Unblocked!");
 	}
 
 	public void handleInvalidWeightNormalMode() {

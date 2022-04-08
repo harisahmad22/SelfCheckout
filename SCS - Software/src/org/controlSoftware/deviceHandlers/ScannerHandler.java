@@ -66,8 +66,8 @@ public class ScannerHandler implements BarcodeScannerObserver
 //		stationData.getScanner("main").disable(); //Disable scanning while we process this item
 //		stationData.getScanner("hand").disable(); //Disable handheld scanning while we process this item
 		
-		stationSoftware.attendantBlockCheck();
-		
+//		stationSoftware.attendantBlockCheck();
+//		
 		// Lookup Barcode in out lookup
 		BarcodedProduct scannedProduct = stationData.getBarcodedProductDatabase().get(barcode);
 		if (scannedProduct != null)
@@ -96,25 +96,18 @@ public class ScannerHandler implements BarcodeScannerObserver
 			//Add product info to the receipt handler list
 			stationData.addProductToCheckout(scannedProduct);
 			
-			//Attendant Block check
-			stationSoftware.attendantBlockCheck();
+			//Update expected weight 
+			stationData.setExpectedWeight(stationData.getExpectedWeight() + scannedItemWeight);
 			
-			//Customer's total has been updated, now wait for the scanned item to be placed in the bagging area
-			// Not sure if this is the best way to handle it VVV
-			try {
-				waitForWeightChange(scannedItemWeight);
+			//Attendant Block check
+//			stationSoftware.attendantBlockCheck();
+			
+			//Customer's total has been updated, now change to the WAITING_FOR_ITEM state
+			stationData.changeState(StationState.WAITING_FOR_ITEM);
+//			waitForWeightChange(scannedItemWeight);
 				//Attendant Block check
-				stationSoftware.attendantBlockCheck();
-			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// Not sure if this is the best way to handle it ^^^
-			// Will have to look into possibly having the Scale Observer signal this class to inform it of a weight change 
-			// Instead of just sleeping for 5 seconds then re-checking
+//			stationSoftware.attendantBlockCheck();
+			
 		}
 		else
 		{
@@ -128,7 +121,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 		stationData.changeState(StationState.NORMAL);
 	}
 	
-	private void waitForWeightChange(double scannedItemWeight) throws OverloadException, InterruptedException {
+	private void waitForWeightChange(double scannedItemWeight) throws OverloadException {
 		
 		double weightBefore = stationData.getBaggingAreaScale().getCurrentWeight(); // In grams
 		stationData.setExpectedWeightScanner(weightBefore + scannedItemWeight); // What we expect the scale to read after placing the item on it
@@ -141,7 +134,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 		}
 		
 		//Wait for 3 seconds
-		TimeUnit.SECONDS.sleep(3);
+//		TimeUnit.SECONDS.sleep(3);
 		
 		// Check if the weight has increased by approximately the weight of the scanned item since we last checked
 		if (stationData.getIsScannerWaitingForWeightChange())
@@ -176,7 +169,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 	}
 
 	
-	private void handleItemNotPlacedInBaggingArea() throws InterruptedException {
+	private void handleItemNotPlacedInBaggingArea() {
 		
 		stationData.disableScannerDevices();
 		stationSoftware.getTouchScreenSoftware().waitingForScannedItem();
@@ -198,7 +191,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 		stationData.resetScannerWeightFlags();
 	}
 	
-	private void handleInvalidWeight() throws InterruptedException {
+	private void handleInvalidWeight() {
 		
 		stationData.compareAndSetWaitingForWeightChangeEvent(false, true);
 		

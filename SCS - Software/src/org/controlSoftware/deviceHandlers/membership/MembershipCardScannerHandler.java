@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -90,8 +91,10 @@ public class MembershipCardScannerHandler implements CardReaderObserver{
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.isWaitingForMembership())) {
+		if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.getCurrentState() == StationState.ADD_MEMBERSHIP)) {
 			stationData.setMembershipID(data.getNumber());
+			stationData.setCardSwiped(false); //Reset flag for next event
+			stationData.changeState(StationState.CHECKOUT);
 		}
 	}
 
