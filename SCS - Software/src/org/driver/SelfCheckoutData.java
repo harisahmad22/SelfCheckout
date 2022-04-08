@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.databases.BarcodedProductDatabase;
@@ -65,10 +66,16 @@ public class SelfCheckoutData {
 	private BigDecimal totalDue = BigDecimal.ZERO;
 	private BigDecimal totalMoneyPaid = BigDecimal.ZERO;
 	private BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
+	private BigDecimal transactionPaymentAmount = BigDecimal.ZERO;
+	private int transactionPaymentMethod = -1;
 	
+	//Unused
 	private double expectedWeightNormalMode = 0;
 	private double expectedWeightCheckout = 0;
 	private double expectedWeightScanner = 0;
+	//unused
+	
+	private double expectedWeight = 0;
 	
 	//The amount a product's weight can differ +/- from the listed weight in the lookup
 	private double baggingAreaWeightVariability = 15;
@@ -96,6 +103,7 @@ public class SelfCheckoutData {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean isUsingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean cardSwipedCheckout = new AtomicBoolean(false);
+	private AtomicBoolean isMidPayment = new AtomicBoolean(false);
 
 	//Hannah Ku
 	private AtomicBoolean isWeightOverride = new AtomicBoolean(false);
@@ -113,6 +121,8 @@ public class SelfCheckoutData {
 	private AtomicBoolean ATTENDANT_BLOCK = new AtomicBoolean(false);
 	//============================Software Flags============================
 	
+	private SelfCheckoutSoftware stationSoftware;
+	
 	private PLUDatabase PLU_Product_Database;
 	private BarcodedProductDatabase Barcoded_Product_Database;
 	private StoreInventory Store_Inventory;
@@ -122,7 +132,6 @@ public class SelfCheckoutData {
 		//This class will give the software access to 
 		//the hardware devices
 		this.stationHardware = station;
-//		this.touchScreenSoftware = touchScreenSoftware;
 		this.mainScanner = this.stationHardware.mainScanner;
 		this.handScanner = this.stationHardware.handheldScanner;
 		this.banknoteInputSlot = this.stationHardware.banknoteInput;
@@ -166,6 +175,15 @@ public class SelfCheckoutData {
 		// Scanned item need be bagged. Should return to scanning once bagged.
 		BAGGING,
 		
+		// State for prompting user if they would like to add their own bags
+		ADD_BAGS_PROMPT,
+		
+		// State for prompting user how much they would like to pay
+		PAYMENT_AMOUNT_PROMPT,
+		
+		// State for prompting user to choose how they would like to pay 
+		PAYMENT_MODE_PROMPT,
+		
 		// State for adding bags. Help scale observers differentiate reason for weight change.
 		ADDING_BAGS,
 		
@@ -173,6 +191,7 @@ public class SelfCheckoutData {
 		CHECKOUT,
 		
 		//State for when user has paid total due, and system is waiting for them to take their items
+		//Once Scale observer detects weight = 0 when in CLEANUP state, state will change to WELCOME
 		CLEANUP,
 		
 		// Make full or partial cash payment. Return to CHECKOUT when completed.
@@ -184,10 +203,22 @@ public class SelfCheckoutData {
 		// Make full or partial debit payment. Return to CHECKOUT when completed.
 		PAY_DEBIT,		// **Combine credit/debit into PAY_CARD? Any difference?
 		
+		// Intermediate state to handle checking if change is needed, dispense and update the receipt data
+		// Then move to print receipt prompt state.
+//		PAID,
+		
+		// State to handle checking if change is needed, dispensing and updating the receipt data
+		// then displaying GUI window asking user if they would like a receipt, button listeners for this window
+		// will call the hardware's printer print() method and cut_paper() method if the user chooses to get their receipt
+		// After they have made a decision, check if there is still money to be paid. If so, move to NORMAL state, otherwise 
+		// go to WELCOME state
+		PRINT_RECEIPT_PROMPT,
+		
 		// Dedicated state for scanning membership card/typing number
 		ADD_MEMBERSHIP,
 		
-		// General post-checkout state. Print receipt? Dispense change? Just a thank you message? Returns to WELCOME
+		// General post-checkout state, check if more payment is needed, if so move to NORMAL state.
+		// Otherwise move to CLEANUP state
 		FINISHED,
 		
 		//Blocking State, triggered by the attendant
@@ -202,7 +233,15 @@ public class SelfCheckoutData {
 		//Any other state would represent an 'on' state.
 		//This State can only be entered if system is in WELCOME state. (Not being used by a customer)
 		//Later could have all system's methods except startupStation() not work if the state == INACTIVE
-		INACTIVE
+		INACTIVE, 
+		
+		//State that is entered after an item is scanned/added via lookup
+		//Will only be exited once Bagging area scale handler detects weight on scale == expected weight 
+		//At which point system returns to NORMAL mode
+		WAITING_FOR_ITEM,
+		
+		//State that is entered once a weight issue is detected, can also be entered if weight is invalid after system begins waiting for item to be put down
+		WEIGHT_ISSUE, 
 	}
 
 	private StationState currentState = StationState.INACTIVE;
@@ -306,6 +345,7 @@ public class SelfCheckoutData {
 			stationHardware.mainScanner.disable();
 			stationHardware.handheldScanner.disable();
 			disablePaymentDevices();
+			stationSoftware.getCheckoutHandler().startCheckout();
 			break;
 		
 		case CLEANUP:
@@ -320,25 +360,89 @@ public class SelfCheckoutData {
 //			station.baggingArea.enable(); 
 			break;
 			
-		case ADDING_BAGS:
-			stationHardware.baggingArea.enable();
+		case WAITING_FOR_ITEM:
+			System.out.println("WAITING FOR ITEM");
+			
 			break;
 			
+		case WEIGHT_ISSUE:
+			System.out.println("WEIGHT ISSUE DETECTED!!!");
+			setPreBlockedState(this.getCurrentState());
+			break;
+			
+		case ADD_BAGS_PROMPT:
+			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
+			break;
+		
+		case PAYMENT_AMOUNT_PROMPT:
+			//Ask user if they would like to pay partial or full
+			stationSoftware.getTouchScreenSoftware().choosePaymentAmount( getTotalDue(), getTotalMoneyPaid());
+			break;
+			
+		case PAYMENT_MODE_PROMPT:
+			//Ask user how they would like to pay (Cash, Credit, Debt) TODO 
+			stationSoftware.getTouchScreenSoftware().showPaymentMethods();
+			break;
+			
+		case ADDING_BAGS:
+			//System will remain in this state until a weight event occurs, if valid
+			//will change to Add membership state
+			break;
+			
+//		case PAID:
+//			//Intermediate state that will handle checking if change is needed to be given
+//			
+//			break;
+//			
+		case PRINT_RECEIPT_PROMPT:
+			// User has paid the current transaction amount, check for change
+			// dispense, and update receipt. Then inform GUI to display receipt prompt window 
+			// GUI listeners will handle when the user makes a choice. If they choose to print
+			// then listener will call hardware methods to print. After, they will check if money still
+			// needs to be paid, if so move to NORMAL state otherwise move to CLEANUP state
+			disablePaymentDevices();
+			setMidPaymentFlag(false);
+			stationSoftware.getCheckoutHandler().handleChange();
+			
+			// Prompt touch screen to ask user if they would like a receipt
+			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
+			break;
+			
+			
 		case PAY_CASH:
+			setMidPaymentFlag(true);
 			stationHardware.banknoteInput.enable();
 			stationHardware.coinSlot.enable();
+			enableScannerDevices();
+			setExpectedWeightCheckout(getExpectedWeight());
+			//Every-time a coin/banknote is put in, the CASH OBSERVER will update
+			//total paid/total paid this transaction, then test if that payment 
+			//event has increased the total paid this transaction to equal/exceed
+			//the transaction payment amount (to support partial payment). If true
+			//state will change to the PRINT_RECEIPT_PROMPT state, which will determine if system 
+			//needs to give change, ask to print receipt, then go to the CLEANUP or NORMAL state
+			//depending on if there is still a total due to be paid off
+			
+//			stationSoftware.getCheckoutHandler().payWithCash(getTransactionPaymentAmount());
 			break;
 			
 		case PAY_CREDIT:
+			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 			
 		case PAY_DEBIT:
+			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 			
 		case ADD_MEMBERSHIP:
 			stationHardware.cardReader.enable();
+			setWaitingForMembership(true);
+			stationSoftware.getTouchScreenSoftware().inputMembershipPrompt();
+		    //Method will change state to Checkout if user manually entered ID
+			//Otherwise system will change to checkout state after card is swiped
+			
 			break;
 			
 		case FINISHED:
@@ -349,7 +453,10 @@ public class SelfCheckoutData {
 			ATTENDANT_BLOCK.set(true);
 			setPreBlockedState(this.getCurrentState());
 			disableAllDevices();
-			//Add a method to inform the station of the block
+			//Add a method to inform the station GUI of the block
+			//Should show a window informing user of block (no inputs)
+			//All GUI listeners should check if Attendant_block is true.
+			//If so, just ignore the input/event
 			break;
 			
 		case ERROR:
@@ -362,6 +469,13 @@ public class SelfCheckoutData {
 		setCurrentState(targetState);
 	}
 	
+	public void setMidPaymentFlag(boolean b) {
+		isMidPayment.set(b);		
+	}
+	
+	public boolean getMidPaymentFlag() {
+		return isMidPayment.get();		
+	}
 	private void exitState(StationState state) {
 		switch(state) {
 		
@@ -387,11 +501,24 @@ public class SelfCheckoutData {
 			break;
 			
 		case CLEANUP:
+			//Disable all payment/scanning devices
+			disablePaymentDevices();
+			disableScannerDevices();
+			// State will only be left once bagging area scale handler detects
+			// weight on scale is 0, at which point system returns to the WELCOME state
 			break;
 			
 		case BAGGING:
 			//Should always be enabled
 //			station.baggingArea.disable();
+			break;
+			
+		case ADD_BAGS_PROMPT:
+			System.out.println("Exiting Add bags prompt");
+			break;
+			
+		case PAYMENT_AMOUNT_PROMPT:
+			System.out.println("Exiting Payment amount prompt, transaction payment amount should be updated!");
 			break;
 			
 		case ADDING_BAGS:
@@ -412,7 +539,7 @@ public class SelfCheckoutData {
 			break;
 			
 		case ADD_MEMBERSHIP:
-			stationHardware.cardReader.disable();
+			stationSoftware.getReceiptHandler().setMembershipID(getMembershipID());
 			break;
 			
 		case FINISHED:
@@ -431,6 +558,11 @@ public class SelfCheckoutData {
 		default:
 			return;
 		}
+	}
+	
+	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
+		this.stationSoftware = stationSoftware;
+		
 	}
 		
 	private void wipeSessionData() {
@@ -481,6 +613,17 @@ public class SelfCheckoutData {
 	public SelfCheckoutStation getStationHardware() {
 		return stationHardware;
 	}
+
+	public void setExpectedWeight(double weight) {
+		expectedWeight = weight;
+		
+	}
+	
+	public double getExpectedWeight() {
+		return expectedWeight;
+		
+	}
+	
 	public void setExpectedWeightCheckout(double weight) {
 		expectedWeightCheckout = weight;
 		
@@ -552,6 +695,30 @@ public class SelfCheckoutData {
 	
 	public void setWeightValidScanner(boolean bool) {
 		isWeightValidScanner.set(bool);
+	}
+	
+	public void addToTransactionPaymentAmount(BigDecimal amount) {
+		transactionPaymentAmount = transactionPaymentAmount.add(amount);
+
+	}
+	
+	public void setTransactionPaymentAmount(BigDecimal paymentAmount) {
+		transactionPaymentAmount = transactionPaymentAmount.add(paymentAmount);
+	}
+	
+	public BigDecimal getTransactionPaymentAmount() {
+		return transactionPaymentAmount;
+	}
+	
+	public int getTransactionPaymentMethod(int i) {
+		return transactionPaymentMethod;
+		
+	}
+	
+	public void setTransactionPaymentMethod(int method) {
+		//0 = Cash, 1 = credit, 2 = debt
+		transactionPaymentMethod = method;
+		
 	}
 	
 	//===========================Imported From CheckoutHandler===========================
@@ -667,6 +834,11 @@ public class SelfCheckoutData {
 		
 	}
 	
+	public void addToTotalPaidThisTransaction(BigDecimal scannedItemPrice) {
+		totalPaidThisTransaction = totalPaidThisTransaction.add(scannedItemPrice);
+
+	}
+	
 	public void disablePaymentDevices() {
 		this.stationHardware.coinSlot.disable();
 		this.stationHardware.banknoteInput.disable();
@@ -776,4 +948,6 @@ public class SelfCheckoutData {
 	public void setATTENDANT_BLOCK(boolean bool) {
 		ATTENDANT_BLOCK.set(bool);
 	}
+	
+	
 }

@@ -27,7 +27,7 @@ import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.TouchScreenObserver;
 
-import apple.laf.JRSUIConstants.Size;
+//import apple.laf.JRSUIConstants.Size;
 
 public class AttendantLog {
 

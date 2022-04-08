@@ -84,6 +84,7 @@ public class SelfCheckoutStationUnit {
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
 		//SelfCheckoutSoftware will attach the handlers to the hardware
 		this.stationSoftware = new SelfCheckoutSoftware(this, stationData);
+		this.stationData.attachStationSoftware(this.stationSoftware);
 	}
 	
 	public SelfCheckoutStationUnit getSelfCheckoutStationUnit()
