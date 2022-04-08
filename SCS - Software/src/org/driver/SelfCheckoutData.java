@@ -44,7 +44,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
  *2)Customer Enters number of plastic bags used
  *  
  *3)Customer Pays with gift card
- *  
+ *  added getter and setters for giftCard
  */
 
 public class SelfCheckoutData {
@@ -78,6 +78,7 @@ public class SelfCheckoutData {
 
 	private static double bagWeight = 40;
 	private String membershipID = "null"; // Default to null, change when membership card is scanned in
+	private String giftCardNumber = "null"; // Default to null, change when gift card is scanned in
 	// No implementation yet
 	private String membershipPoints = "0\n";
 
@@ -223,6 +224,15 @@ public class SelfCheckoutData {
 
 	public String getMembershipID() {
 		return membershipID;
+	}
+
+	
+	public void setGiftCardNo(String giftNumber) {
+		giftCardNumber = giftNumber;
+	}
+
+	public String GiftCardNo() {
+		return giftCardNumber;
 	}
 
 	public void addProductToCheckout(BarcodedProduct product) {
@@ -559,6 +569,14 @@ public class SelfCheckoutData {
 	public void setWaitingForMembership(boolean bool) {
 		isCheckoutWaitingForMembership.set(bool);
 		;
+	}
+
+	public boolean isWaitingForGiftCard() {
+		return isCheckoutWaitingForGiftCard.get();
+	}
+
+	public void setWaitingForGiftCard(boolean bool) {
+		isCheckoutWaitingForGiftCard.set(bool);
 	}
 
 	public boolean getCardSwiped() {
