@@ -17,7 +17,7 @@ public class AttendantUnit {
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantStation = new SupervisionStation();
-		this.attendantSoftware = new AttendantSoftware(attendantStation, attendantData, checkoutStations);
+		this.attendantSoftware = new AttendantSoftware(attendantStation, attendantData, checkoutStations, null);
 		//Have to add in attendant touch screen software 
 	}
 	
