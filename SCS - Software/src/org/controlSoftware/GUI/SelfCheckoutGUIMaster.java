@@ -16,7 +16,7 @@ public class SelfCheckoutGUIMaster {
 	private final int HEIGHT = 600;
 	
 	private SelfCheckoutGUIWelcome welcomeGUI;
-	// private SelfCheckoutGUIOther otherGUI;
+	private ScanningScreenGUI scanningGUI;
 	// private SelfCheckoutGUIOther otherGUI;
 	// private SelfCheckoutGUIOther otherGUI;
 	// private SelfCheckoutGUIOther otherGUI;
@@ -31,7 +31,7 @@ public class SelfCheckoutGUIMaster {
 		frame.setLayout(null);
 		
 		welcomeGUI = new SelfCheckoutGUIWelcome(station, stationData);
-		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
+		scanningGUI = new SelfCheckoutGUIWelcome(station, stationData);
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
@@ -39,7 +39,7 @@ public class SelfCheckoutGUIMaster {
 	
 	public void stateChanged() {
 		welcomeGUI.stateChanged();
-		// otherGUI.stateChanged;
+		scanningGUI.stateChanged();
 		// otherGUI.stateChanged;
 		// otherGUI.stateChanged;
 		// otherGUI.stateChanged;

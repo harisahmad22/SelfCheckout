@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class BaggingScreen() {
+public class ScanningScreenGUI() {
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
 	
 	private JFrame frame;
 	
-	public BaggingScreen(SelfCheckoutStation newStation, SelfCheckoutData newData){
+	public ScanningScreenGUI(SelfCheckoutStation newStation, SelfCheckoutData newData){
 		station = newStation;
 		stationData = newData;
 		
