@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.State;
@@ -66,6 +67,9 @@ public class SelfCheckoutGUIWelcome {
 		case PAY_DEBIT:
 			payDebitScreen();
 			break;
+		case FINISHED:
+			finishedScreen();
+			break;
 		default:
 			break;
 		}
@@ -105,7 +109,7 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.PAY_CASH);
+				stationData.changeState(State.FINISHED);
 			}
 		});
 		
@@ -402,6 +406,33 @@ public class SelfCheckoutGUIWelcome {
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
+	}
+	
+	private void finishedScreen(){
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Thank you for shopping with us today");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("Please take your bag(s) and your receipt");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+		
+		Timer timer = new Timer(5000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+				stationData.changeState(State.WELCOME);
+            }
+        });
+        timer.start();
+		
 	}
 	
 	
