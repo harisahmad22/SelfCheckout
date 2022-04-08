@@ -1,4 +1,4 @@
-package org.lsmr.selfcheckout.devices;
+package org.controlSoftware.GUI;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -8,7 +8,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class ScanningScreenGUI() {
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.State;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+
+public class ScanningScreenGUI {
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
 	
@@ -110,7 +114,7 @@ public class ScanningScreenGUI() {
 		inventoryPLU.setOpaque(true);
 		
 		// Shows current input
-		JLabel codePLU = new JLabel("");
+		final JLabel codePLU = new JLabel("");
 		frame.add(codePLU);
 		codePLU.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		codePLU.setBounds(740,100,220,100);
@@ -196,7 +200,7 @@ public class ScanningScreenGUI() {
 
 	// Screen for searching by letter
 	private void LetterSearch(){
-		String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
+		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
 
 		// Display for search
@@ -208,7 +212,7 @@ public class ScanningScreenGUI() {
 		
 		// List of letters to select
 		JScrollPane alphabetContainer = new JScrollPane();
-		JList alphabetList = new JList(letters);
+		final JList alphabetList = new JList(letters);
 		alphabetContainer.setViewportView(alphabetList);
 	    alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		frame.add(alphabetContainer);

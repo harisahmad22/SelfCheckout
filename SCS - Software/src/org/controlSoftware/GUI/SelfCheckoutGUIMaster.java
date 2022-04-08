@@ -31,7 +31,7 @@ public class SelfCheckoutGUIMaster {
 		frame.setLayout(null);
 		
 		welcomeGUI = new SelfCheckoutGUIWelcome(station, stationData);
-		scanningGUI = new SelfCheckoutGUIWelcome(station, stationData);
+		scanningGUI = new ScanningScreenGUI(station, stationData);
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
