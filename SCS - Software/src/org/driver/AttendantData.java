@@ -177,7 +177,7 @@ public class AttendantData {
 		}
 	}
 	
-	private AttendantState getCurrentState() {
+	public AttendantState getCurrentState() {
 		return currentState;
 	}
 
