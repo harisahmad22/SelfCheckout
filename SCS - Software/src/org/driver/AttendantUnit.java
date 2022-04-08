@@ -3,6 +3,7 @@ package org.driver;
 import java.util.ArrayList;
 
 import org.controlSoftware.attendant.AttendantSoftware;
+import org.driver.databases.PLUProductDatabase;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
@@ -12,12 +13,15 @@ public class AttendantUnit {
 	private AttendantSoftware attendantSoftware;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	private AttendantData attendantData;
+	
+	private PLUProductDatabase pluProductData;
+	
 	public AttendantUnit()
 	{
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantStation = new SupervisionStation();
-		this.attendantSoftware = new AttendantSoftware(attendantStation, attendantData, checkoutStations);
+		this.attendantSoftware = new AttendantSoftware(attendantStation, attendantData, checkoutStations, pluProductData);
 		//Have to add in attendant touch screen software 
 	}
 	
