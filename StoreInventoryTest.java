@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import org.controlSoftware.data.NegativeNumberException;
 import org.driver.databases.PLUTestProducts;
 import org.driver.databases.StoreInventory;
-import org.driver.databases.TestProducts;
+import org.driver.databases.BarcodedTestProducts;
 import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Barcode;
@@ -18,7 +18,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 public class StoreInventoryTest {
 
-	private TestProducts barcodedTestProducts;
+	private BarcodedTestProducts barcodedTestProducts;
 	private PLUTestProducts PLUTestProducts;
 	private StoreInventory storeInventory;
 	private PLUCodedProduct PLUproduct;
@@ -26,7 +26,7 @@ public class StoreInventoryTest {
 
 	@Before
 	public void setup() {
-		barcodedTestProducts = new TestProducts();
+		barcodedTestProducts = new BarcodedTestProducts();
 		PLUTestProducts = new PLUTestProducts();
 		storeInventory = new StoreInventory(PLUTestProducts, 3, barcodedTestProducts, 5);
 
