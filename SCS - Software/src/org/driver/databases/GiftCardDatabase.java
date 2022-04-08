@@ -1,7 +1,11 @@
 package org.driver.databases;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.controlSoftware.data.GiftCardInfo;
+import org.lsmr.selfcheckout.Card;
 
 /*
  * @author Divyansh Rana - 30117089
@@ -20,21 +24,23 @@ import java.util.Map;
 
 public class GiftCardDatabase {
 	
-	private Map<String, Double> giftCardDB = new HashMap<String, Double>();
+	private Map<String, GiftCardInfo> giftCardDB = new HashMap<String, GiftCardInfo>();
 
-	public void AddGiftCard(String giftCardID, Double value)
+	public void AddGiftCard(String giftCardID, BigDecimal value)
 	{		
 		//Populate the database with some gift cards and their values as gift cards are given out by the store
-		giftCardDB.put(giftCardID, value);
+		GiftCardInfo giftCard = new GiftCardInfo("GiftCard", giftCardID, value);
+		giftCardDB.put(giftCardID, giftCard);
 	}
 
-	public void updateGiftCard(String giftCardID, Double value)
-	{		
-		//update the database if gift card has been used
-		giftCardDB.replace(giftCardID, value);
-	}
+	// public void updateGiftCard(String giftCardID, Double value) // dont know when to update
+	// {		
+	// 	//update the database if gift card has been used
+	// 	GiftCardInfo giftCard = giftCardDB.get(giftCardID);
+	// 	giftCardDB.replace(giftCardID, value);
+	// }
 	
-	public Map<String, Double> getDatabase()
+	public Map<String, GiftCardInfo> getDatabase()
 	{
 		return giftCardDB;
 	}
