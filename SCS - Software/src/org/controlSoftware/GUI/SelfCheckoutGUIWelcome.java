@@ -57,6 +57,15 @@ public class SelfCheckoutGUIWelcome {
 		case ADDING_BAGS:
 			addingBagsScreen();
 			break;
+		case PAY_CASH:
+			payCashScreen();
+			break;
+		case PAY_CREDIT:
+			payCreditScreen();
+			break;
+		case PAY_DEBIT:
+			payDebitScreen();
+			break;
 		default:
 			break;
 		}
@@ -76,7 +85,8 @@ public class SelfCheckoutGUIWelcome {
 		
 		final JButton b1 = new JButton("BEGIN");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 40));
-		b1.setBounds(400, 300, 200, 100);
+		// originally 400,300,200,100
+		b1.setBounds(275, 300, 200, 100);
 		frame.getContentPane().add(b1);
 		
 		b1.addActionListener(new ActionListener() {
@@ -85,6 +95,21 @@ public class SelfCheckoutGUIWelcome {
 				stationData.changeState(State.ASK_MEMBERSHIP);
 			}
 		});
+		
+		final JButton b2 = new JButton("TEMP");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		// originally 400,300,200,100
+		b2.setBounds(525, 300, 200, 100);
+		frame.getContentPane().add(b2);
+		
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.changeState(State.PAY_CASH);
+			}
+		});
+		
+		
 
 	}
 	
@@ -325,11 +350,59 @@ public class SelfCheckoutGUIWelcome {
 		});
 	}
 	
+	private void payCashScreen(){
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Please insert your");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("banknotes/coins");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+	}
 	
+	private void payCreditScreen(){
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Please tap/swipe/insert your");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("credit card");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+	}
 	
-	
-	
-	
+	private void payDebitScreen(){
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Please tap/swipe/insert your");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("debit card");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+	}
 	
 	
 }
