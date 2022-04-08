@@ -5,8 +5,46 @@ package org.lsmr.selfcheckout;
  * in English.
  */
 public enum Numeral {
-	one((byte)1), two((byte)2), three((byte)3), four((byte)4), five((byte)5), six((byte)6), seven((byte)7),
-	eight((byte)8), nine((byte)9), zero((byte)0);
+	/**
+	 * Represents the numeral "1"
+	 */
+	one((byte)1),
+	/**
+	 * Represents the numeral "2"
+	 */
+	two((byte)2),
+	/**
+	 * Represents the numeral "3"
+	 */
+	three((byte)3),
+	/**
+	 * Represents the numeral "4"
+	 */
+	four((byte)4),
+	/**
+	 * Represents the numeral "5"
+	 */
+	five((byte)5),
+	/**
+	 * Represents the numeral "6"
+	 */
+	six((byte)6),
+	/**
+	 * Represents the numeral "7"
+	 */
+	seven((byte)7),
+	/**
+	 * Represents the numeral "8"
+	 */
+	eight((byte)8),
+	/**
+	 * Represents the numeral "9"
+	 */
+	nine((byte)9),
+	/**
+	 * Represents the numeral "0"
+	 */
+	zero((byte)0);
 
 	private byte value;
 
