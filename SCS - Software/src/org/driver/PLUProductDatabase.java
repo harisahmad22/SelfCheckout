@@ -54,6 +54,10 @@ public class PLUProductDatabase {
 		database.put(product.getPLUCode(), product);
 	}
 
+	public void removePLUProductFromDatabase(PriceLookupCode pluCode) {
+		database.remove(pluCode);
+	}
+
 	// *** don't think this is in the right spot
 	// Checks the PLU database for products starting with the specified letter
 	// inputed by the customer
