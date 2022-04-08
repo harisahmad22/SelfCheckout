@@ -16,7 +16,10 @@ public class TestingTEMP {
 		SelfCheckoutData data = unit.getSelfCheckoutData();
 		
 		data.changeState(State.WELCOME);
-	
+		
+		//CardOptionGUI gui = new CardOptionGUI(station, data);
+		//gui.showCardOptionGUI();
+		
 	}
 
 }

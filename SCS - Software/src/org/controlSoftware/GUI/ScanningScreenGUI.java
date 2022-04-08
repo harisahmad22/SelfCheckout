@@ -26,19 +26,15 @@ public class ScanningScreenGUI {
 	}
 
 	public void stateChanged() {
-		frame.getContentPane().removeAll();
-		frame.getContentPane().revalidate();
-		frame.getContentPane().repaint();
-
 		switch (stationData.getState()) {
 		case MAIN_SCAN:
 			Main();
 			break;
 		case LETTER_SEARCH:
-			PluSearch();
+			LetterSearch();
 			break;
 		case PLU_SEARCH:
-			LetterSearch();
+			PluSearch();
 			break;
 		case CHECKOUT_CHECK:
 			checkoutPopup();
@@ -261,10 +257,7 @@ public class ScanningScreenGUI {
 	    outYesButton.setBounds(200,200,200,100);
 	    outYesButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	frame.getContentPane().removeAll();
-	        	frame.getContentPane().revalidate();
-	        	frame.getContentPane().repaint();
-	            //Move to checkout
+	        	stationData.changeState(State.CHECKOUT);
 	        }
 	    });
 	    

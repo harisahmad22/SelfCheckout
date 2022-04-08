@@ -35,10 +35,6 @@ public class SelfCheckoutGUIWelcome {
 	}
 	
 	public void stateChanged() {
-		frame.getContentPane().removeAll();
-		frame.getContentPane().revalidate();
-		frame.getContentPane().repaint();
-		
 		switch (stationData.getState()) {
 		case WELCOME:
 			welcomeScreen();
@@ -80,8 +76,7 @@ public class SelfCheckoutGUIWelcome {
 		
 		final JButton b1 = new JButton("BEGIN");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 40));
-		// originally 400,300,200,100
-		b1.setBounds(275, 300, 200, 100);
+		b1.setBounds(400,300,200,100);
 		frame.getContentPane().add(b1);
 		
 		b1.addActionListener(new ActionListener() {
@@ -90,22 +85,6 @@ public class SelfCheckoutGUIWelcome {
 				stationData.changeState(State.ASK_MEMBERSHIP);
 			}
 		});
-		
-		final JButton b2 = new JButton("TEMP");
-		b2.setFont(new Font("Tahoma", Font.PLAIN, 40));
-		// originally 400,300,200,100
-		b2.setBounds(525, 300, 200, 100);
-		frame.getContentPane().add(b2);
-		
-		b2.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.PAY_CREDIT);
-			}
-		});
-		
-		
-
 	}
 	
 	// Simple text and two button screen.
@@ -297,7 +276,7 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.SCANNING);
+				stationData.changeState(State.MAIN_SCAN);
 			}
 		});
 

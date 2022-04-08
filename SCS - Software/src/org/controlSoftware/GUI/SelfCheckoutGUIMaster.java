@@ -18,7 +18,7 @@ public class SelfCheckoutGUIMaster {
 	private SelfCheckoutGUIWelcome welcomeGUI;
 	private ScanningScreenGUI scanningGUI;
 	private SelfCheckoutGUIPayments paymentGUI;
-	// private SelfCheckoutGUIOther otherGUI;
+	private PaymentOptionGUI payOptionsGUI;
 	// private SelfCheckoutGUIOther otherGUI;
 	
 	public SelfCheckoutGUIMaster(SelfCheckoutStation newStation, SelfCheckoutData newData) {
@@ -33,15 +33,20 @@ public class SelfCheckoutGUIMaster {
 		welcomeGUI = new SelfCheckoutGUIWelcome(station, stationData);
 		scanningGUI = new ScanningScreenGUI(station, stationData);
 		paymentGUI = new SelfCheckoutGUIPayments(station, stationData);
-		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
+		payOptionsGUI = new PaymentOptionGUI(station, stationData);
 		// otherGUI = new SelfCheckoutOtherGUI(stationUnit)
 	}
 	
 	public void stateChanged() {
+		//Wipe the current screen
+		frame.getContentPane().removeAll();
+		frame.getContentPane().revalidate();
+		frame.getContentPane().repaint();
+		
 		welcomeGUI.stateChanged();
 		scanningGUI.stateChanged();
 		paymentGUI.stateChanged();
-		// otherGUI.stateChanged;
+		payOptionsGUI.stateChanged();
 		// otherGUI.stateChanged;
 	}
 }

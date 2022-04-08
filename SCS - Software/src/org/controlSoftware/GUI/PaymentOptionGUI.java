@@ -17,17 +17,36 @@ public class PaymentOptionGUI {
 	private JFrame frame;
 	private JPanel panel;
 	
+	private int width;
+	private int height;
+	
 	/**
 	 * @param station
 	 * @param data 
 	 * Constructs the Payment Screen
 	 */
-	public PaymentOptionGUI(SelfCheckoutStation station, SelfCheckoutData data) {
-		scs = station;
-		this.data = data;
+	public PaymentOptionGUI(SelfCheckoutStation newStation, SelfCheckoutData newData) {
+		scs = newStation;
+		data = newData;
+		
 		frame = scs.screen.getFrame();
-		frame.setSize(1000, 600);
-		frame.setPreferredSize(new Dimension(1920, 1080));
+		width = frame.getWidth();
+		height = frame.getHeight();		
+	}
+	
+	public void stateChanged() {
+		switch (data.getState()) {
+		case CHECKOUT:
+			checkoutScreen();
+			break;
+		default:
+			break;
+		}
+		//frame.setVisible(true);
+		scs.screen.setVisible(true);
+	}
+	
+	private void checkoutScreen() {
 		frame.setLayout(null);  
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 10));
@@ -46,15 +65,6 @@ public class PaymentOptionGUI {
 	    title.setBounds(10,10,750,100);  
 	    title.setFont(new Font("Calibri", Font.BOLD,75));
 	    frame.add(title);
-	}
-
-	/**
-	 * Redraws upon state changed
-	 */
-	public void stateChanged() {
-		frame.getContentPane().removeAll();
-		frame.getContentPane().revalidate();
-		frame.getContentPane().repaint();
 	}
 	
 	/**

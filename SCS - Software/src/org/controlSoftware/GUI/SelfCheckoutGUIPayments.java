@@ -38,7 +38,6 @@ public class SelfCheckoutGUIPayments {
 	
 	
 	public void stateChanged() {
-		
 		switch (stationData.getState()) {
 		case PAY_CASH:
 			payCashScreen();
