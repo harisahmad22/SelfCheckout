@@ -64,7 +64,7 @@ public class PLUProductDatabase {
 	// returns list of products whose first letter matches the inputed letter
 	@SuppressWarnings("null")
 	public ArrayList<PLUCodedProduct> productSearch(char c) {
-		ArrayList<PLUCodedProduct> searchOutcomes = null;
+		ArrayList<PLUCodedProduct> searchOutcomes = new ArrayList<>();
 
 		for (PLUCodedProduct p : database.values())
 			if (p.getDescription().charAt(0) == c) {
