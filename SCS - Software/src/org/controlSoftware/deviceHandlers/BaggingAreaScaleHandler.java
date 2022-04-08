@@ -147,7 +147,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	  // where all items on the scale need to be removed
 		if (stationData.getCurrentState() == StationState.CLEANUP)
 		{ 
-			if (weightOnScale != 0) 
+			if (weightOnScale > 0.1) 
 			{
 //				stationData.setWeightValidCheckout(false);
 				//Remain in cleanup state

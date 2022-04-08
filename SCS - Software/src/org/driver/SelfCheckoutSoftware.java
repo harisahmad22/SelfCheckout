@@ -216,11 +216,6 @@ public class SelfCheckoutSoftware {
 //		
 //	}
 
-	public void performAttendantWeightOverride() {
-		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
-		
-	}
-
 	public void blockStation() {
 		if (stationData.getCurrentState() == StationState.NORMAL
 		 || stationData.getCurrentState() == StationState.WELCOME)

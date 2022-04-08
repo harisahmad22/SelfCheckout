@@ -73,113 +73,113 @@ public class CheckoutHandler {
 		}
 		
 		//Attendant Block check
-		stationSoftware.attendantBlockCheck();
+//		stationSoftware.attendantBlockCheck();
 		
-		// Then prompt touch screen to ask user how they would like to pay
-		// Method will block until user input is received
-		// Returns an int: 0 = Cash, 1 = Credit, 2 = Debt
-		// TESTING - always chooses to pay with cash!
-		stationSoftware.getTouchScreenSoftware().showPaymentMethods(); 
-
-		//Attendant Block check
-		stationSoftware.attendantBlockCheck();
-		
-		// Check if weight is still valid after waiting for user input
-		//Hannah Ku
-		if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) 
-//		if (!stationData.getWeightValidCheckout()) 
-		{
-			handleInvalidWeight();
-		}
-		
-		if (paymentMethod == 1) 
-		{ 	
-			stationData.changeState(StationState.PAY_CREDIT);
-
-			//Payment			
-			
-			stationData.changeState(StationState.CHECKOUT);
-			//Attendant Block check
-			stationSoftware.attendantBlockCheck();
-			
-		}
-		else if (paymentMethod == 2) 
-		{ 
-			stationData.changeState(StationState.PAY_DEBIT);
-			
-			//Payment
-			
-			stationData.changeState(StationState.CHECKOUT);
-			//Attendant Block check
-			stationSoftware.attendantBlockCheck();
-			
-		}
-		else 
-		{
-			stationData.changeState(StationState.PAY_CASH);
-			System.out.println("Cash Payment Chosen");
-			payWithCash(stationData.getTransactionPaymentAmount());
-			stationData.changeState(StationState.CHECKOUT);
-			
-		}
-		
-		//Need to handle when they pay partially, maybe payWithCash etc returns a boolean informing us
-		//if more payments are required (false when we need to pay more, true when we dont)
-		//Would have to move post payment logic to this method, but only reset system back to the 
-		//Welcome screen if payWithCash etc returns true. 
-		
-		//================================================================================================
-		
-		BigDecimal changeAmount = BigDecimal.ZERO;
-		// Out of while loop so we can assume user has paid
-		// Check if we have paid full amount
-		handleChange();
-		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) >= 0)
-		{ //Total Paid >= total Due, check for change
-		  //Ask to print Receipt, wait for cleanup, and return to welcome screen
-			
-						
-			// method call to handler that deals with waiting for all items in
-			// bagging area to be picked up before reseting system to be ready for a new
-			// user
-			
-			//Attendant Block check
-			stationSoftware.attendantBlockCheck();
-			
-			
-			stationData.changeState(StationState.CLEANUP);
-			handlePostPaymentCleanup();
-			stationData.changeState(StationState.CHECKOUT);
-
-			// Maybe Re-enable devices here?
-//			stationData.enableAllDevices();
-
-//			stationData.setInCheckout(false);
-			stationSoftware.getTouchScreenSoftware().resetToWelcomeScreen();
-			stationData.changeState(StationState.WELCOME); //Should maybe move this into Touch screen software
-		}
-		else
-		{ //Total Paid < total Due, Ask to Print Receipt, and return to Adding Items mode 
-			System.out.println("Total Due: " + stationData.getTotalDue());
-			System.out.println("Total Paid: " + stationData.getTotalMoneyPaid());
-			stationSoftware.getReceiptHandler().setFinalTotal(stationData.getTotalDue().toString());
-			stationSoftware.getReceiptHandler().setMoneyPaid(stationData.getTotalMoneyPaid().toString());
-			stationSoftware.getReceiptHandler().setFinalChange(changeAmount.toString());
-			
-			// Prompt touch screen to ask user if they would like a receipt
-			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
-			
-			// Maybe Re-enable devices here?
-//			stationData.enableAllDevices();
-			
-			//Attendant Block check
-			stationSoftware.attendantBlockCheck();
-			
-
-//			stationData.setInCheckout(false);
-			stationSoftware.getTouchScreenSoftware().returnToAddingItems();
-			stationData.changeState(StationState.NORMAL); //Should maybe move this into Touch screen software
-		}
+//		// Then prompt touch screen to ask user how they would like to pay
+//		// Method will block until user input is received
+//		// Returns an int: 0 = Cash, 1 = Credit, 2 = Debt
+//		// TESTING - always chooses to pay with cash!
+//		stationSoftware.getTouchScreenSoftware().showPaymentMethods(); 
+//
+//		//Attendant Block check
+//		stationSoftware.attendantBlockCheck();
+//		
+//		// Check if weight is still valid after waiting for user input
+//		//Hannah Ku
+//		if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) 
+////		if (!stationData.getWeightValidCheckout()) 
+//		{
+//			handleInvalidWeight();
+//		}
+//		
+//		if (paymentMethod == 1) 
+//		{ 	
+//			stationData.changeState(StationState.PAY_CREDIT);
+//
+//			//Payment			
+//			
+//			stationData.changeState(StationState.CHECKOUT);
+//			//Attendant Block check
+//			stationSoftware.attendantBlockCheck();
+//			
+//		}
+//		else if (paymentMethod == 2) 
+//		{ 
+//			stationData.changeState(StationState.PAY_DEBIT);
+//			
+//			//Payment
+//			
+//			stationData.changeState(StationState.CHECKOUT);
+//			//Attendant Block check
+//			stationSoftware.attendantBlockCheck();
+//			
+//		}
+//		else 
+//		{
+//			stationData.changeState(StationState.PAY_CASH);
+//			System.out.println("Cash Payment Chosen");
+//			payWithCash(stationData.getTransactionPaymentAmount());
+//			stationData.changeState(StationState.CHECKOUT);
+//			
+//		}
+//		
+//		//Need to handle when they pay partially, maybe payWithCash etc returns a boolean informing us
+//		//if more payments are required (false when we need to pay more, true when we dont)
+//		//Would have to move post payment logic to this method, but only reset system back to the 
+//		//Welcome screen if payWithCash etc returns true. 
+//		
+//		//================================================================================================
+//		
+//		BigDecimal changeAmount = BigDecimal.ZERO;
+//		// Out of while loop so we can assume user has paid
+//		// Check if we have paid full amount
+//		handleChange();
+//		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) >= 0)
+//		{ //Total Paid >= total Due, check for change
+//		  //Ask to print Receipt, wait for cleanup, and return to welcome screen
+//			
+//						
+//			// method call to handler that deals with waiting for all items in
+//			// bagging area to be picked up before reseting system to be ready for a new
+//			// user
+//			
+//			//Attendant Block check
+//			stationSoftware.attendantBlockCheck();
+//			
+//			
+//			stationData.changeState(StationState.CLEANUP);
+//			handlePostPaymentCleanup();
+//			stationData.changeState(StationState.CHECKOUT);
+//
+//			// Maybe Re-enable devices here?
+////			stationData.enableAllDevices();
+//
+////			stationData.setInCheckout(false);
+//			stationSoftware.getTouchScreenSoftware().resetToWelcomeScreen();
+//			stationData.changeState(StationState.WELCOME); //Should maybe move this into Touch screen software
+//		}
+//		else
+//		{ //Total Paid < total Due, Ask to Print Receipt, and return to Adding Items mode 
+//			System.out.println("Total Due: " + stationData.getTotalDue());
+//			System.out.println("Total Paid: " + stationData.getTotalMoneyPaid());
+//			stationSoftware.getReceiptHandler().setFinalTotal(stationData.getTotalDue().toString());
+//			stationSoftware.getReceiptHandler().setMoneyPaid(stationData.getTotalMoneyPaid().toString());
+//			stationSoftware.getReceiptHandler().setFinalChange(changeAmount.toString());
+//			
+//			// Prompt touch screen to ask user if they would like a receipt
+//			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
+//			
+//			// Maybe Re-enable devices here?
+////			stationData.enableAllDevices();
+//			
+//			//Attendant Block check
+//			stationSoftware.attendantBlockCheck();
+//			
+//
+////			stationData.setInCheckout(false);
+//			stationSoftware.getTouchScreenSoftware().returnToAddingItems();
+//			stationData.changeState(StationState.NORMAL); //Should maybe move this into Touch screen software
+//		}
 		//================================================================================================
 	}
 
