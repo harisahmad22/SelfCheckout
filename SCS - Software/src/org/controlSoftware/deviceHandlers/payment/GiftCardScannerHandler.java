@@ -112,23 +112,38 @@ public class GiftCardScannerHandler implements CardReaderObserver
 		}
 	}
 
-    public BigDecimal payWithGiftCard(String GiftCardNumber, BigDecimal valuePurchase, GiftCardDatabase giftCardDB)
+    public void payWithGiftCard(String GiftCardNumber, 
+//    		BigDecimal valuePurchase, 
+    		GiftCardDatabase giftCardDB)
     {
+    	BigDecimal paymentAmount = stationData.getTransactionPaymentAmount();
         Map<String, GiftCardInfo> giftCardDataBase = giftCardDB.getDatabase();
         GiftCardInfo giftCard = giftCardDataBase.get(GiftCardNumber);
-        if(valuePurchase.equals(giftCard.getBalance()) || (valuePurchase.compareTo(giftCard.getBalance()) == 1))
+        if(paymentAmount.equals(giftCard.getBalance()) || (paymentAmount.compareTo(giftCard.getBalance()) == 1))
         {
-            valuePurchase = valuePurchase.subtract(giftCard.getBalance());
-            giftCard.updateBalance(giftCard.getBalance());
+        	giftCard.updateBalance(giftCard.getBalance());
+        	stationData.addToTotalPaidThisTransaction(giftCard.getBalance());
+            stationData.addToTotalPaid(giftCard.getBalance());
+            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+            
+//            valuePurchase = valuePurchase.subtract(giftCard.getBalance());
+//            giftCard.updateBalance(giftCard.getBalance());
              // as all the value has been used up
-            return valuePurchase;
+//            return valuePurchase;
+            return;
         }
 
         else
         {
-            giftCard.updateBalance(valuePurchase);
-            valuePurchase.valueOf(0); // as we paid for the entire purchase
-            return valuePurchase;
+            giftCard.updateBalance(paymentAmount);
+            
+            stationData.addToTotalPaidThisTransaction(paymentAmount);
+            stationData.addToTotalPaid(paymentAmount);
+            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+//            paymentAmount.valueOf(0); // as we paid for the entire purchase
+            
+//            return valuePurchase;
+            return;
         }
     }
 }

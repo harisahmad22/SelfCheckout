@@ -30,6 +30,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
 
 /*
  *  
@@ -215,10 +216,6 @@ public class SelfCheckoutData {
 		
 		PAY_GIFTCARD,
 		
-		// Intermediate state to handle checking if change is needed, dispense and update the receipt data
-		// Then move to print receipt prompt state.
-//		PAID,
-		
 		// State to handle checking if change is needed, dispensing and updating the receipt data
 		// then displaying GUI window asking user if they would like a receipt, button listeners for this window
 		// will call the hardware's printer print() method and cut_paper() method if the user chooses to get their receipt
@@ -252,7 +249,10 @@ public class SelfCheckoutData {
 		WAITING_FOR_ITEM,
 		
 		//State that is entered once a weight issue is detected, can also be entered if weight is invalid after system begins waiting for item to be put down
-		WEIGHT_ISSUE 
+		WEIGHT_ISSUE, 
+		
+		// State that allows system to exit from WEIGHT_ISSUE state, will update expected weights to current scale weight
+		ATTENDANT_OVERRIDE 
 	}
 
 
@@ -260,57 +260,6 @@ public class SelfCheckoutData {
 	private StationState preBlockedState = getCurrentState();
 
 	
-
-	// Getters/setters
-
-	public void setTotalDue(BigDecimal total) {
-		totalDue = total;
-	}
-
-	public BigDecimal getTotalDue() {
-		return totalDue;
-	}
-
-	public void setTotalMoneyPaid(BigDecimal total) {
-		totalMoneyPaid = total;
-	}
-
-	public BigDecimal getTotalMoneyPaid() {
-		return totalMoneyPaid;
-	}
-
-	public void setMembershipID(String ID) {
-		membershipID = ID;
-	}
-
-	public String getMembershipID() {
-		return membershipID;
-	}
-
-	public void addProductToCheckout(BarcodedProduct product) {
-		ProductInfo PI = new ProductInfo(product);
-		productsAddedToCheckout.put(product.getDescription(), PI);
-	}
-
-	public void addProductToCheckout(PLUCodedProduct product, double weight) {
-		ProductInfo PI = new ProductInfo(product, weight);
-		productsAddedToCheckout.put(product.getDescription(), PI);
-	}
-
-	public HashMap<String, ProductInfo> getProductsAddedToCheckoutHashMap() {
-		return productsAddedToCheckout;
-	}
-
-	public ProductInfo getProductAddedToCheckout(String productDescription) {
-		return productsAddedToCheckout.get(productDescription);
-	}
-
-	public void removeProductFromCheckoutHashMap(String description) {
-		if (productsAddedToCheckout.remove(description) == null) {
-			System.out.println("Error! Could not remove product with description: " + description);
-		}
-	}
-
 	/*
 	 * State changing methods
 	 */
@@ -388,6 +337,8 @@ public class SelfCheckoutData {
 			
 		case WEIGHT_ISSUE:
 			System.out.println("WEIGHT ISSUE DETECTED!!!");
+			//TODO GUI Window will have a skip bagging button that will force a state change to 
+			// the preblocked state
 			setPreBlockedState(this.getCurrentState());
 			break;
 			
@@ -489,14 +440,6 @@ public class SelfCheckoutData {
 		setCurrentState(targetState);
 	}
 	
-	public void setMidPaymentFlag(boolean b) {
-		isMidPayment.set(b);		
-	}
-	
-	public boolean getMidPaymentFlag() {
-		return isMidPayment.get();		
-	}
-	
 	private void exitState(StationState state) {
 		switch(state) {
 		
@@ -564,7 +507,6 @@ public class SelfCheckoutData {
 			break;
 
 		case FINISHED:
-			stationHardware.printer.disable();
 			break;
 			
 		case BLOCKED:
@@ -581,6 +523,75 @@ public class SelfCheckoutData {
 		}
 	}
 
+	// Getters/setters
+	
+
+	public void setMidPaymentFlag(boolean b) {
+		isMidPayment.set(b);		
+	}
+	
+	public boolean getMidPaymentFlag() {
+		return isMidPayment.get();		
+	}
+
+	public void setTotalDue(BigDecimal total) {
+		totalDue = total;
+	}
+
+	public BigDecimal getTotalDue() {
+		return totalDue;
+	}
+
+	public void setTotalMoneyPaid(BigDecimal total) {
+		totalMoneyPaid = total;
+	}
+
+	public BigDecimal getTotalMoneyPaid() {
+		return totalMoneyPaid;
+	}
+
+	public void setMembershipID(String ID) {
+		membershipID = ID;
+	}
+
+	public String getMembershipID() {
+		return membershipID;
+	}
+
+	public void addProductToCheckout(BarcodedProduct product) {
+		ProductInfo PI = new ProductInfo(product);
+		productsAddedToCheckout.put(product.getDescription(), PI);
+		changeState(StationState.WAITING_FOR_ITEM);
+	}
+
+	public void addProductToCheckout(PLUCodedProduct product, double weight) {
+		ProductInfo PI = new ProductInfo(product, weight);
+		productsAddedToCheckout.put(product.getDescription(), PI);
+		changeState(StationState.WAITING_FOR_ITEM);
+	}
+
+	public HashMap<String, ProductInfo> getProductsAddedToCheckoutHashMap() {
+		return productsAddedToCheckout;
+	}
+
+	public ProductInfo getProductAddedToCheckout(String productDescription) {
+		return productsAddedToCheckout.get(productDescription);
+	}
+
+	public void removeProductFromCheckoutHashMap(String description) {
+		ProductInfo product = productsAddedToCheckout.remove(description);		
+		if (product == null) {
+			System.out.println("Error! Could not remove product with description: " + description);
+		}
+		else
+		{
+			setTotalDue(getTotalDue().subtract(product.getProduct().getPrice()));
+			setExpectedWeight(getExpectedWeight() - product.getWeight());
+			changeState(StationState.WAITING_FOR_ITEM);
+		}
+	}
+
+	
 	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
 		this.stationSoftware = stationSoftware;
 		
@@ -870,7 +881,7 @@ public void disablePaymentDevices() {
 		this.stationHardware.cardReader.enable();
 	}
 
-	// Disable all devices - NOT FULLY IMPLEMENTED
+	// Disable all devices - NOT FULLY IMPLEMENTED TODO
 	public void disableAllDevices() {
 		this.stationHardware.baggingArea.disable();
 		this.stationHardware.mainScanner.disable();
@@ -902,8 +913,7 @@ public void disablePaymentDevices() {
 		isFirstCheckout.set(bool);
 
 	}
-	// ===========================Imported From
-	// CheckoutHandler===========================
+	// ===========================Imported From CheckoutHandler===========================
 
 	// ===========================For ScaleHandler===========================
 

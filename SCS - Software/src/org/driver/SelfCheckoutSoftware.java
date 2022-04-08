@@ -14,6 +14,7 @@ import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandle
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
@@ -305,13 +306,33 @@ public class SelfCheckoutSoftware {
 	
 	//Hannah Ku
 	public void performAttendantWeightOverride() {
-		stationData.setIsWeightOverride(true);
-		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
+		if (stationData.getCurrentState() == StationState.WEIGHT_ISSUE)
+		{
+//			stationData.setIsWeightOverride(true);
+			try { stationData.setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
+			catch (OverloadException e) { e.printStackTrace(); }
+			stationData.changeState(stationData.getPreBlockedState());
+			return;
+		}
+		else 
+		{
+			System.out.println("Error! Cannot override station that is not in the WEIGHT_ISSUE state!");
+		}
+		
+		
 	}
 	
 	//Hannah Ku
 	public void removeProduct(String description) {
-		stationData.removeProductFromCheckoutHashMap(description);
+		if (stationData.getCurrentState() == StationState.NORMAL)
+		{
+			stationData.removeProductFromCheckoutHashMap(description);
+		}
+		else
+		{
+			System.out.println("Error! Cannot remove item when station is not in NORMAL state!");
+		}
+		
 	}
 
 	
