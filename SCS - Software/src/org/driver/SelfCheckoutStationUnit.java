@@ -1,6 +1,8 @@
 package org.driver;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 
 import org.controlSoftware.general.TouchScreenSoftware;
@@ -20,11 +22,15 @@ public class SelfCheckoutStationUnit {
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
 	
+	private AttendantUnit attendantUnit;
 
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
 	
 	private int stationID; //The Number of this station
+
+	private ArrayList<String> AttendantID; // Attendant ID, datebase
+	private ArrayList<String> Password;
 	
 	public static Currency CAD = Currency.getInstance("CAD");
 	private static int[] banknoteDenominations = {50, 20, 10, 5};
@@ -57,7 +63,6 @@ public class SelfCheckoutStationUnit {
 				for (int i = 0; i < 100; i++) { station.coinDispensers.get(val).load(new Coin(CAD, val)); }
 				
 			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};
 		}
@@ -67,7 +72,6 @@ public class SelfCheckoutStationUnit {
 				for (int i = 0; i < 50; i++) { station.banknoteDispensers.get(val).load(new Banknote(CAD, val)); }
 				
 			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};
 		}
@@ -80,11 +84,17 @@ public class SelfCheckoutStationUnit {
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
 		//SelfCheckoutSoftware will attach the handlers to the hardware
 		this.stationSoftware = new SelfCheckoutSoftware(this, stationData);
+		this.stationData.attachStationSoftware(this.stationSoftware);
 	}
 	
 	public SelfCheckoutStationUnit getSelfCheckoutStationUnit()
 	{
 		return this;
+	}
+	
+	public AttendantUnit getAttendantUnit()
+	{
+		return attendantUnit;
 	}
 	
 	public SelfCheckoutStation getSelfCheckoutStationHardware()
@@ -120,4 +130,52 @@ public class SelfCheckoutStationUnit {
 	public int getStationID() {
 		return stationID;
 	}
+
+	public ArrayList getAttendantID() {
+		return AttendantID;
+	}
+
+	public ArrayList getPassword() {
+		return Password;
+	}
+	//==============================ATTENDANT RELATED METHODS===================================
+	
+	public void attachAttendant(AttendantUnit attendantUnit) {
+		this.attendantUnit = attendantUnit;
+	}
+	
+	public void informAttendantOfStartup() {
+		this.attendantUnit.stationStarted(this.stationID);
+	}
+
+	public void informAttendantOfShutdown() {
+		this.attendantUnit.stationShutdown(this.stationID);
+		
+	}
+	
+	public void informAttendantOfNoPaper() {
+		this.attendantUnit.handleNoPaper(this.stationID);
+	}
+	
+	public void informAttendantOfNoInk() {
+		this.attendantUnit.handleNoInk(this.stationID);
+	}
+
+	public void sendAttendantMessage(String message) {
+		String id = "(Station ID: " + Integer.toString(getStationID()) + ") ";
+		getAttendantUnit().displayMessage(id + message);
+		
+	}
+	//==============================ATTENDANT RELATED METHODS===================================
+
+	public void informAttendantLogin(String AttendantID, String password) {
+		this.attendantUnit.stationLogin(AttendantID, password);
+		
+	}
+
+	public void informAttendantLogout() {
+		this.attendantUnit.stationLogout();
+		
+	}
+
 }

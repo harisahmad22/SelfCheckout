@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.controlSoftware.data.GiftCardInfo;
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.GiftCardDatabase;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -106,7 +107,7 @@ public class GiftCardScannerHandler implements CardReaderObserver
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (stationData.getCardSwiped() && (data.getType() == "GiftCard") && (stationData.isWaitingForGiftCard())) {
+		if (stationData.getCardSwiped() && (data.getType() == "GiftCard") && (stationData.getCurrentState() == StationState.PAY_GIFTCARD)) {
 			stationData.setGiftCardNo(data.getNumber());
 		}
 	}

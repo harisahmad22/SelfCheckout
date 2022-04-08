@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.TouchScreen;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
@@ -47,6 +49,9 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public AtomicBoolean informedToTakeItems = new AtomicBoolean(false);
 	public AtomicBoolean returnedToAddingItemMode = new AtomicBoolean(false);
 	public AtomicBoolean askedForMembership = new AtomicBoolean(false);
+	public AtomicBoolean normalModeWeightIssueDetected = new AtomicBoolean(false);
+	public AtomicBoolean normalModeWeightIssueCorrected = new AtomicBoolean(false);
+	public AtomicBoolean askedForBagsPrompt = new AtomicBoolean(false);
 	
 	public int numberOfPersonalBags = 0;
 	private String membershipNum;
@@ -54,6 +59,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	private Scanner userInputScanner;
 	private SelfCheckoutData stationData;
 	private TouchScreen touchScreen;
+	
 	
 	public TouchScreenSoftware(InputStream inputStream, TouchScreen touchScreen, SelfCheckoutData stationData)
 	{
@@ -117,8 +123,23 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		System.out.println("Would You like to print a receipt?");
 		askedToPrintReceipt.set(true);
 		
+		//TODO INFORM GUI TO DISPLAY RECEIPT PROMPT WINDOW, LISTENERS FOR THIS WINDOW 
+		//WILL HANDLE CHANGING STATE TO EITHER NORMAL OR CLEANUP
+		
 		//Until GUI is implemented, for testing purposes we will print the receipt here
 		receipt.printReceipt();
+		
+		//Go to clean up if user has paid >= total due
+		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) >= 0)
+		{
+			stationData.changeState(StationState.CLEANUP);
+		}
+		else 
+		{
+			stationData.changeState(StationState.NORMAL);
+		}
+		
+		
 		
 	}
 
@@ -164,11 +185,19 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 
 	}
 	
-	public int showPaymentOption() throws InterruptedException {
+	public void showPaymentMethods() {
 		paymentOptionsDisplayed.set(true);
 		
 		System.out.println("(PRE-GUI) How would you like to pay? 'Cash', 'Credit', or 'Debit'.");
 		
+		//TODO INSERT METHOD TO CHANGE GUI TO PAYMENT MODE WINDOW HERE
+		//Button listeners for this window will inform stationData of the chosen payment method
+		//Can maybe reuse some of the below code for the listeners
+		//When a button is pressed, update the payment method value in station data
+		//then change state to PAY_X, where x is the users choice (PAY_CASH, PAY_CREDIT, PAY_DEBIT)S
+		
+
+		//VVV - THE FOLLOWING CODE IS A CMD LINE PLACEHOLDER FOR GUI - VVV
 		try
 		{			
 			String choice = userInputScanner.nextLine();
@@ -176,33 +205,40 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 			if (choice.equals("cash"))
 			{ 
 				System.out.println("(TESTING) Cash Payment Chosen.");
-				return 0;
+				stationData.setTransactionPaymentMethod(0);
+				stationData.changeState(StationState.PAY_CASH);
+				return;
 			}
 			else if (choice.equals("credit"))
 			{
 				System.out.println("(TESTING) Credit Payment Chosen.");
-				return 1; 
+				stationData.setTransactionPaymentMethod(1);
+				stationData.changeState(StationState.PAY_CREDIT);
+				return; 
 			}
 			else if (choice.equals("debit"))
 			{
 				System.out.println("(TESTING) Debit Payment Chosen.");
-				return 2; 
+				stationData.changeState(StationState.PAY_DEBIT);
+				stationData.setTransactionPaymentMethod(2);
+				return; 
 			}
 			else { throw new InputMismatchException(); }
 		} catch (InputMismatchException InputMismatchException) {
 			System.out.println("Error Processing Input! Please try again.");
 			userInputScanner.nextLine();
-			showPaymentOption();
+			showPaymentMethods();
 		} catch (NoSuchElementException NoSuchElementException) {
 			System.out.println("Error Processing Input! Please try again.");
 			userInputScanner.nextLine();
-			showPaymentOption();
+			showPaymentMethods();
 		} catch (NumberFormatException NumberFormatException) {
 			System.out.println("Error Processing Input! Please try again.");
 			userInputScanner.nextLine();
-			showPaymentOption();
+			showPaymentMethods();
 		}
-		return 0; //Default to cash (should never happen) 
+		stationData.setTransactionPaymentMethod(0);
+		return; //Default to cash (should never happen) 
 
 		
 	}
@@ -212,6 +248,9 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		
 		System.out.println("(PRE-GUI) Please select your card payment type: 'insert', 'tap', or 'swipe'.");
 		
+		//This class may no longer be needed, just waiting on new implementation for card payments
+		
+		//VVV - THE FOLLOWING CODE IS A CMD LINE PLACEHOLDER FOR GUI - VVV
 		try
 		{			
 			String choice = userInputScanner.nextLine();
@@ -235,15 +274,15 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		} catch (InputMismatchException InputMismatchException) {
 			System.out.println("Error Processing Input! Please try again.");
 			userInputScanner.nextLine();
-			showPaymentOption();
+			showCardPaymentOption();
 		} catch (NoSuchElementException NoSuchElementException) {
 			System.out.println("Error Processing Input! Please try again.");
 			userInputScanner.nextLine();
-			showPaymentOption();
+			showCardPaymentOption();
 		} catch (NumberFormatException NumberFormatException) {
 			System.out.println("Error Processing Input! Please try again.");
 			userInputScanner.nextLine();
-			showPaymentOption();
+			showCardPaymentOption();
 		}
 		return 0; //Default to insert (should never happen) 
 
@@ -252,33 +291,58 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 
 
 	public void usingOwnBagsPrompt() {
-		try {
-			System.out.println("How many bags did you bring today?");
-			numberOfPersonalBags = Integer.parseInt(userInputScanner.nextLine());
-//			numberOfPersonalBags = userInputScanner.nextInt();
-			if (numberOfPersonalBags < 0 || numberOfPersonalBags > 10) { throw new InputMismatchException(); }
-			// determine # of bags customer brought
-			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI
-		} catch (InputMismatchException inputMismatchExcpetion) {
-			System.out.println("Sorry, please try again!");
-			userInputScanner.nextLine();
-			usingOwnBagsPrompt();
-		} catch (NoSuchElementException NoSuchElementException) {
-			System.out.println("Sorry, please try again!!");
-			userInputScanner.nextLine();
-			usingOwnBagsPrompt();
-		} catch (NumberFormatException NumberFormatException) {
-			System.out.println("Sorry, please try again!!");
-			userInputScanner.nextLine();
-			usingOwnBagsPrompt();
-		}  
+		askedForBagsPrompt.set(true);
+		System.out.println("Did you bring any personal bags today? (Yes or No)");
+		
+		//TODO INFORM GUI TO ASK USER, BUTTON LISTENERS WILL HANDLE STATE CHANGES
+		//SIMILAR TO CODE BELOW
+		
+		String choice = userInputScanner.nextLine();
+		choice.toLowerCase();
+		if (choice.equals("yes"))
+		{
+			System.out.println("Please put your bags on the scale.");
+			stationData.changeState(StationState.ADDING_BAGS);
+			return;
+		}
+		else if (choice.equals("no"))
+		{
+			System.out.println("No bags to add.");
+			stationData.changeState(StationState.ADD_MEMBERSHIP);
+			return;
+		}
+		else 
+		{
+			System.out.println("Error Bad Bag prompt input!");
+			stationData.changeState(StationState.ADD_MEMBERSHIP);
+			return;
+		}
+//		try {
+//			
+////			numberOfPersonalBags = userInputScanner.nextInt();
+//			if (numberOfPersonalBags < 0 || numberOfPersonalBags > 10) { throw new InputMismatchException(); }
+//			// determine # of bags customer brought
+//			//Brody - Should maybe limit to 10 bags max? can worry about when doing GUI
+//		} catch (InputMismatchException inputMismatchExcpetion) {
+//			System.out.println("Sorry, please try again!");
+//			userInputScanner.nextLine();
+//			usingOwnBagsPrompt();
+//		} catch (NoSuchElementException NoSuchElementException) {
+//			System.out.println("Sorry, please try again!!");
+//			userInputScanner.nextLine();
+//			usingOwnBagsPrompt();
+//		} catch (NumberFormatException NumberFormatException) {
+//			System.out.println("Sorry, please try again!!");
+//			userInputScanner.nextLine();
+//			usingOwnBagsPrompt();
+//		}  
 	}
 
 	public int getNumberOfPersonalBags() {
 		return numberOfPersonalBags;
 	}
 
-	public BigDecimal choosePaymentAmount(BigDecimal totalDue, BigDecimal totalPaid) {
+	public void choosePaymentAmount(BigDecimal totalDue, BigDecimal totalPaid) {
 		System.out.println("(PRE-GUI) Would you like you to make a full or partial payment?");
 		System.out.println("(PRE-GUI) If you would like to pay a partial amount, input 'partial'.");
 		System.out.println("(PRE-GUI) Otherwise Press Enter to make a full payment.");
@@ -286,6 +350,15 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		BigDecimal remainingDue = totalDue.subtract(totalPaid);
 		System.out.println("(TESTING) Remaining Money Due: " + remainingDue);
 		
+		//TODO INSERT METHOD TO CHANGE GUI TO PAYMENT AMOUNT WINDOW HERE
+		//Button listeners for this window will inform stationData of the payment amount to make
+		//Can maybe reuse some of the below code for the listeners
+		//When a button is pressed, update the payment amount value in station data
+		//then change state to PAYMENT_MODE_PROMPT
+		
+//		return;
+		
+		//VVV - THE FOLLOWING CODE IS A CMD LINE PLACEHOLDER FOR GUI - VVV
 		try
 		{
 		//---------------Add GUI logic for handling selection/amount---------------
@@ -306,21 +379,28 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 				if (partialPaymentAmount.compareTo(BigDecimal.ZERO) <= 0)
 				{ //For now if user chooses to pay <= $0, default to full payment
 //					userInputScanner.close();
-					return remainingDue;
+					stationData.setTransactionPaymentAmount(remainingDue);
+					stationData.changeState(StationState.PAYMENT_MODE_PROMPT);
+					return; 
 				}
 				else if (partialPaymentAmount.compareTo(remainingDue) >= 0)
 				{ //If user enters in more than totalDue, default to full payment
 //					userInputScanner.close();
-					return remainingDue;
+					stationData.setTransactionPaymentAmount(remainingDue);
+					stationData.changeState(StationState.PAYMENT_MODE_PROMPT);
+					return; 
 				}
 //				userInput.close();
-				return partialPaymentAmount;
+				stationData.setTransactionPaymentAmount(partialPaymentAmount);
+				stationData.changeState(StationState.PAYMENT_MODE_PROMPT);
+				return;
 			}
 			else 
 			{
 				System.out.println("(TESTING) Full Payment Chosen.");
 //				userInput.close();
-				return remainingDue; 
+				stationData.setTransactionPaymentAmount(remainingDue);
+				return; 
 			}
 		} catch (InputMismatchException InputMismatchException) {
 			System.out.println("Error Processing Input! Please try again.");
@@ -336,7 +416,8 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 			choosePaymentAmount(totalDue, totalPaid);
 		} 
 		//Should never be reached 
-		return remainingDue;
+		stationData.setTransactionPaymentAmount(remainingDue);
+		return;
 	}
 
 	public void returnToAddingItems() {
@@ -345,10 +426,10 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		
 	}
 	
-	public void inputMembershipPrompt(CheckoutHandler checkout) throws InterruptedException {
-		//For now default choice to swipe
-		//Could maybe have a loop that runs until hardware detects a valid swipe
-		//or user can press a button to bring up a keypad to enter in their ID
+	public void inputMembershipPrompt() {
+		
+		//TODO INFORM GUI TO ASK USER FOR THEIR MEMBERSHIP, BUTTON LISTENERS WILL HANDLE STATE CHANGES
+		//SIMILAR TO CODE BELOW
 		
 		try {
 			askedForMembership.set(true);
@@ -364,23 +445,30 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 				
 				String membership_num = Integer.toString(inputID);
 				stationData.setMembershipID(membership_num);
+				//Move back to checkout 
+				stationData.changeState(StationState.CHECKOUT);
+				return;
 			}
 			else if (choice.equals("swipe"))
 			{	//Wait for swipe				
 				System.out.println("Please Swipe you Membership Card.");
-				while(!stationData.getCardSwiped())
-				{
-					TimeUnit.MILLISECONDS.sleep(100);
-				}
-				stationData.setCardSwiped(false); //Reset flag for next event		
+				//Valid Card swipe event will change state to checkout
+				return;
+//				while(!stationData.getCardSwiped())
+//				{
+//					TimeUnit.MILLISECONDS.sleep(100);
+//				}
+//				stationData.setCardSwiped(false); //Reset flag for next event		
 			}
 //			userInputScanner.close();
 						
 		} catch (InputMismatchException InputMismatchException) {
 			System.out.println("Error Processing Input! Please enter your membership card number again.");
 			userInputScanner.nextLine();
-			inputMembershipPrompt(checkout);
+			inputMembershipPrompt();
 		}
+		stationData.changeState(StationState.CHECKOUT);
+		return;
 	}
 
 
@@ -392,6 +480,17 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 	public void bagsPutInBaggingArea() {
 		System.out.println("Thank you!");
 		
+	}
+
+
+	public void invalidWeightInNormalMode() {
+		normalModeWeightIssueDetected.set(true);
+		System.out.println("Invalid Weight detected in NORMAL state! Please correct the issue before continuing!");
+		// Put message on screen that does not go away until weight is valid
+	}
+	public void validWeightInNormalMode() {
+		System.out.println("Weight issue in NORMAL state corrected!");
+		normalModeWeightIssueCorrected.set(true);
 	}
 	
 

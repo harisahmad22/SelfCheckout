@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.controlSoftware.customer.CheckoutHandler;
 import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BanknoteValidator;
@@ -31,7 +32,7 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
 
     public CashPaymentHandler(SelfCheckoutData stationData){
         this.stationData = stationData;
-        this.station = stationData.getStation();
+        this.station = stationData.getStationHardware();
         this.banknoteValidator = this.station.banknoteValidator;
         this.coinValidator = this.station.coinValidator;
         this.coinDispensers = this.station.coinDispensers;
@@ -50,6 +51,12 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
 	@Override
 	public void validBanknoteDetected(BanknoteValidator validator, Currency currency, int value) {
 		stationData.addToTotalPaid(new BigDecimal(value));
+		stationData.addToTotalPaidThisTransaction(new BigDecimal(value));
+		
+		if (stationData.getTotalPaidThisTransaction().compareTo(stationData.getTransactionPaymentAmount()) >= 0)
+		{//Total paid this transaction >= User defined payment amount, ask to print receipt
+			stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+		}
 	}
 
 	@Override
@@ -75,12 +82,25 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
     @Override
     public void coinAdded(CoinDispenser dispenser, Coin coin) {
     	stationData.addToTotalPaid(coin.getValue());
+		stationData.addToTotalPaidThisTransaction(coin.getValue());
+		
+		if (stationData.getTotalPaidThisTransaction().compareTo(stationData.getTransactionPaymentAmount()) >= 0)
+		{//Total paid this transaction >= User defined payment amount, ask to print receipt
+			stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+		}
     }
 
     // valid coin makes its way to the storage unit
     @Override
     public void coinAdded(CoinStorageUnit unit) {
     	stationData.addToTotalPaid(lastValidCoinInserted);
+    	stationData.addToTotalPaidThisTransaction(lastValidCoinInserted);
+		
+		if (stationData.getTotalPaidThisTransaction().compareTo(stationData.getTransactionPaymentAmount()) >= 0)
+		{//Total paid this transaction >= User defined payment amount, ask to print receipt
+			stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+		}
+    	
     }
 
 
