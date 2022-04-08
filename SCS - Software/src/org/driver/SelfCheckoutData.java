@@ -103,6 +103,7 @@ public class SelfCheckoutData {
 	private AtomicBoolean inCleanup = new AtomicBoolean(false);
 	private AtomicBoolean isUsingOwnBags = new AtomicBoolean(false);
 	private AtomicBoolean cardSwipedCheckout = new AtomicBoolean(false);
+	private AtomicBoolean isMidPayment = new AtomicBoolean(false);
 
 	//Hannah Ku
 	private AtomicBoolean isWeightOverride = new AtomicBoolean(false);
@@ -245,6 +246,7 @@ public class SelfCheckoutData {
 
 	private StationState currentState = StationState.INACTIVE;
 	private StationState preBlockedState = getCurrentState();
+	
 	// Getters/setters
 	
 	public void setTotalDue(BigDecimal total) {
@@ -398,6 +400,8 @@ public class SelfCheckoutData {
 			// GUI listeners will handle when the user makes a choice. If they choose to print
 			// then listener will call hardware methods to print. After, they will check if money still
 			// needs to be paid, if so move to NORMAL state otherwise move to CLEANUP state
+			disablePaymentDevices();
+			setMidPaymentFlag(false);
 			stationSoftware.getCheckoutHandler().handleChange();
 			
 			// Prompt touch screen to ask user if they would like a receipt
@@ -406,8 +410,11 @@ public class SelfCheckoutData {
 			
 			
 		case PAY_CASH:
+			setMidPaymentFlag(true);
 			stationHardware.banknoteInput.enable();
 			stationHardware.coinSlot.enable();
+			enableScannerDevices();
+			setExpectedWeightCheckout(getExpectedWeight());
 			//Every-time a coin/banknote is put in, the CASH OBSERVER will update
 			//total paid/total paid this transaction, then test if that payment 
 			//event has increased the total paid this transaction to equal/exceed
@@ -420,10 +427,12 @@ public class SelfCheckoutData {
 			break;
 			
 		case PAY_CREDIT:
+			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 			
 		case PAY_DEBIT:
+			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 			
@@ -460,6 +469,13 @@ public class SelfCheckoutData {
 		setCurrentState(targetState);
 	}
 	
+	public void setMidPaymentFlag(boolean b) {
+		isMidPayment.set(b);		
+	}
+	
+	public boolean getMidPaymentFlag() {
+		return isMidPayment.get();		
+	}
 	private void exitState(StationState state) {
 		switch(state) {
 		
@@ -681,6 +697,11 @@ public class SelfCheckoutData {
 		isWeightValidScanner.set(bool);
 	}
 	
+	public void addToTransactionPaymentAmount(BigDecimal amount) {
+		transactionPaymentAmount = transactionPaymentAmount.add(amount);
+
+	}
+	
 	public void setTransactionPaymentAmount(BigDecimal paymentAmount) {
 		transactionPaymentAmount = transactionPaymentAmount.add(paymentAmount);
 	}
@@ -811,6 +832,11 @@ public class SelfCheckoutData {
 	public void setTotalPaidThisTransaction(BigDecimal val) {
 		totalPaidThisTransaction = val;
 		
+	}
+	
+	public void addToTotalPaidThisTransaction(BigDecimal scannedItemPrice) {
+		totalPaidThisTransaction = totalPaidThisTransaction.add(scannedItemPrice);
+
 	}
 	
 	public void disablePaymentDevices() {

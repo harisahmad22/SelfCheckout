@@ -68,6 +68,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 		
 //		stationSoftware.attendantBlockCheck();
 //		
+		
 		// Lookup Barcode in out lookup
 		BarcodedProduct scannedProduct = stationData.getBarcodedProductDatabase().get(barcode);
 		if (scannedProduct != null)
@@ -98,6 +99,12 @@ public class ScannerHandler implements BarcodeScannerObserver
 			
 			//Update expected weight 
 			stationData.setExpectedWeight(stationData.getExpectedWeight() + scannedItemWeight);
+			
+			if (stationData.getMidPaymentFlag())
+			{ //Mid payment, we need to update transaction payment amount to account for the cost of the new item
+			 //Even if the user chose partial payment, make them pay for the just added item
+				stationData.addToTransactionPaymentAmount(scannedItemPrice);
+			}
 			
 			//Attendant Block check
 //			stationSoftware.attendantBlockCheck();

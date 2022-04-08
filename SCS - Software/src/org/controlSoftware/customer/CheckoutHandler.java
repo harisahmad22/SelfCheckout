@@ -224,7 +224,7 @@ public class CheckoutHandler {
 		//Cash payments should only be allowed once this method is entered!
 		BigDecimal amountToPay = amount;
 		BigDecimal initialTotalDue = stationData.getTotalDue();
-		double initialExpectedWeight = stationData.getExpectedWeightCheckout();
+		stationData.setExpectedWeightCheckout(stationData.getExpectedWeight());
 		System.out.println("Starting pay with cash, total due: " + initialTotalDue);
 		System.out.println("Starting pay with cash, total paid so far: " + stationData.getTotalMoneyPaid());
 		System.out.println("Starting pay with cash, total paid this round: " + stationData.getTotalPaidThisTransaction());
@@ -233,15 +233,15 @@ public class CheckoutHandler {
 		stationData.getScanner().enable();
 		
 		while (stationData.getTotalPaidThisTransaction().compareTo(amountToPay) == -1) { // compareTo returns -1 if less than, 0 if equal, and 1 if greater than
-			
-			if (stationData.getExpectedWeightCheckout() > initialExpectedWeight)
-			{//Checkout's expected weight has changed, this will happen when a user scans an item
-			 //Mid payment, we need to update amountToPay to account for the cost of the new item
-			 //Even if the user chose partial payment, make them pay for the just added item
-				amountToPay = amountToPay.add((stationData.getTotalDue().subtract(initialTotalDue)));
-				initialExpectedWeight = stationData.getExpectedWeightCheckout();
-			}
-			
+//			
+//			if (stationData.getExpectedWeight() > stationData.getExpectedWeightCheckout())
+//			{//Checkout's expected weight has changed, this will happen when a user scans an item
+//			 //Mid payment, we need to update amountToPay to account for the cost of the new item
+//			 //Even if the user chose partial payment, make them pay for the just added item
+//				amountToPay = amountToPay.add((stationData.getTotalDue().subtract(initialTotalDue)));
+//				initialExpectedWeight = stationData.getExpectedWeightCheckout();
+//			}
+//			
 			//Hannah Ku
 			if (!stationData.getWeightValidCheckout() && !stationData.isWeightOverride()) { handleInvalidWeight(); }
 //			if (!stationData.getWeightValidCheckout()) { handleInvalidWeight(); }

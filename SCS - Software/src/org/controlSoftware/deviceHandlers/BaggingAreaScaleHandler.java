@@ -121,7 +121,14 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 //			stationData.setWeightValidScanner(true);
 //			stationData.setIsScannerWaitingForWeightChange(false);
 			//Return to NORMAL state
-			stationData.changeState(StationState.NORMAL);
+			if (stationData.getMidPaymentFlag())
+			{
+				stationData.changeState(StationState.PAY_CASH);
+			}
+			else
+			{
+				stationData.changeState(StationState.NORMAL);
+			}
 		} else {
 			//Weight is Bad, go to Weight_Issue state
 			stationData.changeState(StationState.WEIGHT_ISSUE);
@@ -134,7 +141,11 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
 			//Weight is OK
 			//Return to previous state, if previous state was waiting for item, just go to Normal state
-			if (stationData.getPreBlockedState() == StationState.WAITING_FOR_ITEM) { stationData.changeState(StationState.NORMAL); }
+			if (stationData.getPreBlockedState() == StationState.WAITING_FOR_ITEM) 
+			{ 
+				if (stationData.getMidPaymentFlag()) { stationData.changeState(StationState.PAY_CASH); }
+				else { stationData.changeState(StationState.NORMAL); } 
+			}
 			else if (stationData.getPreBlockedState() == StationState.ADDING_BAGS) { stationData.changeState(StationState.ADD_MEMBERSHIP); }
 			else { stationData.changeState(stationData.getPreBlockedState()); }
 		} else {
