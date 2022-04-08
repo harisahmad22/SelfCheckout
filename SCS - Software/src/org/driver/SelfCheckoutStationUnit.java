@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
 
+import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
@@ -20,10 +21,12 @@ public class SelfCheckoutStationUnit {
 	
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
+
 	private SelfCheckoutSoftware stationSoftware;
 	
 	private AttendantUnit attendantUnit;
 
+	private SelfCheckoutGUIMaster stationGUI;
 	private TouchScreen touchScreen;
 	private TouchScreenSoftware touchScreenSoftware;
 	
@@ -53,9 +56,11 @@ public class SelfCheckoutStationUnit {
 	private static Coin loonie = new Coin(CAD, new BigDecimal("1.00"));
 	private static Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 	
+
 	public SelfCheckoutStationUnit(int stationID) {
 		this.stationID = stationID;
 		this.station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+		
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
 			//Money Loading should be moved to testing/attendant methods 
@@ -80,6 +85,9 @@ public class SelfCheckoutStationUnit {
 		this.stationData = new SelfCheckoutData(station);
 		this.touchScreen = station.screen;
 		
+		//Initialize GUI
+		stationGUI = new SelfCheckoutGUIMaster(station, stationData);
+
 		//TouchScreenSoftware will attach itself to the touch screen
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
 		//SelfCheckoutSoftware will attach the handlers to the hardware
@@ -126,7 +134,7 @@ public class SelfCheckoutStationUnit {
 	{
 		return CAD;
 	}
-
+	
 	public int getStationID() {
 		return stationID;
 	}
@@ -178,4 +186,7 @@ public class SelfCheckoutStationUnit {
 		
 	}
 
+	public SelfCheckoutStation getSelfCheckoutStation() {
+		return station;
+	}
 }

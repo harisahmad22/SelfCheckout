@@ -8,6 +8,7 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.data.NegativeNumberException;
+import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.BarcodedProductDatabase;
@@ -69,7 +70,7 @@ public class SelfCheckoutData {
 	private BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
 	private BigDecimal transactionPaymentAmount = BigDecimal.ZERO;
 	private int transactionPaymentMethod = -1;
-	
+
 	//Unused
 	private double expectedWeightNormalMode = 0;
 	private double expectedWeightCheckout = 0;
@@ -77,6 +78,11 @@ public class SelfCheckoutData {
 	//unused
 	
 	private double expectedWeight = 0;
+
+	private String guiBuffer = null;
+	
+	private TouchScreenSoftware touchScreen;
+	
 	
 	//The amount a product's weight can differ +/- from the listed weight in the lookup
 
@@ -130,6 +136,7 @@ public class SelfCheckoutData {
 	//============================Software Flags============================
 	
 	private SelfCheckoutSoftware stationSoftware;
+	private SelfCheckoutGUIMaster gui;
 	
 	private PLUProductDatabase PLU_Product_Database;
 	private BarcodedProductDatabase Barcoded_Product_Database;
@@ -164,10 +171,14 @@ public class SelfCheckoutData {
 		// products. NEED FIX
 		Store_Inventory = new StoreInventory(PLUTestProducts, 3, testProducts, 4);
 	}
-
-	/*
-	 * High level states the self checkout station can be in Boolean state checks
-	 * can be done in logic.
+	
+	public void registerGUI(SelfCheckoutGUIMaster newGui) {
+		gui = newGui;
+	}
+	
+	/* 
+	 * High level states the self checkout station can be in
+	 * Boolean state checks can be done in logic.
 	 * 
 	 * **I have no idea how this is going to mesh with multithreading. Consultation
 	 * needed.
@@ -182,6 +193,16 @@ public class SelfCheckoutData {
 		// Item has been scanned, enter processing state to block new scans/additions until item has been put in bagging area. 
 		PROCESSING_SCAN,
 		
+		// Membership related states. Need only enable disable card reader for SCAN state.
+		ASK_MEMBERSHIP, SCAN_MEMBERSHIP, TYPE_MEMBERSHIP, TEST_MEMBERSHIP,
+		
+		// Customer uses own bags related states.
+		ASK_BAGS, ADDING_BAGS, ADDED_BAGS,
+		
+		
+		// Ready for item to be scanned. Could proceed to checkout from here
+		MAIN_SCAN, LETTER_SEARCH, PLU_SEARCH, CHECKOUT_CHECK,
+		
 		// Scanned item need be bagged. Should return to scanning once bagged.
 		BAGGING,
 		
@@ -195,10 +216,15 @@ public class SelfCheckoutData {
 		PAYMENT_MODE_PROMPT,
 		
 		// State for adding bags. Help scale observers differentiate reason for weight change.
-		ADDING_BAGS,
+		// ADDING_BAGS,
 
 		// Interim checkout menu, can go back and scan more items or proceed to some
 		// payment option
+
+		// Scanning.
+		SCANNING,
+		
+		// Interim checkout menu, can go back and scan more items or proceed to some payment option
 		CHECKOUT,
 		
 		//State for when user has paid total due, and system is waiting for them to take their items
@@ -563,6 +589,17 @@ public class SelfCheckoutData {
 		productsAddedToCheckout.put(product.getDescription(), PI);
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
+	public void setGuiBuffer(String text) {
+		guiBuffer = text;
+		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+	}
+	public String getGuiBuffer() {
+		return guiBuffer;
+	}
+	
+	// public void addScannedProduct(Product product) {
+	// 	scannedProductList.add(product);
+	// }
 
 	public void addProductToCheckout(PLUCodedProduct product, double weight) {
 		ProductInfo PI = new ProductInfo(product, weight);
@@ -572,6 +609,66 @@ public class SelfCheckoutData {
 
 	public HashMap<String, ProductInfo> getProductsAddedToCheckoutHashMap() {
 		return productsAddedToCheckout;
+	}
+	
+	/*
+	 *  State changing methods
+	 */
+	
+	// Changes to new state while properly exiting old one (enabling/disabling relevant hardware)
+	public void changeState(State targetState) {
+		// Disable hardware for old state
+		exitState(state);
+		state = targetState;
+		// Enable hardware for new state
+		switch(targetState) {
+		
+		case WELCOME:
+			wipeData();
+			break;
+		
+		case SCANNING:
+			station.mainScanner.enable();
+			station.handheldScanner.enable();
+			station.scanningArea.enable();
+			break;
+		
+		case BAGGING:
+			station.baggingArea.enable();
+			break;
+			
+		case ADDING_BAGS:
+			station.baggingArea.enable();
+			break;
+			
+		case PAY_CASH:
+			station.banknoteInput.enable();
+			station.coinSlot.enable();
+			break;
+			
+		case PAY_CREDIT:
+			station.cardReader.enable();
+			break;
+			
+		case PAY_DEBIT:
+			station.cardReader.enable();
+			break;
+			
+		case ADD_MEMBERSHIP:
+			station.cardReader.enable();
+			break;
+			
+		case FINISHED:
+			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed.
+			break;
+			
+		case ERROR:
+			break;
+			
+		default:
+			break;
+		}
+		notifyStateChanged();
 	}
 
 	public ProductInfo getProductAddedToCheckout(String productDescription) {
@@ -591,9 +688,16 @@ public class SelfCheckoutData {
 		}
 	}
 
-	
 	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
 		this.stationSoftware = stationSoftware;
+	}
+	
+	public State getState() {
+		return state;
+	}
+	
+	private void notifyStateChanged() {
+		gui.stateChanged();
 		
 	}
 		

@@ -11,6 +11,9 @@ import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
+
 
 public class AttendantUnit {
 	
@@ -23,8 +26,10 @@ public class AttendantUnit {
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantStation = new SupervisionStation();
+		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
 		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
+		this.attendantSoftware = new AttendantSoftware(attendantStation, attendantData, checkoutStations);
 		//Have to add in attendant touch screen software 
 	}
 	
@@ -34,7 +39,7 @@ public class AttendantUnit {
 		
 		this.attendantSoftware.setCheckoutStationUnits(checkoutStations);
 		
-		
+
 		for (SelfCheckoutStation station : this.attendantStation.supervisedStations())
 		{
 			this.attendantStation.remove(station);
@@ -61,6 +66,7 @@ public class AttendantUnit {
 		System.out.println("Station " + stationID + " is being shutdown!");		
 	}
 
+
 //	public void logInStation(String attendantIdEntered,  String passwordEntered)
 //	{
 //		//System.out.println("Starting station: " + station.getStationID());
@@ -86,7 +92,6 @@ public class AttendantUnit {
 //        blockStation(station);
 //	}
 
-	
 	public void stationLogin(String AttendantID, String password) {
 		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION STARTUP
 		
