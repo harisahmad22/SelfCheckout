@@ -59,14 +59,14 @@ public abstract class AbstractDevice<T extends AbstractDeviceObserver> {
 	 * complete, the device should not operate. Once configuration is complete, any
 	 * further configuration attempts should cause exceptions.
 	 */
-	void endConfigurationPhase() {
+	protected void endConfigurationPhase() {
 		phase = Phase.NORMAL;
 	}
 
 	/**
 	 * For testing purposes only. Forces this device into an erroneous state.
 	 */
-	void forceErrorPhase() {
+	protected void forceErrorPhase() {
 		phase = Phase.ERROR;
 	}
 

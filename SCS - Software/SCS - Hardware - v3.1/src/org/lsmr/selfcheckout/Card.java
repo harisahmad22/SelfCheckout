@@ -12,7 +12,13 @@ public final class Card {
 	private final String cardholder;
 	private final String cvv;
 	private final String pin;
+	/**
+	 * Some cards support the "tap" action; others not.
+	 */
 	public final boolean isTapEnabled;
+	/**
+	 * Some cards possess an RFID chip; others not.
+	 */
 	public final boolean hasChip;
 	private int failedTrials = 0;
 	private boolean isBlocked;

@@ -91,29 +91,118 @@ import org.lsmr.selfcheckout.SimulationException;
  * operations).
  */
 public class SelfCheckoutStation {
-	public final ElectronicScale baggingArea, scanningArea;
+	/**
+	 * Represents the large scale where items are to be placed once they have been
+	 * scanned or otherwise entered.
+	 */
+	public final ElectronicScale baggingArea;
+	/**
+	 * Represents the small scale used to weigh items that are sold by weight.
+	 */
+	public final ElectronicScale scanningArea;
+	/**
+	 * Represents a touch screen display on which is shown a graphical user
+	 * interface.
+	 */
 	public final TouchScreen screen;
+	/**
+	 * Represents a printer for receipts.
+	 */
 	public final ReceiptPrinter printer;
+	/**
+	 * Represents a device that can read electronic cards, through one or more input
+	 * modes according to the setup of the card.
+	 */
 	public final CardReader cardReader;
+	/**
+	 * Represents a large, central barcode scanner.
+	 */
 	public final BarcodeScanner mainScanner;
+	/**
+	 * Represents a handheld, secondary barcode scanner.
+	 */
 	public final BarcodeScanner handheldScanner;
 
-	public final BanknoteSlot banknoteInput, banknoteOutput;
+	/**
+	 * Represents a device that permits banknotes to be entered.
+	 */
+	public final BanknoteSlot banknoteInput;
+	/**
+	 * Represents a device that permits banknotes to be given to the customer.
+	 */
+	public final BanknoteSlot banknoteOutput;
+	/**
+	 * Represents a device that checks the validity of a banknote, and determines
+	 * its denomination.
+	 */
 	public final BanknoteValidator banknoteValidator;
+	/**
+	 * Represents a device that stores banknotes.
+	 */
 	public final BanknoteStorageUnit banknoteStorage;
+	/**
+	 * Represents the value used to configure the maximum capacity of the banknote
+	 * storage unit.
+	 */
 	public final static int BANKNOTE_STORAGE_CAPACITY = 1000;
+	/**
+	 * Represents the set of denominations supported by the self-checkout system.
+	 */
 	public final int[] banknoteDenominations;
+	/**
+	 * Represents the set of banknote dispensers, indexed by the denomination that
+	 * each contains. Note that nothing prevents banknotes of the wrong denomination
+	 * to be loaded into a given dispenser.
+	 */
 	public final Map<Integer, BanknoteDispenser> banknoteDispensers;
+	/**
+	 * Represents the value used to configure the maximum capacity of the banknote
+	 * dispensers. All dispensers are assumed to have equal capacity.
+	 */
 	public final static int BANKNOTE_DISPENSER_CAPACITY = 100;
 
+	/**
+	 * Represents a device that permits coins to be entered.
+	 */
 	public final CoinSlot coinSlot;
+	/**
+	 * Represents a device that checks the validity of a coin, and determines its
+	 * denomination.
+	 */
 	public final CoinValidator coinValidator;
+	/**
+	 * Represents a device that stores coins that have been entered by customers.
+	 */
 	public final CoinStorageUnit coinStorage;
+	/**
+	 * Represents the value used to configure the maximum capacity of the coin
+	 * storage units. All units are assumed to have the same capacity.
+	 */
 	public static final int COIN_STORAGE_CAPACITY = 1000;
+	/**
+	 * Represents the set of denominations of coins supported by this self-checkout
+	 * system.
+	 */
 	public final List<BigDecimal> coinDenominations;
+	/**
+	 * Represents the set of coin dispensers, indexed by the denomination of coins
+	 * contained by each.
+	 */
 	public final Map<BigDecimal, CoinDispenser> coinDispensers;
+	/**
+	 * Represents the value used to configure the maximum capacity of the coin
+	 * dispensers. All dispensers are assumed to have the same capacity.
+	 */
 	public static final int COIN_DISPENSER_CAPACITY = 200;
+	/**
+	 * Represents a device that receives coins to return to the customer.
+	 */
 	public final CoinTray coinTray;
+	/**
+	 * Represents the value used to configure the maximum capacity of the coin tray.
+	 * This is an imperfect simulation, in that exceeding the capacity in the real
+	 * world would cause coins to spill on the ground.
+	 */
 	public static final int COIN_TRAY_CAPACITY = 20;
 
 	/**
@@ -227,14 +316,14 @@ public class SelfCheckoutStation {
 
 	private BidirectionalChannel<Banknote> validatorSource;
 
-	private boolean supervised = false;
+	private SupervisionStation supervisor = null;
 
 	boolean isSupervised() {
-		return supervised;
+		return supervisor != null;
 	}
 
-	void setSupervised(boolean isSupervised) {
-		supervised = isSupervised;
+	void setSupervisor(SupervisionStation supervisor) {
+		this.supervisor = supervisor;
 	}
 
 	private void interconnect(BanknoteSlot slot, BanknoteValidator validator) {

@@ -34,7 +34,7 @@ public final class TouchScreen extends AbstractDevice<TouchScreenObserver> {
 	}
 
 	private JFrame createGUI() {
-		final JFrame frame = new JFrame();
+		JFrame frame = new JFrame();
 
 		frame.setUndecorated(true);
 		frame.setVisible(true);
