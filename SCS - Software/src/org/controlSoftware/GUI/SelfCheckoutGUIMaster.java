@@ -42,7 +42,7 @@ public class SelfCheckoutGUIMaster {
 		frame.getContentPane().removeAll();
 		frame.getContentPane().revalidate();
 		frame.getContentPane().repaint();
-		
+
 		welcomeGUI.stateChanged();
 		scanningGUI.stateChanged();
 		paymentGUI.stateChanged();

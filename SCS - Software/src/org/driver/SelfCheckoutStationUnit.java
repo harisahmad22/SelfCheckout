@@ -61,6 +61,23 @@ public class SelfCheckoutStationUnit {
 		this.stationID = stationID;
 		this.station = new SelfCheckoutStation(CAD, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		
+		loadStation();
+		
+		//Initialize Data + Software
+		this.stationData = new SelfCheckoutData(station);
+		this.touchScreen = station.screen;
+		
+		//Initialize GUI
+		this.stationGUI = new SelfCheckoutGUIMaster(station, stationData);
+
+		//TouchScreenSoftware will attach itself to the touch screen
+		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
+		//SelfCheckoutSoftware will attach the handlers to the hardware
+		this.stationSoftware = new SelfCheckoutSoftware(this, stationData);
+		this.stationData.attachStationSoftware(this.stationSoftware);
+	}
+	
+	private void loadStation() {
 		for (BigDecimal val : station.coinDispensers.keySet())
 		{
 			//Money Loading should be moved to testing/attendant methods 
@@ -80,21 +97,8 @@ public class SelfCheckoutStationUnit {
 				e.printStackTrace();
 			};
 		}
-		
-		//Initialize Data + Software
-		this.stationData = new SelfCheckoutData(station);
-		this.touchScreen = station.screen;
-		
-		//Initialize GUI
-		stationGUI = new SelfCheckoutGUIMaster(station, stationData);
-
-		//TouchScreenSoftware will attach itself to the touch screen
-		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
-		//SelfCheckoutSoftware will attach the handlers to the hardware
-		this.stationSoftware = new SelfCheckoutSoftware(this, stationData);
-		this.stationData.attachStationSoftware(this.stationSoftware);
 	}
-	
+
 	public SelfCheckoutStationUnit getSelfCheckoutStationUnit()
 	{
 		return this;

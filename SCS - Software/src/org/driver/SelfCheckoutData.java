@@ -466,6 +466,7 @@ public class SelfCheckoutData {
 		} 
 		//Made it here, assume target state is valid
 		setCurrentState(targetState);
+		notifyStateChanged();
 	}
 	
 	private void exitState(StationState state) {
