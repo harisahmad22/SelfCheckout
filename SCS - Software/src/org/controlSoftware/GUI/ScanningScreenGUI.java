@@ -14,6 +14,9 @@ import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.ProductInfo;
 import org.driver.databases.TestBarcodedProducts;
+import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.devices.DisabledException;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 
@@ -44,6 +47,9 @@ public class ScanningScreenGUI {
 		case CHECKOUT_CHECK:
 			checkoutPopup();
 			break;
+		case WAITING_FOR_ITEM:
+			scanPopup();
+			break;
 		default:
 			break;
 		}
@@ -56,9 +62,10 @@ public class ScanningScreenGUI {
 		
 		//TESTING
 		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
-		stationData.addProductToCheckout(testProducts.get(0));
-		stationData.addProductToCheckout(testProducts.get(1));
-		stationData.addProductToCheckout(testProducts.get(2));
+//		stationData.debugAddProductToCheckout(testProducts.get(0));
+//		stationData.debugAddProductToCheckout(testProducts.get(1));
+//		stationData.debugAddProductToCheckout(testProducts.get(2));
+		//TESTING
 		HashMap<String, ProductInfo> currentAddedProducts = stationData.getProductsAddedToCheckoutHashMap();
 		String productListString = "<html>";
 		for (String prodDescription : currentAddedProducts.keySet())
@@ -67,10 +74,14 @@ public class ScanningScreenGUI {
 							  + " --- "
 							  + "$"
 							  + currentAddedProducts.get(prodDescription).getProduct().getPrice() 
+							  + " --- "
+							  + "Quantity: "
+							  + currentAddedProducts.get(prodDescription).getQuantity()
 							  + "<br>";
 		}
 		productListString += "</html>";
-		//TESTING
+		
+		debugScanTestItemButton();
 
 		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20,20,700,420);
@@ -121,6 +132,27 @@ public class ScanningScreenGUI {
 		frame.getContentPane().add(options);
 		
 		frame.setVisible(true);
+	}
+	
+	//BRODY
+	private void debugScanTestItemButton() {
+		TestBarcodedProducts testProducts = new TestBarcodedProducts();
+		final BarcodedItem testMilkJug = new TestBarcodedProducts().getItem(testProducts.getBarcodedProductList().get(0));
+		Color color = new Color(128, 128, 255);
+		JButton payCoin = new JButton();
+		payCoin.setBounds(350,150,300,200);
+		payCoin.setText("[DEBUG] Scan in a Milk Jug");
+		payCoin.setFont(new Font("Calibri", Font.BOLD, 18));
+		payCoin.setBackground(color);
+		
+		payCoin.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				stationData.getStationHardware().mainScanner.scan(testMilkJug); 
+			}  
+		});
+		
+		frame.add(payCoin);
+		payCoin.setVisible(true);
 	}
 
 	// Page for looking for PLU
@@ -312,15 +344,50 @@ public class ScanningScreenGUI {
 	    frame.add(askBag);
 	    askBag.setBounds(100,20,800,100);
 	    
-	    JButton scanYesButton = new JButton("Yes");
-	    frame.add(scanYesButton);
-	    scanYesButton.setBounds(200,200,200,100);
+//	    JButton scanYesButton = new JButton("Yes");
+//	    frame.add(scanYesButton);
+//	    scanYesButton.setBounds(200,200,200,100);
 	    
 	    JButton scanNoButton = new JButton("No");
 	    frame.add(scanNoButton);
 	    scanNoButton.setBounds(600,200,200,100);
+
+	    scanNoButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	        	stationData.changeState(StationState.NORMAL);
+	        }
+	    });
+	    
+	    debugPlaceTestItemButton();
 	    
 	    frame.setVisible(true);
+	    
+//	    scanYesButton.addActionListener(new ActionListener() {
+//	        public void actionPerformed(ActionEvent e) {
+//	        	stationData.changeState(StationState.NORMAL);
+//	        }
+//	    });
 	}
+	
+	//BRODY
+		private void debugPlaceTestItemButton() {
+			TestBarcodedProducts testProducts = new TestBarcodedProducts();
+			final BarcodedItem testMilkJug = new TestBarcodedProducts().getItem(testProducts.getBarcodedProductList().get(0));
+			Color color = new Color(128, 128, 255);
+			JButton payCoin = new JButton();
+			payCoin.setBounds(250,150,300,200);
+			payCoin.setText("[DEBUG] Put Milk Jug in Bagging Area");
+			payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
+			payCoin.setBackground(color);
+			
+			payCoin.addActionListener(new ActionListener(){  
+				public void actionPerformed(ActionEvent e){  
+					stationData.getStationHardware().baggingArea.add(testMilkJug); 
+				}  
+			});
+			
+			frame.add(payCoin);
+			payCoin.setVisible(true);
+		}
 }
 

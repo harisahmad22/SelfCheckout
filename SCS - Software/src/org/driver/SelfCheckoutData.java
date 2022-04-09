@@ -386,7 +386,7 @@ public class SelfCheckoutData {
 			break;
 			
 		case WAITING_FOR_ITEM:
-			System.out.println("WAITING FOR ITEM");
+//			System.out.println("WAITING FOR ITEM");
 			
 			break;
 			
@@ -639,9 +639,29 @@ public class SelfCheckoutData {
 		return membershipID;
 	}
 
+	public void debugAddProductToCheckout(BarcodedProduct product) {
+		ProductInfo PI = new ProductInfo(product);
+		if (productsAddedToCheckout.containsKey(product.getDescription()))
+		{
+			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
+		}
+		else {
+			productsAddedToCheckout.put(product.getDescription(), PI);
+		}
+		
+//		changeState(StationState.WAITING_FOR_ITEM);
+	}
+	
 	public void addProductToCheckout(BarcodedProduct product) {
 		ProductInfo PI = new ProductInfo(product);
-		productsAddedToCheckout.put(product.getDescription(), PI);
+		if (productsAddedToCheckout.containsKey(product.getDescription()))
+		{
+			System.out.println("@@@@@");
+			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
+		}
+		else {
+			productsAddedToCheckout.put(product.getDescription(), PI);
+		}
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
 	public void setGuiBuffer(String text) {
@@ -658,7 +678,13 @@ public class SelfCheckoutData {
 
 	public void addProductToCheckout(PLUCodedProduct product, double weight) {
 		ProductInfo PI = new ProductInfo(product, weight);
-		productsAddedToCheckout.put(product.getDescription(), PI);
+		if (productsAddedToCheckout.containsKey(product.getDescription()))
+		{
+			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
+		}
+		else {
+			productsAddedToCheckout.put(product.getDescription(), PI);
+		}
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
 
