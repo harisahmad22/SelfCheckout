@@ -48,7 +48,7 @@ public class SelfCheckoutGUIWelcome {
 		case TYPE_MEMBERSHIP:
 			typeMembershipScreen();
 			break;
-		case ASK_BAGS:
+		case ADD_BAGS_PROMPT:
 			askBagsScreen();
 			break;
 		case ADDING_BAGS:
@@ -82,7 +82,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ASK_MEMBERSHIP);
+				stationData.changeState(StationState.NORMAL);
 			}
 		});
 	}
@@ -117,7 +117,8 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ASK_BAGS);
+				stationData.changeState(StationState.CHECKOUT);
+				stationData.getStationSoftware().getCheckoutHandler().startCheckout();
 			}
 		});
 
@@ -198,8 +199,10 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.TEST_MEMBERSHIP);
-				stationData.setGuiBuffer(l1.getText());
+				stationData.setMembershipID(l1.getText());
+//				stationData.changeState(StationState.TEST_MEMBERSHIP);
+				stationData.changeState(StationState.CHECKOUT);//(Brody) for now just skip verification
+				stationData.getStationSoftware().getCheckoutHandler().startCheckout();
 			}
 		});
 		
@@ -276,7 +279,7 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.MAIN_SCAN);
+				stationData.changeState(StationState.ASK_MEMBERSHIP);
 			}
 		});
 
@@ -319,7 +322,7 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ADDED_BAGS);
+				stationData.changeState(StationState.ASK_MEMBERSHIP);
 			}
 		});
 	}

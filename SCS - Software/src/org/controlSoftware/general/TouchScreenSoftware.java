@@ -297,7 +297,7 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		//TODO INFORM GUI TO ASK USER, BUTTON LISTENERS WILL HANDLE STATE CHANGES
 		//SIMILAR TO CODE BELOW
 		
-		String choice = userInputScanner.nextLine();
+		String choice = "yes";//userInputScanner.nextLine();
 		choice.toLowerCase();
 		if (choice.equals("yes"))
 		{
@@ -308,13 +308,13 @@ public class TouchScreenSoftware implements TouchScreenObserver {
 		else if (choice.equals("no"))
 		{
 			System.out.println("No bags to add.");
-			stationData.changeState(StationState.ADD_MEMBERSHIP);
+			stationData.changeState(StationState.ASK_MEMBERSHIP);
 			return;
 		}
 		else 
 		{
 			System.out.println("Error Bad Bag prompt input!");
-			stationData.changeState(StationState.ADD_MEMBERSHIP);
+			stationData.changeState(StationState.ASK_MEMBERSHIP);
 			return;
 		}
 //		try {
