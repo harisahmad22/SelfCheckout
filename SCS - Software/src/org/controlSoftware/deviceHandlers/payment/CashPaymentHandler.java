@@ -51,7 +51,8 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
 	@Override
 	public void validBanknoteDetected(BanknoteValidator validator, Currency currency, int value) {
 		stationData.addToTotalPaid(new BigDecimal(value));
-		stationData.addToTotalPaidThisTransaction(new BigDecimal(value));
+		
+		printTotals();
 		
 		if (stationData.getTotalPaidThisTransaction().compareTo(stationData.getTransactionPaymentAmount()) >= 0)
 		{//Total paid this transaction >= User defined payment amount, ask to print receipt
@@ -82,20 +83,29 @@ public class CashPaymentHandler implements BanknoteValidatorObserver, CoinValida
     @Override
     public void coinAdded(CoinDispenser dispenser, Coin coin) {
     	stationData.addToTotalPaid(coin.getValue());
-		stationData.addToTotalPaidThisTransaction(coin.getValue());
+		
+    	printTotals();
 		
 		if (stationData.getTotalPaidThisTransaction().compareTo(stationData.getTransactionPaymentAmount()) >= 0)
 		{//Total paid this transaction >= User defined payment amount, ask to print receipt
 			stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
 		}
     }
-
+    
+    private void printTotals()
+    {
+    	System.out.println("!!! total due: " + stationData.getTotalDue());
+		System.out.println("!!! total money paid: " + stationData.getTotalMoneyPaid());
+		System.out.println("!!! total paid this transaction: " + stationData.getTotalPaidThisTransaction());
+		System.out.println("!!! transaction amount: " + stationData.getTransactionPaymentAmount());
+    }
     // valid coin makes its way to the storage unit
     @Override
     public void coinAdded(CoinStorageUnit unit) {
     	stationData.addToTotalPaid(lastValidCoinInserted);
-    	stationData.addToTotalPaidThisTransaction(lastValidCoinInserted);
-		
+    	
+    	printTotals();
+    	
 		if (stationData.getTotalPaidThisTransaction().compareTo(stationData.getTransactionPaymentAmount()) >= 0)
 		{//Total paid this transaction >= User defined payment amount, ask to print receipt
 			stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
