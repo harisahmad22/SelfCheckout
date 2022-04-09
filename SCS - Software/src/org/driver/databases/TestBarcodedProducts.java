@@ -17,6 +17,8 @@ public class TestBarcodedProducts {
 
 	private ArrayList<BarcodedProduct> BPList = new ArrayList<BarcodedProduct>();
 	
+	private ArrayList<Item> ItemList = new ArrayList<Item>();
+	
 	public TestBarcodedProducts()
 	{
 		// Product 1
@@ -28,6 +30,7 @@ public class TestBarcodedProducts {
 				4000.0);
 		BarcodeList.add(barcode1);
 		BPList.add(P1);
+		ItemList.add(getItem(P1));
 		// Product 1
 		
 		// Product 2
@@ -39,6 +42,7 @@ public class TestBarcodedProducts {
 				1500.0);
 		BarcodeList.add(barcode2);
 		BPList.add(P2);
+		ItemList.add(getItem(P2));
 		// Product 2
 		
 		// Product 3
@@ -50,6 +54,7 @@ public class TestBarcodedProducts {
 				750.0);
 		BarcodeList.add(barcode3);
 		BPList.add(P3);
+		ItemList.add(getItem(P3));
 		// ItemProduct 3
 	//===============================================================================
 
@@ -67,5 +72,9 @@ public class TestBarcodedProducts {
 
 	public ArrayList<BarcodedProduct> getBarcodedProductList() {
 		return BPList;
+	}
+	
+	public ArrayList<Item> getItemList() {
+		return ItemList;
 	}
 }

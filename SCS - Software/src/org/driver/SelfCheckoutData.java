@@ -160,6 +160,10 @@ public class SelfCheckoutData {
 	private PLUProductDatabase PLU_Product_Database;
 	private BarcodedProductDatabase Barcoded_Product_Database;
 	private StoreInventory Store_Inventory;
+	
+	
+	private PLUTestProducts PLUTestProducts;
+	private TestBarcodedProducts testProducts;
 
 	public SelfCheckoutData(SelfCheckoutStation station) {
 		//This class will give the software access to 
@@ -177,12 +181,12 @@ public class SelfCheckoutData {
 		
 		// Initialize some test Products
 		// 3 Products, rice, pear, and banana
-		PLUTestProducts PLUTestProducts = new PLUTestProducts();
+		PLUTestProducts = new PLUTestProducts();
 		PLU_Product_Database = new PLUProductDatabase(PLUTestProducts.getPLUProductList());
 
 		// Initialize some test Products
 		// 3 Products, milk, orange juice, and corn flakes
-		TestBarcodedProducts testProducts = new TestBarcodedProducts();
+		testProducts = new TestBarcodedProducts();
 		Barcoded_Product_Database = new BarcodedProductDatabase(testProducts.getBarcodedProductList());
 
 		// Initialize some test quantities for test Products within inventory
@@ -335,7 +339,7 @@ public class SelfCheckoutData {
 			stationHardware.handheldScanner.disable();
 			stationHardware.scanningArea.disable();
 			disablePaymentDevices();
-//			wipeSessionData(); //DISABLED FOR TESTING TODO 
+			wipeSessionData(); 
 			
 			//SIGNAL GUI TO DISPLAY WELCOME SCREEN WINDOW
 			
@@ -440,7 +444,7 @@ public class SelfCheckoutData {
 			stationSoftware.getCheckoutHandler().handleChange();
 			
 			// Prompt touch screen to ask user if they would like a receipt
-			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
+//			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
 			break;
 
 		case PAY_CASH:
@@ -601,6 +605,15 @@ public class SelfCheckoutData {
 	}
 
 	// Getters/setters
+	
+	public PLUTestProducts getPLUTestProducts() {
+		return PLUTestProducts;
+	}
+
+	public TestBarcodedProducts getTestProducts() {
+		return testProducts;
+	}
+
 	
 	public SelfCheckoutSoftware getStationSoftware()
 	{

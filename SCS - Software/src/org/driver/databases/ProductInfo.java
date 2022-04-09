@@ -1,6 +1,8 @@
 package org.driver.databases;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -42,6 +44,16 @@ public class ProductInfo {
 		 this.pluCode = product.getPLUCode();
 		 this.quantity = 1;
 	 }
+	 
+	 public BarcodedItem getBarcodedItem()
+	{
+		return new BarcodedItem(this.getBarcode(), this.getWeight());
+	}
+	 
+	 public PLUCodedItem getPLUItem()
+	{
+		return new PLUCodedItem(this.getPLUCode(), this.getWeight());
+	}
 	 
 	 public Product getProduct()
 	 {
