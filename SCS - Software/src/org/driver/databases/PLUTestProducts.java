@@ -15,21 +15,21 @@ public class PLUTestProducts {
 	public PLUTestProducts() {
 		// Product 1
 		PriceLookupCode PLUCode1 = new PriceLookupCode("1234");
-		PLUCodedProduct P1 = new PLUCodedProduct(PLUCode1, "Rice-1kg.", new BigDecimal("7.43"));
+		PLUCodedProduct P1 = new PLUCodedProduct(PLUCode1, "Rice", new BigDecimal("7.43"));
 		PLUList.add(PLUCode1);
 		PLUProductList.add(P1);
 		// Product 1
 
 		// Product 2
 		PriceLookupCode PLUCode2 = new PriceLookupCode("2345");
-		PLUCodedProduct P2 = new PLUCodedProduct(PLUCode2, "Pear-0.178kg.", new BigDecimal("1.43"));
+		PLUCodedProduct P2 = new PLUCodedProduct(PLUCode2, "Pear", new BigDecimal("1.43"));
 		PLUList.add(PLUCode2);
 		PLUProductList.add(P2);
 		// Product 2
 
 		// Product 3
 		PriceLookupCode PLUCode3 = new PriceLookupCode("3456");
-		PLUCodedProduct P3 = new PLUCodedProduct(PLUCode3, "Banana-0.05kg", new BigDecimal("1.00"));
+		PLUCodedProduct P3 = new PLUCodedProduct(PLUCode3, "Banana", new BigDecimal("1.00"));
 		PLUList.add(PLUCode3);
 		PLUProductList.add(P3);
 		// ItemProduct 3
