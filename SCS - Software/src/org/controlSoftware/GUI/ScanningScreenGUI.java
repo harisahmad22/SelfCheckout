@@ -354,6 +354,9 @@ public class ScanningScreenGUI {
 
 	    scanNoButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
+	        	try 
+	        	{stationData.setExpectedWeight(stationData.getStationHardware().baggingArea.getCurrentWeight()); } 
+	        	catch (OverloadException e1) { System.out.println("Error! Scale overloaded when choosing not to bag item!"); }
 	        	stationData.changeState(StationState.NORMAL);
 	        }
 	    });
