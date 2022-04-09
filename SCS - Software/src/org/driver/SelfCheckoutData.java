@@ -671,7 +671,6 @@ public class SelfCheckoutData {
 		ProductInfo PI = new ProductInfo(product);
 		if (productsAddedToCheckout.containsKey(product.getDescription()))
 		{
-			System.out.println("@@@@@");
 			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
 		}
 		else {
@@ -679,17 +678,6 @@ public class SelfCheckoutData {
 		}
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
-	public void setGuiBuffer(String text) {
-		guiBuffer = text;
-		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
-	}
-	public String getGuiBuffer() {
-		return guiBuffer;
-	}
-	
-	// public void addScannedProduct(Product product) {
-	// 	scannedProductList.add(product);
-	// }
 
 	public void addProductToCheckout(PLUCodedProduct product, double weight) {
 		ProductInfo PI = new ProductInfo(product, weight);
@@ -724,6 +712,19 @@ public class SelfCheckoutData {
 		}
 	}
 
+	public void setGuiBuffer(String text) {
+		guiBuffer = text;
+		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+	}
+	public String getGuiBuffer() {
+		return guiBuffer;
+	}
+	
+	// public void addScannedProduct(Product product) {
+	// 	scannedProductList.add(product);
+	// }
+
+	
 	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
 		this.stationSoftware = stationSoftware;
 	}
