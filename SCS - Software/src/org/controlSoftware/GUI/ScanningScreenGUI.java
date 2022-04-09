@@ -5,12 +5,17 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.*;
 
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.StationState;
+import org.driver.databases.ProductInfo;
+import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
 
 public class ScanningScreenGUI {
 	private SelfCheckoutStation station;
@@ -48,16 +53,36 @@ public class ScanningScreenGUI {
 		frame.setLayout(null);
 		
 		// Display of scanned items
-		JLabel itemList = new JLabel("Placeholder for list of scanned items");
+		
+		//TESTING
+		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
+		stationData.addProductToCheckout(testProducts.get(0));
+		stationData.addProductToCheckout(testProducts.get(1));
+		stationData.addProductToCheckout(testProducts.get(2));
+		HashMap<String, ProductInfo> currentAddedProducts = stationData.getProductsAddedToCheckoutHashMap();
+		String productListString = "<html>";
+		for (String prodDescription : currentAddedProducts.keySet())
+		{
+			productListString += prodDescription
+							  + " --- "
+							  + "$"
+							  + currentAddedProducts.get(prodDescription).getProduct().getPrice() 
+							  + "<br>";
+		}
+		productListString += "</html>";
+		//TESTING
+
+		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20,20,700,420);
 		itemList.setBackground(Color.blue);
 		itemList.setOpaque(true);
 		frame.getContentPane().add(itemList);
 		
 		// Display of the total price
-		JLabel totalPrice = new JLabel("Placeholder for total price");
+		JLabel totalPrice = new JLabel("$" + stationData.getTotalDue().toString());
 		totalPrice.setBounds(20,460,700,80);
 		totalPrice.setBackground(Color.red);
+		totalPrice.setFont(new Font("Calibri", Font.BOLD,48));
 		totalPrice.setOpaque(true);
 		frame.getContentPane().add(totalPrice);
 		
@@ -78,13 +103,13 @@ public class ScanningScreenGUI {
 	        	stationData.changeState(StationState.PLU_SEARCH);
 	        }
 	    });
-		JButton assistButton = new JButton("Ask Attendant for Assistance");
-		options.add(assistButton);
-		assistButton.addActionListener(new ActionListener() {
-	        public void actionPerformed(ActionEvent e) {
-	        	//Ask for assistance
-	        }
-	    });
+//		JButton assistButton = new JButton("Ask Attendant for Assistance");
+//		options.add(assistButton);
+//		assistButton.addActionListener(new ActionListener() {
+//	        public void actionPerformed(ActionEvent e) {
+//	        	//Ask for assistance
+//	        }
+//	    });
 		JButton checkoutButton = new JButton("Proceed to checkout");
 		options.add(checkoutButton);
 		checkoutButton.addActionListener(new ActionListener() {
@@ -128,6 +153,8 @@ public class ScanningScreenGUI {
 				}
 				else if (val == "GO") {
 					String search = codePLU.getText();
+					
+//					stationData.addProductToCheckout(null, 0);
 				}
 				else {
 					if (codePLU.getText().length() < 5) {
@@ -222,6 +249,7 @@ public class ScanningScreenGUI {
 	        	int index = alphabetList.getSelectedIndex();
 	        	if(index != -1) {
 	        		String search = letters[index];
+	        		System.out.println(search);
 	        	}
 	        }
 	    });

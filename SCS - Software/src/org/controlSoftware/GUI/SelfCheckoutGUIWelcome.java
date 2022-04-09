@@ -315,7 +315,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ASK_BAGS);
+				stationData.changeState(StationState.ADD_BAGS_PROMPT);
 			}
 		});
 		

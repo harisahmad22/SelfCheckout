@@ -417,6 +417,12 @@ public class SelfCheckoutData {
 			//will change to Add membership state
 			break;
 			
+		case LETTER_SEARCH:
+			break;
+		
+		case PLU_SEARCH:
+			break;
+			
 //		case PAID:
 //			//Intermediate state that will handle checking if change is needed to be given
 //			
