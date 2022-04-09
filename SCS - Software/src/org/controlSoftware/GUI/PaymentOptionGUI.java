@@ -36,8 +36,11 @@ public class PaymentOptionGUI {
 	
 	public void stateChanged() {
 		switch (data.getCurrentState()) {
-		case CHECKOUT:
-			checkoutScreen();
+		case PAYMENT_MODE_PROMPT:
+			paymentModesScreen();
+			break;
+		case PAYMENT_AMOUNT_PROMPT:	
+			paymentAmountScreen();
 			break;
 		default:
 			break;
@@ -46,7 +49,7 @@ public class PaymentOptionGUI {
 		scs.screen.setVisible(true);
 	}
 	
-	private void checkoutScreen() {
+	private void paymentModesScreen() {
 		frame.setLayout(null);  
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 10));
@@ -65,6 +68,69 @@ public class PaymentOptionGUI {
 	    title.setBounds(10,10,750,100);  
 	    title.setFont(new Font("Calibri", Font.BOLD,75));
 	    frame.add(title);
+	}
+	
+	//(BRODY)
+	private void paymentAmountScreen() {
+		frame.setLayout(null);  
+		panel = new JPanel();
+		panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 10));
+		panel.setBackground(Color.CYAN);
+		panel.setBounds(10, 100, 980, 490);
+		
+		fullPaymentButton();
+		partialPaymentButton();
+		
+		frame.add(panel);
+		JLabel title = new JLabel("Select Payment Amount");  
+	    title.setBounds(10,10,750,100);  
+	    title.setFont(new Font("Calibri", Font.BOLD,75));
+	    frame.add(title);
+	}
+	
+	/**
+	 * Creates a Partial payment amount button
+	 */
+	private void partialPaymentButton() {
+		Color color = new Color(255, 255, 128);
+		JButton debit = new JButton();
+		debit.setBounds(50,150,300,200);
+		debit.setText("Partial Payment");
+		debit.setFont(new Font("Calibri", Font.BOLD,48));
+		debit.setBackground(color);
+		
+		debit.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  				
+				data.changeState(StationState.PARTIAL_PAYMENT_KEYPAD);
+			}  
+		});
+		
+		frame.add(debit);
+		debit.setVisible(true);
+		
+	}
+	
+	/**
+	 * Creates a Full payment amount button
+	 */
+	private void fullPaymentButton() {
+		Color color = new Color(128, 128, 255);
+		JButton credit = new JButton();
+		credit.setBounds(350,150,300,200);
+		credit.setText("Full Payment");
+		credit.setFont(new Font("Calibri", Font.BOLD,48));
+		credit.setBackground(color);
+		
+		credit.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				data.setTransactionPaymentAmount(data.getTotalDue());
+				data.changeState(StationState.PAYMENT_MODE_PROMPT);
+			}  
+		});
+		
+		frame.add(credit);
+		credit.setVisible(true);
+		
 	}
 	
 	/**

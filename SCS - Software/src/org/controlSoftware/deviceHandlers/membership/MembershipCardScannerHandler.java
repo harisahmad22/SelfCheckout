@@ -91,10 +91,11 @@ public class MembershipCardScannerHandler implements CardReaderObserver{
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.getCurrentState() == StationState.ADD_MEMBERSHIP)) {
+		if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.getCurrentState() == StationState.ASK_MEMBERSHIP)) {
 			stationData.setMembershipID(data.getNumber());
 			stationData.setCardSwiped(false); //Reset flag for next event
 			stationData.changeState(StationState.CHECKOUT);
+			stationData.getStationSoftware().getCheckoutHandler().startCheckout();
 		}
 	}
 

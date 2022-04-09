@@ -56,18 +56,19 @@ public class CheckoutHandler {
 
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
+		System.out.println("22222" + stationData.isFirstCheckout());
 		if (stationData.isFirstCheckout())
 		{ //Only prompt user for bags and membership if they haven't already been
 			
 			//If user has bags, system will change to adding bags state and wait for user to inform system that
 			//they have put their bags down
 			//Once bags have been put down, the expected scale weight is updated to the current scale weight
-			stationData.changeState(StationState.ADD_BAGS_PROMPT);
 			stationData.setIsFirstCheckout(false);
+			stationData.changeState(StationState.ADD_BAGS_PROMPT);
 			return;
 		}
 		else 
-		{
+		{	System.out.println("aaa");
 			stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
 			return;			
 		}

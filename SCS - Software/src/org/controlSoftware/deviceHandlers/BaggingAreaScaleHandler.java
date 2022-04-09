@@ -93,10 +93,12 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	
 	private void handleAddingBagsEvent(double weightOnScale, double thisExpectedWeight) {
 		
-		if (weightOnScale > thisExpectedWeight) { stationData.setExpectedWeight(weightOnScale); }
+		if (weightOnScale > thisExpectedWeight) 
+		{ 
+			stationData.changeState(StationState.ASK_MEMBERSHIP);
+		}
 		else { stationData.changeState(StationState.WEIGHT_ISSUE); return; }
 		
-		stationData.changeState(StationState.ADD_MEMBERSHIP);
 		
 		return;
 		
@@ -146,7 +148,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 				if (stationData.getMidPaymentFlag()) { stationData.changeState(StationState.PAY_CASH); }
 				else { stationData.changeState(StationState.NORMAL); } 
 			}
-			else if (stationData.getPreBlockedState() == StationState.ADDING_BAGS) { stationData.changeState(StationState.ADD_MEMBERSHIP); }
+			else if (stationData.getPreBlockedState() == StationState.ADDING_BAGS) { stationData.changeState(StationState.ASK_MEMBERSHIP); }
 			else { stationData.changeState(stationData.getPreBlockedState()); }
 		} else {
 			//Weight is Bad, do nothing

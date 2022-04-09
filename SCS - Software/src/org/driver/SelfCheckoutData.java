@@ -252,7 +252,7 @@ public class SelfCheckoutData {
 		PRINT_RECEIPT_PROMPT,
 		
 		// Dedicated state for scanning membership card/typing number
-		ADD_MEMBERSHIP,
+//		ADD_MEMBERSHIP,
 		
 		// General post-checkout state, check if more payment is needed, if so move to NORMAL state.
 		// Otherwise move to CLEANUP state
@@ -280,7 +280,10 @@ public class SelfCheckoutData {
 		WEIGHT_ISSUE, 
 		
 		// State that allows system to exit from WEIGHT_ISSUE state, will update expected weights to current scale weight
-		ATTENDANT_OVERRIDE 
+		ATTENDANT_OVERRIDE, 
+		
+		// State to inform GUI to display keypad for user to enter in their payment amount
+		PARTIAL_PAYMENT_KEYPAD 
 	}
 
 
@@ -343,7 +346,14 @@ public class SelfCheckoutData {
 			stationHardware.mainScanner.disable();
 			stationHardware.handheldScanner.disable();
 			disablePaymentDevices();
-			stationSoftware.getCheckoutHandler().startCheckout();
+//			stationSoftware.getCheckoutHandler().startCheckout();
+			break;
+			
+		case CHECKOUT_CHECK:
+			
+			break;
+			
+		case PARTIAL_PAYMENT_KEYPAD:
 			break;
 		
 		case CLEANUP:
@@ -371,17 +381,18 @@ public class SelfCheckoutData {
 			break;
 			
 		case ADD_BAGS_PROMPT:
-			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
+			System.out.println("Do you have any bags?");
+//			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
 			break;
 		
 		case PAYMENT_AMOUNT_PROMPT:
 			//Ask user if they would like to pay partial or full
-			stationSoftware.getTouchScreenSoftware().choosePaymentAmount( getTotalDue(), getTotalMoneyPaid());
+//			stationSoftware.getTouchScreenSoftware().choosePaymentAmount( getTotalDue(), getTotalMoneyPaid());
 			break;
 			
 		case PAYMENT_MODE_PROMPT:
 			//Ask user how they would like to pay (Cash, Credit, Debt) TODO 
-			stationSoftware.getTouchScreenSoftware().showPaymentMethods();
+//			stationSoftware.getTouchScreenSoftware().showPaymentMethods();
 			break;
 
 		case ADDING_BAGS:
@@ -436,13 +447,29 @@ public class SelfCheckoutData {
 			stationHardware.cardReader.enable();
 			break;
 
-		case ADD_MEMBERSHIP:
+//		case ADD_MEMBERSHIP:
+//			stationSoftware.getReceiptHandler().setMembershipID(getMembershipID());
+//			break;
+
+			
+		case ASK_MEMBERSHIP:
+			try { setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
+			catch (OverloadException e) 
+			{ System.out.println("Bagging area scale overload during ask membership state change!"); }
 			stationHardware.cardReader.enable();
 			setWaitingForMembership(true);
-			stationSoftware.getTouchScreenSoftware().inputMembershipPrompt();
+//			stationSoftware.getTouchScreenSoftware().inputMembershipPrompt();
 		    //Method will change state to Checkout if user manually entered ID
 			//Otherwise system will change to checkout state after card is swiped
+			break;
+	
+		case SCAN_MEMBERSHIP:
+			break;
 			
+		case TYPE_MEMBERSHIP:
+			break;
+		
+		case ASK_BAGS:
 			break;
 
 		case FINISHED:
@@ -465,6 +492,7 @@ public class SelfCheckoutData {
 			return;
 		} 
 		//Made it here, assume target state is valid
+		System.out.println("State Change: " + targetState);
 		setCurrentState(targetState);
 		notifyStateChanged();
 	}
@@ -531,9 +559,6 @@ public class SelfCheckoutData {
 			stationHardware.cardReader.disable();
 			break;
 
-		case ADD_MEMBERSHIP:
-			stationSoftware.getReceiptHandler().setMembershipID(getMembershipID());
-			break;
 
 		case FINISHED:
 			break;
@@ -554,6 +579,10 @@ public class SelfCheckoutData {
 
 	// Getters/setters
 	
+	public SelfCheckoutSoftware getStationSoftware()
+	{
+		return this.stationSoftware;
+	}
 
 	public void setMidPaymentFlag(boolean b) {
 		isMidPayment.set(b);		
