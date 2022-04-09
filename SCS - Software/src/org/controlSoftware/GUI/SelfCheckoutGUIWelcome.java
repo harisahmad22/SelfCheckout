@@ -66,6 +66,10 @@ public class SelfCheckoutGUIWelcome {
 			finishedScreen();
 			break;
 			
+		case BLOCKED:
+			blockedScreen();
+			break;
+			
 //		case CLEANUP:
 //			finishedScreen();
 //			break;
@@ -76,6 +80,28 @@ public class SelfCheckoutGUIWelcome {
 		station.screen.setVisible(true);
 	}
 	
+	private void blockedScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel("<html>THIS STATION IS BLOCKED<br>PLEASE ASK ATTENDANT FOR ASSISTANCE");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);	
+		
+		final JButton b1 = new JButton("[DEBUG] Unblock Station");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(400,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationSoftware().unBlockStation();
+			}
+		});
+	}
+
 	// Simple text and one button screen.
 	private void welcomeScreen(){
 		frame.setLayout(null);
@@ -392,7 +418,12 @@ public class SelfCheckoutGUIWelcome {
 		payCoin.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
 				
-				stationData.getStationHardware().baggingArea.remove(stationData.getTestProducts().getItemList().get(0));
+				try { stationData.getStationHardware().baggingArea.remove(stationData.getTestProducts().getItemList().get(0)); }
+				catch (InvalidArgumentSimulationException e1)
+				{
+					//For Testing, just reset to welcome screen
+					stationData.changeState(StationState.WELCOME);
+				}
 			}  
 		});
 		

@@ -224,7 +224,7 @@ public class SelfCheckoutSoftware {
 			//In normal/welcome state, need to change to blocked state and immediately perform 
 			//an attendant block check
 			this.stationData.changeState(StationState.BLOCKED);
-			attendantBlockCheck("Normal State");
+//			attendantBlockCheck("Normal State");
 			return;
 		}
 		else if (stationData.getCurrentState() == StationState.INACTIVE)
@@ -234,13 +234,16 @@ public class SelfCheckoutSoftware {
 		}
 		else if (stationData.getCurrentState() != StationState.PAY_CASH
 			  || stationData.getCurrentState() != StationState.PAY_CREDIT
-			  || stationData.getCurrentState() != StationState.PAY_DEBIT)
+			  || stationData.getCurrentState() != StationState.PAY_DEBIT
+			  || stationData.getCurrentState() != StationState.PAY_GIFTCARD)
 		{ 
 			//Station is not mid payment, inactive, or in welcome/normal state
 			//Station must be in some handling state (Checkout, processing scan, lookup product)
 			//When in these states there are checks for the attendant block before and after
 			//methods that wait for User input, and methods that block when an issue is detected
-			this.stationData.setATTENDANT_BLOCK(true); 
+			
+			this.stationData.changeState(StationState.BLOCKED);
+//			this.stationData.setATTENDANT_BLOCK(true); 
 		}		
 		else 
 		{ 
