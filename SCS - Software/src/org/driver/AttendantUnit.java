@@ -23,21 +23,22 @@ public class AttendantUnit {
 	private AttendantSoftware attendantSoftware;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	private AttendantData attendantData;
-	private SupervisorGUIMaster attendantGUI;
+	private SupervisorGUIMaster gui;
+	
 	public AttendantUnit()
 	{
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
+		this.attendantData.attachCheckoutStationUnits(checkoutStations);
 		this.attendantStation = new SupervisionStation();
 		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
 		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
+		//Have to add in attendant touch screen software 
 		
-		//Initialize GUI
-		this.attendantGUI = new SupervisorGUIMaster(attendantStation, attendantData);
-
+		this.gui = new SupervisorGUIMaster(attendantStation, attendantData);
+		this.attendantData.registerGUI(gui);
 	}
-
 	public void attachCheckoutStationUnit(SelfCheckoutStationUnit unit)
 	{
 		this.checkoutStations.add(unit);
@@ -47,10 +48,10 @@ public class AttendantUnit {
 		this.attendantStation.add(unit.getSelfCheckoutStationHardware());
 		
 	}
-	
 	public void attachCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> unitList)
 	{
 		checkoutStations = unitList;
+		attendantData.attachCheckoutStationUnits(unitList);
 		
 		this.attendantSoftware.setCheckoutStationUnits(checkoutStations);
 		
@@ -147,6 +148,10 @@ public class AttendantUnit {
 	public AttendantSoftware getAttendantSoftware() {
 		return attendantSoftware;
 	}
+	
+	public AttendantData getAttendantData() {
+		return attendantData;
+	}
 
 	public void setAttendantSoftware(AttendantSoftware attendantSoftware) {
 		this.attendantSoftware = attendantSoftware;
@@ -156,10 +161,6 @@ public class AttendantUnit {
 		System.out.println("Received a message from a station!");
 		System.out.println(message);
 		
-	}
-
-	public AttendantData getAttendantData() {
-		return attendantData;
 	}
 
 }

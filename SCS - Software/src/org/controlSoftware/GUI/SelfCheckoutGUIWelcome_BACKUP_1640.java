@@ -87,6 +87,53 @@ public class SelfCheckoutGUIWelcome {
 		station.screen.setVisible(true);
 	}
 	
+<<<<<<< HEAD
+	private void weightIssueScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel("<html>WEIGHT ISSUE DETECTED!<br>PLEASE CORRECT ISSUE BEFORE CONTINUING!</html>");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);	
+		
+		final JButton b1 = new JButton("[DEBUG] Unblock Station (via attendant override)");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(400,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationSoftware().performAttendantWeightOverride();
+			}
+		});
+	}
+
+
+	private void blockedScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel("<html>THIS STATION IS BLOCKED<br>PLEASE ASK ATTENDANT FOR ASSISTANCE</html>");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);	
+		
+		final JButton b1 = new JButton("[DEBUG] Unblock Station");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(400,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationSoftware().unBlockStation();
+			}
+		});
+	}
+
+=======
 	// Simple text only screen
 	private void inactiveScreen(){
 		frame.setLayout(null);
@@ -98,6 +145,7 @@ public class SelfCheckoutGUIWelcome {
 		frame.getContentPane().add(l1);
 	}
 	
+>>>>>>> attendant-gui
 	// Simple text and one button screen.
 	private void welcomeScreen(){
 		frame.setLayout(null);
@@ -378,14 +426,29 @@ public class SelfCheckoutGUIWelcome {
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 		
-		Timer timer = new Timer(5000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.WELCOME);
-            }
-        });
-        timer.start();
+//		Check if more money needs to be paid 
+		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) < 0)
+		{
+			stationData.changeState(StationState.NORMAL);
+		}
+		else
+		{
+			debugRemoveItemsFromBaggingAreaButton();
+			
+			takeReceiptButton();
+			
+			//Print Receipt
+			stationData.getStationSoftware().getReceiptHandler().printReceipt();
+		}
 		
+		
+//		Timer timer = new Timer(5000, new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//				stationData.changeState(StationState.WELCOME);
+//            }
+//        });
+//        timer.start();
 	}
 	//BRODY
 	private void debugRemoveItemsFromBaggingAreaButton() {

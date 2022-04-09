@@ -59,6 +59,7 @@ public class SelfCheckoutStationUnit {
 		
 		//Initialize GUI
 		this.stationGUI = new SelfCheckoutGUIMaster(station, stationData);
+		this.stationData.registerGUI(stationGUI);
 
 		//TouchScreenSoftware will attach itself to the touch screen
 		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);

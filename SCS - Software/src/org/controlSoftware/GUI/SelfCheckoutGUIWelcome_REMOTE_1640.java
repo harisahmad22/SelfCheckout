@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,12 +15,7 @@ import javax.swing.Timer;
 
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.StationState;
-import org.driver.databases.ProductInfo;
-import org.driver.databases.TestBarcodedProducts;
-import org.lsmr.selfcheckout.BarcodedItem;
-import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
-import org.lsmr.selfcheckout.products.BarcodedProduct;
 
 public class SelfCheckoutGUIWelcome {
 	private SelfCheckoutStation station;
@@ -64,22 +57,9 @@ public class SelfCheckoutGUIWelcome {
 		case ADDING_BAGS:
 			addingBagsScreen();
 			break;
-			
-		case PRINT_RECEIPT_PROMPT:
+		case FINISHED:
 			finishedScreen();
 			break;
-			
-		case WEIGHT_ISSUE:
-			weightIssueScreen();
-			break;
-			
-		case BLOCKED:
-			blockedScreen();
-			break;
-			
-//		case CLEANUP:
-//			finishedScreen();
-//			break;
 		default:
 			break;
 		}
@@ -349,7 +329,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ADD_BAGS_PROMPT);
+				stationData.changeState(StationState.ASK_BAGS);
 			}
 		});
 		
@@ -387,58 +367,6 @@ public class SelfCheckoutGUIWelcome {
         timer.start();
 		
 	}
-	//BRODY
-	private void debugRemoveItemsFromBaggingAreaButton() {
-		Color color = new Color(128, 128, 255);
-		JButton payCoin = new JButton();
-		payCoin.setBounds(200,300,300,200);
-		payCoin.setText("[DEBUG] Remove All Items");
-		payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
-		payCoin.setBackground(color);
-		
-		payCoin.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  
-				
-				try { stationData.getStationHardware().baggingArea.remove(stationData.getTestProducts().getItemList().get(0)); }
-				catch (InvalidArgumentSimulationException e1)
-				{
-					//For Testing, just reset to welcome screen
-					stationData.changeState(StationState.WELCOME);
-				}
-			}  
-		});
-		
-		frame.add(payCoin);
-		payCoin.setVisible(true);
-	}
-	
-	//BRODY
-		private void takeReceiptButton() {
-			Color color = new Color(128, 128, 255);
-			JButton payCoin = new JButton();
-			payCoin.setBounds(500,300,300,200);
-			payCoin.setText("Take Receipt (Will print it to console)");
-			payCoin.setFont(new Font("Calibri", Font.BOLD, 14));
-			payCoin.setBackground(color);
-			
-			payCoin.addActionListener(new ActionListener(){  
-				public void actionPerformed(ActionEvent e){  
-					
-					try {
-						String receipt = stationData.getStationHardware().printer.removeReceipt();
-						System.out.println("RECEIPT GENERATED: \n" + receipt);
-					} catch (InvalidArgumentSimulationException execption)
-					{
-						System.out.println("Error! No receipt to take!");
-					}
-					
-					
-				}  
-			});
-			
-			frame.add(payCoin);
-			payCoin.setVisible(true);
-		}
 	
 	
 }
