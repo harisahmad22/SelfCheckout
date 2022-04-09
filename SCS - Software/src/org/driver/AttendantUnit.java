@@ -2,6 +2,8 @@ package org.driver;
 
 import java.util.ArrayList;
 
+import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
+import org.controlSoftware.GUI.SupervisorGUIMaster;
 import org.controlSoftware.attendant.AttendantSoftware;
 import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
@@ -21,6 +23,7 @@ public class AttendantUnit {
 	private AttendantSoftware attendantSoftware;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	private AttendantData attendantData;
+	private SupervisorGUIMaster attendantGUI;
 	public AttendantUnit()
 	{
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
@@ -29,7 +32,20 @@ public class AttendantUnit {
 		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
 		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
-		//Have to add in attendant touch screen software 
+		
+		//Initialize GUI
+		this.attendantGUI = new SupervisorGUIMaster(attendantStation, attendantData);
+
+	}
+
+	public void attachCheckoutStationUnit(SelfCheckoutStationUnit unit)
+	{
+		this.checkoutStations.add(unit);
+		
+		this.attendantStation.remove(unit.getSelfCheckoutStationHardware());
+		
+		this.attendantStation.add(unit.getSelfCheckoutStationHardware());
+		
 	}
 	
 	public void attachCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> unitList)
@@ -140,6 +156,10 @@ public class AttendantUnit {
 		System.out.println("Received a message from a station!");
 		System.out.println(message);
 		
+	}
+
+	public AttendantData getAttendantData() {
+		return attendantData;
 	}
 
 }
