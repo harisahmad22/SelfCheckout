@@ -44,7 +44,7 @@ public class SelfCheckoutGUIWelcome {
 	public void stateChanged() {
 		switch (stationData.getCurrentState()) {
 		case INACTIVE:
-			inactiveScreen();
+			frame.setVisible(false);
 			break;
 		case WELCOME:
 			welcomeScreen();
@@ -88,7 +88,7 @@ public class SelfCheckoutGUIWelcome {
 	}
 	
 	// Simple text only screen
-	private void inactiveScreen(){
+	/*private void inactiveScreen(){
 		frame.setLayout(null);
 		
 		final JLabel l1 = new JLabel("STATION IS INACTIVE");
@@ -96,6 +96,51 @@ public class SelfCheckoutGUIWelcome {
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 300);
 		frame.getContentPane().add(l1);
+	}*/
+	
+	private void weightIssueScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel("<html>WEIGHT ISSUE DETECTED!<br>PLEASE CORRECT ISSUE BEFORE CONTINUING!</html>");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);	
+		
+		final JButton b1 = new JButton("[DEBUG] Unblock Station (via attendant override)");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(400,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationSoftware().performAttendantWeightOverride();
+			}
+		});
+	}
+
+
+	private void blockedScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel("<html>THIS STATION IS BLOCKED<br>PLEASE ASK ATTENDANT FOR ASSISTANCE</html>");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);	
+		
+		final JButton b1 = new JButton("[DEBUG] Unblock Station");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(400,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationSoftware().unBlockStation();
+			}
+		});
 	}
 	
 	// Simple text and one button screen.

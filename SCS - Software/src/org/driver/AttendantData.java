@@ -27,7 +27,7 @@ public class AttendantData {
 	
 	public enum AttendantState {
 		// Current GUI associated states. Can be changed in GUI to match implementation. Not sure what they are there.
-		START, TEST_LOGIN, STATIONS, 
+		START, TEST_LOGIN, STATIONS, MAINTENANCE, WEIGHT_ERROR,
 		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?
@@ -118,6 +118,10 @@ public class AttendantData {
 			break;
 		case STATIONS:
 			break;
+		case MAINTENANCE:
+			break;
+		case WEIGHT_ERROR:
+			break;
 		
 		case INACTIVE:
 							
@@ -182,7 +186,6 @@ public class AttendantData {
 			break;
 			
 		case LOG_IN:
-			
 			break;
 			
 		case ERROR:

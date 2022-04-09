@@ -23,18 +23,22 @@ public class TestingTEMP2 {
 		SelfCheckoutStationUnit sUnit1 = new SelfCheckoutStationUnit(1);
 		SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(2);
 		
-		ArrayList<SelfCheckoutStationUnit> checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
+		/*ArrayList<SelfCheckoutStationUnit> checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		checkoutStations.add(sUnit1);
 		checkoutStations.add(sUnit2);
 		
 		aUnit.attachCheckoutStationUnits(checkoutStations);
 		
 		sUnit1.getSelfCheckoutData().changeState(StationState.WELCOME);
-		sUnit2.getSelfCheckoutData().changeState(StationState.WELCOME);
+		sUnit2.getSelfCheckoutData().changeState(StationState.WELCOME);*/
+		
+		aUnit.attachCheckoutStationUnit(sUnit1);
+		//aUnit.attachCheckoutStationUnit(sUnit2);
 		
 		AttendantData data = aUnit.getAttendantData();
 		
-		data.changeState(AttendantState.STATIONS);
+		//aUnit.getAttendantGUI().setTargetStation(sUnit1);
+		data.changeState(AttendantState.START);
 
 		//CardOptionGUI gui = new CardOptionGUI(station, data);
 		//gui.showCardOptionGUI();

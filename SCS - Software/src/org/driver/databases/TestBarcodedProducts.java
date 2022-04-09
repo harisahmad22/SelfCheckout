@@ -55,7 +55,43 @@ public class TestBarcodedProducts {
 		BarcodeList.add(barcode3);
 		BPList.add(P3);
 		ItemList.add(getItem(P3));
-		// ItemProduct 3
+		// Product 3
+		
+		// Product 4
+		Barcode barcode4 = new Barcode(new Numeral[] {Numeral.four});
+		BarcodedProduct P4 = new BarcodedProduct(
+				barcode4,
+				"Spaghetti",
+				new BigDecimal("2.99"),
+				600.0);
+		BarcodeList.add(barcode4);
+		BPList.add(P4);
+		ItemList.add(getItem(P4));
+		// Product 4
+		
+		// Product 5
+		Barcode barcode5 = new Barcode(new Numeral[] {Numeral.five});
+		BarcodedProduct P5 = new BarcodedProduct(
+				barcode5,
+				"Canned Soup",
+				new BigDecimal("0.99"),
+				200.0);
+		BarcodeList.add(barcode5);
+		BPList.add(P5);
+		ItemList.add(getItem(P5));
+		// Product 5
+		
+		// Product 6
+		Barcode barcode6 = new Barcode(new Numeral[] {Numeral.six});
+		BarcodedProduct P6 = new BarcodedProduct(
+				barcode6,
+				"Ground Beef",
+				new BigDecimal("5.00"),
+				454.0);
+		BarcodeList.add(barcode6);
+		BPList.add(P6);
+		ItemList.add(getItem(P6));
+		// Product 6
 	//===============================================================================
 
 	}

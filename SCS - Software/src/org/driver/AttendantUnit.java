@@ -149,6 +149,10 @@ public class AttendantUnit {
 		return attendantSoftware;
 	}
 	
+	public SupervisorGUIMaster getAttendantGUI() {
+		return gui;
+	}
+	
 	public AttendantData getAttendantData() {
 		return attendantData;
 	}
