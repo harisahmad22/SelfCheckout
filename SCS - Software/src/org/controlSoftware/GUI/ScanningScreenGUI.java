@@ -294,13 +294,18 @@ public class ScanningScreenGUI {
 	    JButton scanYesButton = new JButton("Yes");
 	    frame.add(scanYesButton);
 	    // Wait for bagging somehow
+	    scanYesButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	        	stationData.changeState(StationState.NOT_BAGGED);
+	        }
+	    });
 	    scanYesButton.setBounds(200,200,200,100);
 	    
 	    JButton scanNoButton = new JButton("No");
 	    frame.add(scanNoButton);
 	    scanNoButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 	    scanNoButton.setBounds(600,200,200,100);
