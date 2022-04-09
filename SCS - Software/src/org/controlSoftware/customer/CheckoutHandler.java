@@ -56,7 +56,6 @@ public class CheckoutHandler {
 
 		// TouchScreen method that will ask user if they have their own bags
 		// and how many if they do. If user does not have bags they will enter 0 bags
-		System.out.println("22222" + stationData.isFirstCheckout());
 		if (stationData.isFirstCheckout())
 		{ //Only prompt user for bags and membership if they haven't already been
 			
@@ -68,7 +67,7 @@ public class CheckoutHandler {
 			return;
 		}
 		else 
-		{	System.out.println("aaa");
+		{	
 			stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
 			return;			
 		}

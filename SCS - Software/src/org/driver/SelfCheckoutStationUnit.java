@@ -45,16 +45,6 @@ public class SelfCheckoutStationUnit {
 	private static int scaleMaximumWeight = 50000; //Set limit to 50,000 grams (50Kg)
 	private static int scaleSensitivity = 10; //10 gram sensitivity
 	
-	private static Banknote fiveDollarBanknote = new Banknote(CAD, 5);
-	private static Banknote tenDollarBanknote = new Banknote(CAD, 10);
-	private static Banknote twentyDollarBanknote = new Banknote(CAD, 20);
-	private static Banknote fiveDollarBanknoteUSD = new Banknote(Currency.getInstance("USD"), 5);
-	private static Banknote twelveDollarBanknote = new Banknote(CAD, 12);
-	private static Coin nickel = new Coin(CAD, new BigDecimal("0.05"));
-	private static Coin dime = new Coin(CAD, new BigDecimal("0.10"));
-	private static Coin quarter = new Coin(CAD, new BigDecimal("0.25"));
-	private static Coin loonie = new Coin(CAD, new BigDecimal("1.00"));
-	private static Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 	
 
 	public SelfCheckoutStationUnit(int stationID) {

@@ -2,6 +2,7 @@ package org.driver;
 
 
 import java.math.BigDecimal;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -22,7 +23,9 @@ import org.driver.databases.PLUProductDatabase;
 import org.driver.databases.PLUTestProducts;
 import org.driver.databases.StoreInventory;
 import org.driver.databases.TestBarcodedProducts;
+import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.CardReader;
@@ -51,6 +54,20 @@ import org.lsmr.selfcheckout.products.Product;
  */
 
 public class SelfCheckoutData {
+	
+	
+	//Test Coins/Banknotes
+	public Currency CAD = Currency.getInstance("CAD");
+	public Banknote fiveDollarBanknote = new Banknote(CAD, 5);
+	public Banknote tenDollarBanknote = new Banknote(CAD, 10);
+	public Banknote twentyDollarBanknote = new Banknote(CAD, 20);
+	public Banknote fiveDollarBanknoteUSD = new Banknote(Currency.getInstance("USD"), 5);
+	public Banknote twelveDollarBanknote = new Banknote(CAD, 12);
+	public Coin nickel = new Coin(CAD, new BigDecimal("0.05"));
+	public Coin dime = new Coin(CAD, new BigDecimal("0.10"));
+	public Coin quarter = new Coin(CAD, new BigDecimal("0.25"));
+	public Coin loonie = new Coin(CAD, new BigDecimal("1.00"));
+	public Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 
 //	private TouchScreenSoftware touchScreenSoftware;
 	//============================Hardware Devices============================ 
@@ -318,7 +335,7 @@ public class SelfCheckoutData {
 			stationHardware.handheldScanner.disable();
 			stationHardware.scanningArea.disable();
 			disablePaymentDevices();
-			wipeSessionData();
+//			wipeSessionData(); //DISABLED FOR TESTING TODO 
 			
 			//SIGNAL GUI TO DISPLAY WELCOME SCREEN WINDOW
 			
