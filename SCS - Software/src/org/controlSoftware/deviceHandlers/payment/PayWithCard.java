@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
+import org.driver.SelfCheckoutSoftware;
+import org.driver.databases.GiftCardDatabase;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.CardReader;
@@ -16,6 +20,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 //for payments involving a card (credit, debit, giftcard)
 public class PayWithCard implements CardReaderObserver {
 	
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
 	private SelfCheckoutStation station;
 	private CardData cardData;
 	private String cardType;
@@ -33,7 +39,7 @@ public class PayWithCard implements CardReaderObserver {
 	
 	//put Div's giftcard class into same branch, import and remember to set up!!!
 	private GiftCardDatabase giftCards;
-	private PaymentHandler payment;
+	private CardPaymentSoftware paymentSoftware;
 	
 	
 	//card issuers have unique card types that correspond with them (ex. "xxx company debit" or "a company visa credit")
@@ -41,11 +47,13 @@ public class PayWithCard implements CardReaderObserver {
 	
 	protected String memberNumber;
 	
-	public PayWithCard(SelfCheckoutStation station, PaymentHandler pay) {
-		this.station = station;
-		station.cardReader.attach(this);
+	public PayWithCard(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
+		this.stationData = stationData;
+		this.stationSoftware = stationSoftware;
+		this.station = stationData.getStationHardware();
+//		station.cardReader.attach(this);
 		
-		this.payment = pay;
+		this.paymentSoftware = this.stationSoftware.getCardPaymentSoftware();
 		
 	}
 	
@@ -56,7 +64,7 @@ public class PayWithCard implements CardReaderObserver {
 	}
 	
 	//set the giftcards database
-	public void addGiftCardDatabase(Map<String, Double> database) {
+	public void addGiftCardDatabase(GiftCardDatabase database) {
 		giftCards = database;
 	}
 	
@@ -75,13 +83,13 @@ public class PayWithCard implements CardReaderObserver {
 		boolean paymentSuccessful = false;
 		
 		String cardNum = cardData.getNumber();
-		int holdNum = cardIssuer.authorizeHold(cardNum, paymentAmount);
+		int holdNum = cardIssuer.authorizeHold(cardNum, stationData.getTransactionPaymentAmount());
 		if(holdNum == -1) {
 			return paymentSuccessful;
 		}
 		if(holdNum >= 0) {
-			paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, paymentAmount);
-			payment.paid(paymentAmount);
+			paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, stationData.getTransactionPaymentAmount());
+			paymentSoftware.paid(stationData.getTransactionPaymentAmount());
 		}
 		
 		return paymentSuccessful;
@@ -97,18 +105,18 @@ public class PayWithCard implements CardReaderObserver {
 		boolean paymentSuccessful = false;
 		
 		String cardNum = cardData.getNumber();
-		int holdNum = cardIssuer.authorizeHold(cardNum, paymentAmount);
+		int holdNum = cardIssuer.authorizeHold(cardNum, stationData.getTransactionPaymentAmount());
 		if(holdNum == -1) {
 			return paymentSuccessful;
 		}
 		if(holdNum >= 0) {
 			paymentSuccessful = true;		//credit card transactions are not posted immediately?
-			payment.paid(paymentAmount);
+			paymentSoftware.paid(stationData.getTransactionPaymentAmount());
 		}
 		return paymentSuccessful;		
 	}
 	
-	
+	/*
 	public boolean payWithGiftCard(CardData data) {
 		boolean paymentSuccessful = false;
 		String cardNum = data.getNumber();
@@ -151,6 +159,7 @@ public class PayWithCard implements CardReaderObserver {
 		return paymentSuccessful;
 		
 	}
+	*/
 	/**
 	    * Check if the customer has removed their card
 	    */
@@ -162,7 +171,7 @@ public class PayWithCard implements CardReaderObserver {
 		}
 		
 		public void reset() {
-			cardIssuer = null;
+//			cardIssuer = null;
 			cardData = null;
 			success = false;
 			paymentAmount = new BigDecimal("0");
@@ -194,77 +203,88 @@ public class PayWithCard implements CardReaderObserver {
 	}
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		cardIssuer = cardIssuers.get(cardType);
-		cardData = data;
-		cardType = data.getType();
-		String cardKind = findCardKind(cardType);
-		
-		if(cardIssuers.containsKey(cardType) == true) {
+		if ((data.getType() != "Membership") && 
+			(stationData.getCurrentState() == StationState.PAY_CREDIT 
+		  || stationData.getCurrentState() == StationState.PAY_DEBIT))
+		{
+			cardData = data;
+			cardType = data.getType();
 			cardIssuer = cardIssuers.get(cardType);
-		}
-		else if(cardKind == "Giftcard") {
-			if(checkGiftCardBalance == true) {
-				if(giftcards.getDatabase().containsKey(data.getNumber()) == true) {
-					BigDecimal balance = BigDecimal.valueOf(giftcards.getDatabase().get(data.getNumber()));
-					payment.getGiftCardBalance(balance, true);
-					//no longer in checking balance phase
-					checkGiftCardBalance = false;
-					return;
-				}
-				else {
-					payment.getGiftCardBalance(new BigDecimal(0), false);
-					checkGiftCardBalance = false;
-					return;
-				}
-			}
-			else if(giftcards.getDatabase().containsKey(data.getNumber()) == true) {
-				success = payWithGiftCard(cardData);
-				if(success == true) {
-					payment.giftCardPaymentSuccessful();
-				}
-				else {
-					payment.giftCardPaymentUnsuccessful();
-					
-				}
-			}
-			else {
-				success = false;
-				paymentUnsuccessful();
-			}
-		}
-		else {
-			paymentUnsuccessful();
-			//if a membership card, should not be a part of cardIssuers available
-			//thus, payment with membership card is not possible
-		}
-		
 
-	
-		switch(cardKind) {
-		case "Debit":
-			success = payWithDebit(cardData);
-			if(success == true) {
-				payment.debitPaymentSuccessful();
+//			System.out.println("AAAAAA" + cardType);
+//			String cardKind = findCardKind(cardType);
+
+			if(cardIssuers.containsKey(cardType) == true) {
+				cardIssuer = cardIssuers.get(cardType);
 			}
+			/*
+			else if(cardKind == "Giftcard") {
+				if(checkGiftCardBalance == true) {
+					if(giftcards.getDatabase().containsKey(data.getNumber()) == true) {
+						BigDecimal balance = BigDecimal.valueOf(giftcards.getDatabase().get(data.getNumber()));
+						payment.getGiftCardBalance(balance, true);
+						//no longer in checking balance phase
+						checkGiftCardBalance = false;
+						return;
+					}
+					else {
+						payment.getGiftCardBalance(new BigDecimal(0), false);
+						checkGiftCardBalance = false;
+						return;
+					}
+				}
+				else if(giftcards.getDatabase().containsKey(data.getNumber()) == true) {
+					success = payWithGiftCard(cardData);
+					if(success == true) {
+						payment.giftCardPaymentSuccessful();
+					}
+					else {
+						payment.giftCardPaymentUnsuccessful();
+						
+					}
+				}
+				else {
+					success = false;
+					paymentUnsuccessful();
+				}
+			}
+			*/
 			else {
-				payment.debitPaymentUnsuccessful();
+				paymentUnsuccessful();
+				return;
+				//if a membership card, should not be a part of cardIssuers available
+				//thus, payment with membership card is not possible
 			}
-			break;
 			
-		case "Credit":
-			success = payWithCredit(cardData);
-			if(success == true) {
-				payment.creditPaymentSuccessful();
+	
+		
+			switch(cardType) {
+			case "Debit":
+				success = payWithDebit(cardData);
+				if(success == true) {
+					paymentSoftware.debitPaymentSuccessful();
+					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+				}
+				else {
+					paymentSoftware.debitPaymentUnsuccessful();
+					//TODO Change state to handle unsuccessful payment
+				}
+				break;
+				
+			case "Credit":
+				success = payWithCredit(cardData);
+				if(success == true) {
+					paymentSoftware.creditPaymentSuccessful();
+					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+				}
+				else {
+					paymentSoftware.creditPaymentUnsuccessful();
+				}
+				break;
 			}
-			else {
-				payment.creditPaymentUnsuccessful();
-			}
-			break;
+			checkCardRemoved();
+			reset();
 		}
-		
-		checkCardRemoved();
-		reset();
-		
 	}
 	
 	public String findCardKind(String cardType) {

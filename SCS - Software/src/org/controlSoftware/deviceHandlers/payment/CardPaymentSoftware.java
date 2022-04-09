@@ -3,14 +3,16 @@ package org.controlSoftware.deviceHandlers.payment;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.controlSoftware.customer.CheckoutSoftware;
+import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
+import org.driver.SelfCheckoutData;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
-public class PaymentHandler {
+public class CardPaymentSoftware {
 
+	private SelfCheckoutData stationData;
 	private SelfCheckoutStation station;
-	private CheckoutSoftware checkout;
+//	private CheckoutHandler checkoutHandler;
 	
 	private BigDecimal amountOwed = new BigDecimal(0);
 	private BigDecimal amountPaid = new BigDecimal(0);
@@ -36,13 +38,15 @@ public class PaymentHandler {
 	private int discount = 0;
 	
 	
-	
-	public PaymentHandler(SelfCheckoutStation station, CheckoutSoftware checkout) {
-		this.station = station;
-		this.checkout = checkout;
-		
-		this.cardPaymentHandler = new PayWithCard(station, this);
-		this.memberCardHandler = new ScansMembershipCard(station, this);
+	public CardPaymentSoftware(SelfCheckoutData stationData, 
+			PayWithCard cardPaymentHandler, 
+			ScansMembershipCard memberCardHandler) 
+	{
+		this.stationData = stationData;
+		this.station = stationData.getStationHardware();
+//		this.checkoutHandler = stationData.getStationSoftware().getCheckoutHandler();
+		this.cardPaymentHandler = cardPaymentHandler;
+		this.memberCardHandler = memberCardHandler;
 	}
 	
 	/* idea
@@ -95,7 +99,8 @@ public class PaymentHandler {
 	
 	
 	public void paid(BigDecimal paid) {
-		amountPaid.add(paid);
+//		amountPaid.add(paid);
+		stationData.addToTotalPaid(paid);
 	}
 	
 
@@ -103,12 +108,12 @@ public class PaymentHandler {
 	 * Customer choose to pay with bank note and coin
 	 * @param payment
 	 */
-	public void payWithBankNoteAndCoin() {
-		 willPayCash = new AtomicBoolean(true);	
-		 station.coinSlot.enable();
-		 station.banknoteInput.enable();
-		 
-	}
+//	public void payWithBankNoteAndCoin() {
+//		 willPayCash = new AtomicBoolean(true);	
+//		 station.coinSlot.enable();
+//		 station.banknoteInput.enable();
+//		 
+//	}
 	
 
 	/**

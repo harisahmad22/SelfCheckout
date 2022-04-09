@@ -147,6 +147,35 @@ public class SelfCheckoutGUIPayments {
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
+		
+		debugInsertCreditCardButton();
+	}
+
+	
+	private void debugInsertCreditCardButton() {
+		Color color = new Color(128, 128, 255);
+		JButton insertCreditCard = new JButton();
+		insertCreditCard.setBounds(50,300,300,200);
+		insertCreditCard.setText("[DEBUG] Insert Credit Card to Pay");
+		insertCreditCard.setFont(new Font("Calibri", Font.BOLD, 18));
+		insertCreditCard.setBackground(color);
+		
+		insertCreditCard.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				Card creditCard = new Card("Credit", "1", "Test Holder", "000", "1234", true, true);
+
+				try 
+				{ 
+					stationData.getStationHardware().cardReader.insert(creditCard, "1234");
+					stationData.getStationHardware().cardReader.remove();
+				} 
+				catch (IOException e1) 
+				{ System.out.println("Error! IO exception during debug giftcard swipe."); }
+			}  
+		});
+		
+		frame.add(insertCreditCard);
+		insertCreditCard.setVisible(true);
 	}
 	
 	private void payDebitScreen(){
@@ -165,7 +194,36 @@ public class SelfCheckoutGUIPayments {
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
+
+		debugInsertDebitCardButton();
 	}
+	
+	private void debugInsertDebitCardButton() {
+		Color color = new Color(128, 128, 255);
+		JButton insertDebitCard = new JButton();
+		insertDebitCard.setBounds(50,300,300,200);
+		insertDebitCard.setText("[DEBUG] Insert Credit Card to Pay");
+		insertDebitCard.setFont(new Font("Calibri", Font.BOLD, 18));
+		insertDebitCard.setBackground(color);
+		
+		insertDebitCard.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				Card creditCard = new Card("Debit", "1", "Test Holder", "000", "1234", true, true);
+
+				try 
+				{
+					stationData.getStationHardware().cardReader.insert(creditCard, "1234");
+					stationData.getStationHardware().cardReader.remove();
+				} 
+				catch (IOException e1) 
+				{ System.out.println("Error! IO exception during debug giftcard swipe."); }
+			}  
+		});
+		
+		frame.add(insertDebitCard);
+		insertDebitCard.setVisible(true);
+	}
+	
 	
 	private void payGiftCardScreen(){
 		frame.setLayout(null);
