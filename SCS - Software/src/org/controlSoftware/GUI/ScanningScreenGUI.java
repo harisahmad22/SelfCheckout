@@ -37,8 +37,12 @@ public class ScanningScreenGUI() {
 			LetterSearch();
 			break;
 		case CHECKOUT_CHECK:
-			checkoutPopup();
+			CheckoutPopup();
 			break;
+		case BAG_ASK:
+			BagPopup();
+		case NOT_BAGGED:
+			BagBlock();
 		default:
 			break;
 		}
@@ -66,6 +70,7 @@ public class ScanningScreenGUI() {
 		options.setLayout(new GridLayout(0,1));
 		JButton itemButton = new JButton("Item Lookup");
 		options.add(itemButton);
+		itemButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		itemButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	        	stationData.changeState(State.LETTER_SEARCH);
@@ -73,13 +78,15 @@ public class ScanningScreenGUI() {
 	    });
 		JButton pluButton = new JButton("PLU Lookup");
 		options.add(pluButton);
+		pluButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		pluButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	        	stationData.changeState(State.PLU_SEARCH);
 	        }
 	    });
-		JButton assistButton = new JButton("Ask Attendant for Assistance");
+		JButton assistButton = new JButton("Ask for Assistance");
 		options.add(assistButton);
+		assistButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		assistButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	        	//Ask for assistance
@@ -87,6 +94,7 @@ public class ScanningScreenGUI() {
 	    });
 		JButton checkoutButton = new JButton("Proceed to checkout");
 		options.add(checkoutButton);
+		checkoutButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		checkoutButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	        	stationData.changeState(State.CHECKOUT_CHECK);
@@ -242,7 +250,7 @@ public class ScanningScreenGUI() {
 	}
 
 	// Prompt if user is sure if they want to check out
-	private void checkoutPopup(){
+	private void CheckoutPopup(){
 	    frame.setLayout(null);
 
 	    //Label for text
@@ -278,7 +286,7 @@ public class ScanningScreenGUI() {
 	}
 
 	// Not sure if this is good yet
-	private void scanPopup(){
+	private void BagPopup(){
 		frame.setLayout(null);
 
 	    JLabel askBag = new JLabel("Do you want to bag this item?", SwingConstants.CENTER);
@@ -288,11 +296,28 @@ public class ScanningScreenGUI() {
 	    
 	    JButton scanYesButton = new JButton("Yes");
 	    frame.add(scanYesButton);
+	    // Wait for bagging somehow
 	    scanYesButton.setBounds(200,200,200,100);
 	    
 	    JButton scanNoButton = new JButton("No");
 	    frame.add(scanNoButton);
+	    scanNoButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	        	stationData.changeState(State.MAIN_SCAN);
+	        }
+	    });
 	    scanNoButton.setBounds(600,200,200,100);
+	    
+	    frame.setVisible(true);
+	}
+	
+	private void BagBlock(){
+		frame.setLayout(null);
+
+	    JLabel noBag = new JLabel("Please bag your item.", SwingConstants.CENTER);
+	    noBag.setFont(new Font("Tahoma", Font.PLAIN, 40));
+	    frame.add(noBag);
+	    noBag.setBounds(100,20,800,100);
 	    
 	    frame.setVisible(true);
 	}

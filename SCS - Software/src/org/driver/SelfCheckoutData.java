@@ -72,10 +72,10 @@ public class SelfCheckoutData {
 		
 		
 		// Ready for item to be scanned. Could proceed to checkout from here
-		SCANNING,
+		MAIN_SCAN,  LETTER_SEARCH, PLU_SEARCH, CHECKOUT_CHECK
 		
 		// Scanned item need be bagged. Should return to scanning once bagged.
-		BAGGING,		
+		BAG_ASK, NOT_BAGGED
 		
 		// Interim checkout menu, can go back and scan more items or proceed to some payment option
 		CHECKOUT,
