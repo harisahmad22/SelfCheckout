@@ -410,6 +410,8 @@ public class SelfCheckoutData {
 			//Ask user if they would like to pay partial or full
 //			stationSoftware.getTouchScreenSoftware().choosePaymentAmount( getTotalDue(), getTotalMoneyPaid());
 			break;
+		
+		
 			
 		case PAYMENT_MODE_PROMPT:
 			//Ask user how they would like to pay (Cash, Credit, Debt) TODO 
