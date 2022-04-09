@@ -1,5 +1,6 @@
 package org.driver;
 
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -11,6 +12,7 @@ import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
+import org.driver.SelfCheckoutSoftware;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.databases.BarcodedProductDatabase;
@@ -611,66 +613,6 @@ public class SelfCheckoutData {
 		return productsAddedToCheckout;
 	}
 	
-	/*
-	 *  State changing methods
-	 */
-	
-	// Changes to new state while properly exiting old one (enabling/disabling relevant hardware)
-	public void changeState(State targetState) {
-		// Disable hardware for old state
-		exitState(state);
-		state = targetState;
-		// Enable hardware for new state
-		switch(targetState) {
-		
-		case WELCOME:
-			wipeData();
-			break;
-		
-		case SCANNING:
-			station.mainScanner.enable();
-			station.handheldScanner.enable();
-			station.scanningArea.enable();
-			break;
-		
-		case BAGGING:
-			station.baggingArea.enable();
-			break;
-			
-		case ADDING_BAGS:
-			station.baggingArea.enable();
-			break;
-			
-		case PAY_CASH:
-			station.banknoteInput.enable();
-			station.coinSlot.enable();
-			break;
-			
-		case PAY_CREDIT:
-			station.cardReader.enable();
-			break;
-			
-		case PAY_DEBIT:
-			station.cardReader.enable();
-			break;
-			
-		case ADD_MEMBERSHIP:
-			station.cardReader.enable();
-			break;
-			
-		case FINISHED:
-			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed.
-			break;
-			
-		case ERROR:
-			break;
-			
-		default:
-			break;
-		}
-		notifyStateChanged();
-	}
-
 	public ProductInfo getProductAddedToCheckout(String productDescription) {
 		return productsAddedToCheckout.get(productDescription);
 	}
@@ -692,9 +634,9 @@ public class SelfCheckoutData {
 		this.stationSoftware = stationSoftware;
 	}
 	
-	public State getState() {
-		return state;
-	}
+//	public StationState getCurrentState() {
+//		return currentState;
+//	}
 	
 	private void notifyStateChanged() {
 		gui.stateChanged();

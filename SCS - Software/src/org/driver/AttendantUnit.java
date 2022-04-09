@@ -29,7 +29,6 @@ public class AttendantUnit {
 		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
 		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
-		this.attendantSoftware = new AttendantSoftware(attendantStation, attendantData, checkoutStations);
 		//Have to add in attendant touch screen software 
 	}
 	

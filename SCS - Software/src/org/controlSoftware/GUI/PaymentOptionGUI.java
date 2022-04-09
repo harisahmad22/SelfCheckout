@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.driver.*;
-import org.driver.SelfCheckoutData.State;
+import org.driver.SelfCheckoutData.StationState;
 
 /**
  * @author Harrison Drew
@@ -35,7 +35,7 @@ public class PaymentOptionGUI {
 	}
 	
 	public void stateChanged() {
-		switch (data.getState()) {
+		switch (data.getCurrentState()) {
 		case CHECKOUT:
 			checkoutScreen();
 			break;
@@ -94,7 +94,7 @@ public class PaymentOptionGUI {
 		
 		membership.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
-				data.changeState(State.ASK_MEMBERSHIP);
+				data.changeState(StationState.ASK_MEMBERSHIP);
 			}  
 		});
 		
@@ -136,7 +136,7 @@ public class PaymentOptionGUI {
 		
 		debit.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  				
-				data.changeState(State.PAY_DEBIT);
+				data.changeState(StationState.PAY_DEBIT);
 			}  
 		});
 		
@@ -158,7 +158,7 @@ public class PaymentOptionGUI {
 		
 		credit.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
-				data.changeState(State.PAY_CREDIT);
+				data.changeState(StationState.PAY_CREDIT);
 			}  
 		});
 		
@@ -180,7 +180,7 @@ public class PaymentOptionGUI {
 		
 		cash.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
-				data.changeState(State.PAY_CASH);
+				data.changeState(StationState.PAY_CASH);
 			}  
 		});
 		
@@ -202,7 +202,7 @@ public class PaymentOptionGUI {
 		
 		back.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
-				data.changeState(State.MAIN_SCAN);
+				data.changeState(StationState.MAIN_SCAN);
 			}  
 		});
 		

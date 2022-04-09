@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import org.driver.SelfCheckoutData;
-import org.driver.SelfCheckoutData.State;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 public class SelfCheckoutGUIPayments {
@@ -38,7 +38,7 @@ public class SelfCheckoutGUIPayments {
 	
 	
 	public void stateChanged() {
-		switch (stationData.getState()) {
+		switch (stationData.getCurrentState()) {
 		case PAY_CASH:
 			payCashScreen();
 			break;

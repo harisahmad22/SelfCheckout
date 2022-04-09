@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import org.driver.SelfCheckoutData;
-import org.driver.SelfCheckoutData.State;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 public class SelfCheckoutGUIWelcome {
@@ -35,7 +35,7 @@ public class SelfCheckoutGUIWelcome {
 	}
 	
 	public void stateChanged() {
-		switch (stationData.getState()) {
+		switch (stationData.getCurrentState()) {
 		case WELCOME:
 			welcomeScreen();
 			break;
@@ -82,7 +82,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.ASK_MEMBERSHIP);
+				stationData.changeState(StationState.ASK_MEMBERSHIP);
 			}
 		});
 	}
@@ -110,14 +110,14 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.SCAN_MEMBERSHIP);
+				stationData.changeState(StationState.SCAN_MEMBERSHIP);
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.ASK_BAGS);
+				stationData.changeState(StationState.ASK_BAGS);
 			}
 		});
 
@@ -154,14 +154,14 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.ASK_MEMBERSHIP);
+				stationData.changeState(StationState.ASK_MEMBERSHIP);
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.TYPE_MEMBERSHIP);
+				stationData.changeState(StationState.TYPE_MEMBERSHIP);
 			}
 		});
 
@@ -191,14 +191,14 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.SCAN_MEMBERSHIP);
+				stationData.changeState(StationState.SCAN_MEMBERSHIP);
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.TEST_MEMBERSHIP);
+				stationData.changeState(StationState.TEST_MEMBERSHIP);
 				stationData.setGuiBuffer(l1.getText());
 			}
 		});
@@ -269,14 +269,14 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.ADDING_BAGS);
+				stationData.changeState(StationState.ADDING_BAGS);
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.MAIN_SCAN);
+				stationData.changeState(StationState.MAIN_SCAN);
 			}
 		});
 
@@ -312,14 +312,14 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.ASK_BAGS);
+				stationData.changeState(StationState.ASK_BAGS);
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.ADDED_BAGS);
+				stationData.changeState(StationState.ADDED_BAGS);
 			}
 		});
 	}
@@ -344,7 +344,7 @@ public class SelfCheckoutGUIWelcome {
 		Timer timer = new Timer(5000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-				stationData.changeState(State.WELCOME);
+				stationData.changeState(StationState.WELCOME);
             }
         });
         timer.start();

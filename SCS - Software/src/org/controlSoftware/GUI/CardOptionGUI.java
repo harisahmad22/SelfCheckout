@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.driver.*;
-import org.driver.SelfCheckoutData.State;
+import org.driver.SelfCheckoutData.StationState;
 
 /**
  * @author Harrison Drew
@@ -149,7 +149,7 @@ public class CardOptionGUI {
 		
 		back.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
-				data.changeState(State.CHECKOUT);
+				data.changeState(StationState.CHECKOUT);
 			}  
 		});
 		

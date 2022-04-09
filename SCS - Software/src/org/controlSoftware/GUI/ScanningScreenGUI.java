@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import org.driver.SelfCheckoutData;
-import org.driver.SelfCheckoutData.State;
+import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 public class ScanningScreenGUI {
@@ -26,7 +26,7 @@ public class ScanningScreenGUI {
 	}
 
 	public void stateChanged() {
-		switch (stationData.getState()) {
+		switch (stationData.getCurrentState()) {
 		case MAIN_SCAN:
 			Main();
 			break;
@@ -68,14 +68,14 @@ public class ScanningScreenGUI {
 		options.add(itemButton);
 		itemButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.LETTER_SEARCH);
+	        	stationData.changeState(StationState.LETTER_SEARCH);
 	        }
 	    });
 		JButton pluButton = new JButton("PLU Lookup");
 		options.add(pluButton);
 		pluButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.PLU_SEARCH);
+	        	stationData.changeState(StationState.PLU_SEARCH);
 	        }
 	    });
 		JButton assistButton = new JButton("Ask Attendant for Assistance");
@@ -89,7 +89,7 @@ public class ScanningScreenGUI {
 		options.add(checkoutButton);
 		checkoutButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.CHECKOUT_CHECK);
+	        	stationData.changeState(StationState.CHECKOUT_CHECK);
 	        }
 	    });
 		options.setBounds(740,20,200,520);
@@ -185,7 +185,7 @@ public class ScanningScreenGUI {
 		frame.add(pluReturn);
 		pluReturn.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 		pluReturn.setBounds(740,20, 220, 60);
@@ -233,7 +233,7 @@ public class ScanningScreenGUI {
 		frame.add(alphabetReturn);
 		alphabetReturn.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 		alphabetReturn.setBounds(740,20,220,60);
@@ -257,7 +257,7 @@ public class ScanningScreenGUI {
 	    outYesButton.setBounds(200,200,200,100);
 	    outYesButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.CHECKOUT);
+	        	stationData.changeState(StationState.CHECKOUT);
 	        }
 	    });
 	    
@@ -266,7 +266,7 @@ public class ScanningScreenGUI {
 	    frame.add(outNoButton);
 	    outNoButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 	    outNoButton.setBounds(600,200,200,100);
