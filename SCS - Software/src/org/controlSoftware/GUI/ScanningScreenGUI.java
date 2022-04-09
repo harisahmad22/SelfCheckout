@@ -136,8 +136,6 @@ public class ScanningScreenGUI {
 	
 	//BRODY
 	private void debugScanTestItemButton() {
-		TestBarcodedProducts testProducts = new TestBarcodedProducts();
-		final BarcodedItem testMilkJug = new TestBarcodedProducts().getItem(testProducts.getBarcodedProductList().get(0));
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
 		payCoin.setBounds(350,150,300,200);
@@ -147,7 +145,7 @@ public class ScanningScreenGUI {
 		
 		payCoin.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
-				stationData.getStationHardware().mainScanner.scan(testMilkJug); 
+				stationData.getStationHardware().mainScanner.scan(stationData.getTestProducts().getItemList().get(0)); 
 			}  
 		});
 		
@@ -373,24 +371,24 @@ public class ScanningScreenGUI {
 	}
 	
 	//BRODY
-		private void debugPlaceTestItemButton() {
-			TestBarcodedProducts testProducts = new TestBarcodedProducts();
-			final BarcodedItem testMilkJug = new TestBarcodedProducts().getItem(testProducts.getBarcodedProductList().get(0));
-			Color color = new Color(128, 128, 255);
-			JButton payCoin = new JButton();
-			payCoin.setBounds(250,150,300,200);
-			payCoin.setText("[DEBUG] Put Milk Jug in Bagging Area");
-			payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
-			payCoin.setBackground(color);
-			
-			payCoin.addActionListener(new ActionListener(){  
-				public void actionPerformed(ActionEvent e){  
-					stationData.getStationHardware().baggingArea.add(testMilkJug); 
-				}  
-			});
-			
-			frame.add(payCoin);
-			payCoin.setVisible(true);
-		}
+	private void debugPlaceTestItemButton() {
+		TestBarcodedProducts testProducts = new TestBarcodedProducts();
+		final BarcodedItem testMilkJug = new TestBarcodedProducts().getItem(testProducts.getBarcodedProductList().get(0));
+		Color color = new Color(128, 128, 255);
+		JButton payCoin = new JButton();
+		payCoin.setBounds(250,150,300,200);
+		payCoin.setText("[DEBUG] Put Milk Jug in Bagging Area");
+		payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
+		payCoin.setBackground(color);
+		
+		payCoin.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				stationData.getStationHardware().baggingArea.add(stationData.getTestProducts().getItemList().get(0)); 
+			}  
+		});
+		
+		frame.add(payCoin);
+		payCoin.setVisible(true);
+	}
 }
 

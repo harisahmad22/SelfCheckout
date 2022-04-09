@@ -92,7 +92,11 @@ public class SelfCheckoutGUIPayments {
 				try 
 				{ stationData.getStationHardware().coinSlot.accept(stationData.toonie); } 
 				catch (DisabledException e1) { System.out.println("Error! Banknote Input Disabled!"); } 
-				catch (OverloadException e1) { System.out.println("Error! Banknote Input Overloaded!");}
+				catch (OverloadException e1) 
+				{ 
+					System.out.println("Error! Banknote Input Overloaded!");
+					stationData.getStationHardware().banknoteInput.removeDanglingBanknotes();
+				}
 			}  
 		});
 		
