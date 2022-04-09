@@ -185,19 +185,42 @@ public class SelfCheckoutGUIPayments {
 		frame.getContentPane().add(l2);
 		
 		debugGiftCardButton();
+		debugGiftCardButton2();
 	}
 	
 	private void debugGiftCardButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payBanknote = new JButton();
-		payBanknote.setBounds(50,150,300,200);
+		payBanknote.setBounds(50,300,300,200);
 		payBanknote.setText("[DEBUG] Pay with $150 Giftcard");
-		payBanknote.setFont(new Font("Calibri", Font.BOLD, 24));
+		payBanknote.setFont(new Font("Calibri", Font.BOLD, 18));
 		payBanknote.setBackground(color);
 		
 		payBanknote.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
 				Card giftCard = new Card("GiftCard", "2", "Gift Card Holder", null, null, false, false);
+
+				try { stationData.getStationHardware().cardReader.swipe(giftCard); } 
+				catch (IOException e1) 
+				{ System.out.println("Error! IO exception during debug giftcard swipe."); }
+			}  
+		});
+		
+		frame.add(payBanknote);
+		payBanknote.setVisible(true);
+	}
+	
+	private void debugGiftCardButton2() {
+		Color color = new Color(128, 128, 255);
+		JButton payBanknote = new JButton();
+		payBanknote.setBounds(350,300,300,200);
+		payBanknote.setText("[DEBUG] Pay with $5 Giftcard");
+		payBanknote.setFont(new Font("Calibri", Font.BOLD, 18));
+		payBanknote.setBackground(color);
+		
+		payBanknote.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				Card giftCard = new Card("GiftCard", "4", "Gift Card Holder", null, null, false, false);
 
 				try { stationData.getStationHardware().cardReader.swipe(giftCard); } 
 				catch (IOException e1) 
