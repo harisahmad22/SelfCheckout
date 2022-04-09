@@ -1,4 +1,4 @@
-package org.lsmr.selfcheckout.devices;
+package org.controlSoftware.GUI;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -8,7 +8,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class ScanningScreenGUI() {
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+
+public class ScanningScreenGUI {
 	private SelfCheckoutStation station;
 	private SelfCheckoutData stationData;
 	
@@ -22,19 +26,15 @@ public class ScanningScreenGUI() {
 	}
 
 	public void stateChanged() {
-		frame.getContentPane().removeAll();
-		frame.getContentPane().revalidate();
-		frame.getContentPane().repaint();
-
-		switch (stationData.getState()) {
+		switch (stationData.getCurrentState()) {
 		case MAIN_SCAN:
 			Main();
 			break;
 		case LETTER_SEARCH:
-			PluSearch();
+			LetterSearch();
 			break;
 		case PLU_SEARCH:
-			LetterSearch();
+			PluSearch();
 			break;
 		case CHECKOUT_CHECK:
 			CheckoutPopup();
@@ -73,7 +73,7 @@ public class ScanningScreenGUI() {
 		itemButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		itemButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.LETTER_SEARCH);
+	        	stationData.changeState(StationState.LETTER_SEARCH);
 	        }
 	    });
 		JButton pluButton = new JButton("PLU Lookup");
@@ -81,7 +81,7 @@ public class ScanningScreenGUI() {
 		pluButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		pluButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.PLU_SEARCH);
+	        	stationData.changeState(StationState.PLU_SEARCH);
 	        }
 	    });
 		JButton assistButton = new JButton("Ask for Assistance");
@@ -97,7 +97,7 @@ public class ScanningScreenGUI() {
 		checkoutButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		checkoutButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.CHECKOUT_CHECK);
+	        	stationData.changeState(StationState.CHECKOUT_CHECK);
 	        }
 	    });
 		options.setBounds(740,20,200,520);
@@ -118,7 +118,7 @@ public class ScanningScreenGUI() {
 		inventoryPLU.setOpaque(true);
 		
 		// Shows current input
-		JLabel codePLU = new JLabel("");
+		final JLabel codePLU = new JLabel("");
 		frame.add(codePLU);
 		codePLU.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		codePLU.setBounds(740,100,220,100);
@@ -193,7 +193,7 @@ public class ScanningScreenGUI() {
 		frame.add(pluReturn);
 		pluReturn.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 		pluReturn.setBounds(740,20, 220, 60);
@@ -204,7 +204,7 @@ public class ScanningScreenGUI() {
 
 	// Screen for searching by letter
 	private void LetterSearch(){
-		String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
+		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
 
 		// Display for search
@@ -216,7 +216,7 @@ public class ScanningScreenGUI() {
 		
 		// List of letters to select
 		JScrollPane alphabetContainer = new JScrollPane();
-		JList alphabetList = new JList(letters);
+		final JList alphabetList = new JList(letters);
 		alphabetContainer.setViewportView(alphabetList);
 	    alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		frame.add(alphabetContainer);
@@ -241,7 +241,7 @@ public class ScanningScreenGUI() {
 		frame.add(alphabetReturn);
 		alphabetReturn.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 		alphabetReturn.setBounds(740,20,220,60);
@@ -265,10 +265,7 @@ public class ScanningScreenGUI() {
 	    outYesButton.setBounds(200,200,200,100);
 	    outYesButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	frame.getContentPane().removeAll();
-	        	frame.getContentPane().revalidate();
-	        	frame.getContentPane().repaint();
-	            //Move to checkout
+	        	stationData.changeState(StationState.CHECKOUT);
 	        }
 	    });
 	    
@@ -277,7 +274,7 @@ public class ScanningScreenGUI() {
 	    frame.add(outNoButton);
 	    outNoButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(State.MAIN_SCAN);
+	        	stationData.changeState(StationState.MAIN_SCAN);
 	        }
 	    });
 	    outNoButton.setBounds(600,200,200,100);
