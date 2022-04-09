@@ -86,17 +86,14 @@ public class ScannerHandler implements BarcodeScannerObserver
 				
 				stationData.addToTotalCost(scannedItemPrice);
 			}
-			else
-			{
-				//Item is priced per KG, get the weight of item in KG and multiply by price,
-				//add this to customers total
-				//!!! THIS WILL HAVE TO CHANGE WITH THE ADDITION OF THE SCALE !!!
-				stationData.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
-			}
-			
-			//Add product info to the receipt handler list
-			stationData.addProductToCheckout(scannedProduct);
-			
+//			else
+//			{
+//				//Item is priced per KG, get the weight of item in KG and multiply by price,
+//				//add this to customers total
+//				//!!! THIS WILL HAVE TO CHANGE WITH THE ADDITION OF THE SCALE !!!
+//				stationData.addToTotalCost(scannedItemPrice.multiply(new BigDecimal(scannedItemWeightInKG))); 
+//			}
+//			
 			//Update expected weight 
 			stationData.setExpectedWeight(stationData.getExpectedWeight() + scannedItemWeight);
 			
@@ -110,7 +107,13 @@ public class ScannerHandler implements BarcodeScannerObserver
 //			stationSoftware.attendantBlockCheck();
 			
 			//Customer's total has been updated, now change to the WAITING_FOR_ITEM state
-			stationData.changeState(StationState.WAITING_FOR_ITEM);
+//			stationData.changeState(StationState.WAITING_FOR_ITEM);
+//			
+			//Add product info to the receipt handler list
+			stationData.addProductToCheckout(scannedProduct);
+			
+			
+			
 //			waitForWeightChange(scannedItemWeight);
 				//Attendant Block check
 //			stationSoftware.attendantBlockCheck();
@@ -125,7 +128,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 			stationData.changeState(StationState.NORMAL); 
 			return;
 		}
-		stationData.changeState(StationState.NORMAL);
+//		stationData.changeState(StationState.NORMAL);
 	}
 	
 	private void waitForWeightChange(double scannedItemWeight) throws OverloadException {

@@ -15,6 +15,7 @@ public class ProductInfo {
 	 public String description = null; //Will come from Database
 	 public Barcode barcode = null; //Will come from Barcode database
 	 public PriceLookupCode pluCode = null; //Will come from PLU database
+	 public int quantity = 1;
 	 
 	  
 	 public ProductInfo(Product product, String description, double weight)
@@ -30,6 +31,7 @@ public class ProductInfo {
 		 this.description = product.getDescription();
 		 this.weight = product.getExpectedWeight();
 		 this.barcode = product.getBarcode();
+		 this.quantity = 1;
 	 }
 	 
 	 public ProductInfo(PLUCodedProduct product, double weight)
@@ -38,6 +40,7 @@ public class ProductInfo {
 		 this.description = product.getDescription();
 		 this.weight = weight; //Come from scale 
 		 this.pluCode = product.getPLUCode();
+		 this.quantity = 1;
 	 }
 	 
 	 public Product getProduct()
@@ -64,4 +67,13 @@ public class ProductInfo {
 	 {
 		 return this.pluCode;
 	 }
+
+	public void increaseQuantity() {
+		this.quantity += 1;
+		
+	}
+
+	public int getQuantity() {
+		return this.quantity;
+	}
 }
