@@ -41,12 +41,91 @@ public class SupervisorGUIMaster {
 		case LOG_IN:
 			loginScreen();
 			break;
+		case ACTIVE:
+			mainScreen();
+			break;
 		default:
 			break;
 		}
 		//frame.setVisible(true);
 		station.screen.setVisible(true);
 	}
+	
+	private void mainScreen()
+	{
+		frame.setLayout(null);
+		
+		final JButton block = new JButton("Block Station");
+		block.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		block.setBounds(0, 0, 200, 100);
+		frame.getContentPane().add(block);
+		
+		final JButton unBlock = new JButton("Unblock Station");
+		unBlock.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		unBlock.setBounds(200, 0, 200, 100);
+		frame.getContentPane().add(unBlock);
+		
+		final JButton startup = new JButton("Startup Station");
+		startup.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		startup.setBounds(400, 0, 200, 100);
+		frame.getContentPane().add(startup);
+
+		final JButton shutdown = new JButton("Shutdown Station");
+		shutdown.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		shutdown.setBounds(600, 0, 200, 100);
+		frame.getContentPane().add(shutdown);
+		
+		final JButton overrideWeight = new JButton("Override Weight Issue");
+		overrideWeight.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		overrideWeight.setBounds(800, 0, 200, 100);
+		frame.getContentPane().add(overrideWeight);
+		
+		final JButton remove = new JButton("Remove Product From Station");
+		remove.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		remove.setBounds(0, 100, 200, 100);
+		frame.getContentPane().add(remove);
+		
+		final JButton lookup = new JButton("Lookup Product for Station");
+		lookup.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lookup.setBounds(200, 100, 200, 100);
+		frame.getContentPane().add(lookup);
+		
+		final JButton refillInk = new JButton("Refill Ink at Station");
+		refillInk.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		refillInk.setBounds(400, 100, 200, 100);
+		frame.getContentPane().add(refillInk);
+		
+		final JButton refillPaper = new JButton("Refill Paper at Station");
+		refillPaper.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		refillPaper.setBounds(600, 100, 200, 100);
+		frame.getContentPane().add(refillPaper);
+		
+		final JButton refillCoinDispenser = new JButton("Refill Coin Dispenser at Station");
+		refillCoinDispenser.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		refillCoinDispenser.setBounds(800, 100, 200, 100);
+		frame.getContentPane().add(refillCoinDispenser);
+		
+		final JButton refillBanknoteDispenser = new JButton("Refill Banknote Dispenser at Station");
+		refillBanknoteDispenser.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		refillBanknoteDispenser.setBounds(0, 200, 200, 100);
+		frame.getContentPane().add(refillBanknoteDispenser);
+		
+		final JButton emptyCoinStorage = new JButton("Empty Coin storage at Station");
+		emptyCoinStorage.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		emptyCoinStorage.setBounds(200, 200, 200, 100);
+		frame.getContentPane().add(emptyCoinStorage);
+		
+		final JButton emptyBanknoteStorage = new JButton("Empty Banknote storage at Station");
+		emptyBanknoteStorage.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		emptyBanknoteStorage.setBounds(400, 200, 200, 100);
+		frame.getContentPane().add(emptyBanknoteStorage);
+		
+		final JButton logout = new JButton("Log out Attendant");
+		logout.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		logout.setBounds(600, 200, 200, 100);
+		frame.getContentPane().add(logout);
+	}
+	
 	
 	// Screen with keypad. Outputs value typed to SelfCheckoutData.guiBuffer
 		private void loginScreen(){
@@ -79,7 +158,7 @@ public class SupervisorGUIMaster {
 			b2.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					attendantData.changeState(AttendantState.INACTIVE);//PLACEHOLDER
+					attendantData.changeState(AttendantState.ACTIVE);//PLACEHOLDER
 					attendantData.setGuiBuffer(l1.getText());
 				}
 			});
