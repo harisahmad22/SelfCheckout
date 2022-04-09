@@ -445,6 +445,7 @@ public class PaymentOptionGUI {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				data.resetTotalPaidThisTransaction();
 				data.changeState(StationState.NORMAL);
 			}
 		});
@@ -452,6 +453,7 @@ public class PaymentOptionGUI {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				data.resetTotalPaidThisTransaction();
 				data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
 			}
 		});

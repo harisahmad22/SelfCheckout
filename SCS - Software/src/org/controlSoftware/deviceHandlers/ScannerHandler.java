@@ -134,14 +134,14 @@ public class ScannerHandler implements BarcodeScannerObserver
 	private void waitForWeightChange(double scannedItemWeight) throws OverloadException {
 		
 		double weightBefore = stationData.getBaggingAreaScale().getCurrentWeight(); // In grams
-		stationData.setExpectedWeightScanner(weightBefore + scannedItemWeight); // What we expect the scale to read after placing the item on it
+		stationData.setExpectedWeight(weightBefore + scannedItemWeight); // What we expect the scale to read after placing the item on it
 		
 		stationData.setIsScannerWaitingForWeightChange(true); //Signal Scale observer that we are waiting for an weight change after scanning
 		
-		if (stationData.isInCheckout())
-		{
-			stationData.setExpectedWeightCheckout(stationData.getExpectedWeightScanner());
-		}
+//		if (stationData.isInCheckout())
+//		{
+//			stationData.setExpectedWeight(stationData.getExpectedWeight());
+//		}
 		
 		//Wait for 3 seconds
 //		TimeUnit.SECONDS.sleep(3);

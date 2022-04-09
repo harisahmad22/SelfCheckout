@@ -2,6 +2,7 @@ package org.driver;
 
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -26,6 +27,7 @@ import org.driver.databases.StoreInventory;
 import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -34,6 +36,7 @@ import org.lsmr.selfcheckout.devices.CoinSlot;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -92,9 +95,9 @@ public class SelfCheckoutData {
 	private int transactionPaymentMethod = -1;
 
 	//Unused
-	private double expectedWeightNormalMode = 0;
-	private double expectedWeightCheckout = 0;
-	private double expectedWeightScanner = 0;
+//	private double expectedWeightNormalMode = 0;
+//	private double expectedWeightCheckout = 0;
+//	private double expectedWeightScanner = 0;
 	//unused
 	
 	private double expectedWeight = 0;
@@ -164,9 +167,12 @@ public class SelfCheckoutData {
 	
 	private StoreInventory Store_Inventory;
 	
+	private CardIssuer creditCardIssuer;
+	private CardIssuer debitCardIssuer;
 	
 	private PLUTestProducts PLUTestProducts;
 	private TestBarcodedProducts testProducts;
+	
 
 	public SelfCheckoutData(SelfCheckoutStation station) {
 		//This class will give the software access to 
@@ -179,6 +185,13 @@ public class SelfCheckoutData {
 		this.baggingAreaScale = this.stationHardware.baggingArea;
 		this.scanningAreaScale = this.stationHardware.scanningArea;
 		this.cardReader = this.stationHardware.cardReader;
+		
+		
+		//Initialize Card Issuers
+		creditCardIssuer = new CardIssuer("Credit"); 
+		debitCardIssuer = new CardIssuer("Debit"); 
+		
+		populateCardIssuers();
 		
 		//Initialize Databases
 		
@@ -201,6 +214,18 @@ public class SelfCheckoutData {
 		Store_Inventory = new StoreInventory(PLUTestProducts, 3, testProducts, 4);
 	}
 	
+	private void populateCardIssuers() {
+		Card creditCard1 = new Card("Credit", "1", "Test Holder", "000", "1234", true, true);
+		Calendar creditCard1Expiry = Calendar.getInstance();
+		creditCard1Expiry.set(2025, 5, 10);
+		creditCardIssuer.addCardData("1", "Test Holder", creditCard1Expiry, "000", new BigDecimal("5000"));
+		
+		Card debitCard1 = new Card("Debit", "1", "Test Holder", "000", "1234", true, true);
+		Calendar debitCard1Expiry = Calendar.getInstance();
+		debitCard1Expiry.set(2025, 5, 10);
+		debitCardIssuer.addCardData("1", "Test Holder", debitCard1Expiry, "000", new BigDecimal("1200"));
+	}
+
 	public void registerGUI(SelfCheckoutGUIMaster newGui) {
 		gui = newGui;
 	}
@@ -359,7 +384,7 @@ public class SelfCheckoutData {
 			stationHardware.handheldScanner.enable();
 			stationHardware.scanningArea.enable();
 			try {
-				setExpectedWeightNormalMode(stationHardware.baggingArea.getCurrentWeight());
+				setExpectedWeight(stationHardware.baggingArea.getCurrentWeight());
 			} catch (OverloadException e) {
 				System.out.println("Error! Scale overloaded during transition to NORMAL state!");
 				e.printStackTrace();
@@ -462,7 +487,7 @@ public class SelfCheckoutData {
 			stationHardware.banknoteInput.enable();
 			stationHardware.coinSlot.enable();
 			enableScannerDevices();
-			setExpectedWeightCheckout(getExpectedWeight());
+			setExpectedWeight(getExpectedWeight());
 			//Every-time a coin/banknote is put in, the CASH OBSERVER will update
 			//total paid/total paid this transaction, then test if that payment 
 			//event has increased the total paid this transaction to equal/exceed
@@ -627,6 +652,14 @@ public class SelfCheckoutData {
 
 	// Getters/setters
 	
+	public CardIssuer getDebitCardIssuer() {
+		return debitCardIssuer;
+	}
+
+	public CardIssuer getCreditCardIssuer() {
+		return creditCardIssuer;
+	}
+
 	public PLUTestProducts getPLUTestProducts() {
 		return PLUTestProducts;
 	}
@@ -821,41 +854,42 @@ public class SelfCheckoutData {
 		
 	}
 
-	public void setExpectedWeightCheckout(double weight) {
-		expectedWeightCheckout = weight;
-
-	}
-
-	public double getExpectedWeightCheckout() {
-		return expectedWeightCheckout;
-
-	}
-
-	public void setExpectedWeightNormalMode(double weight) {
-		expectedWeightNormalMode = weight;
-
-	}
-
-	public double getExpectedWeightNormalMode() {
-		return expectedWeightNormalMode;
-
-	}
-
-	public void setExpectedWeightScanner(double weight) {
-		expectedWeightScanner = weight;
-
-	}
-
-	public double getExpectedWeightScanner() {
-		return expectedWeightScanner;
-
-	}
-	
+//	public void setExpectedWeightCheckout(double weight) {
+//		expectedWeightCheckout = weight;
+//
+//	}
+//
+//	public double getExpectedWeightCheckout() {
+//		return expectedWeightCheckout;
+//
+//	}
+//
+//	public void setExpectedWeightNormalMode(double weight) {
+//		expectedWeightNormalMode = weight;
+//
+//	}
+//
+//	public double getExpectedWeightNormalMode() {
+//		return expectedWeightNormalMode;
+//
+//	}
+//
+//	public void setExpectedWeightScanner(double weight) {
+//		expectedWeightScanner = weight;
+//
+//	}
+//
+//	public double getExpectedWeightScanner() {
+//		return expectedWeightScanner;
+//
+//	}
+//	
 	public void setAllExpectedWeights(double currentWeight) {
-		setExpectedWeightCheckout(currentWeight);
-		setExpectedWeightNormalMode(currentWeight);
-		setExpectedWeightScanner(currentWeight);
+//		setExpectedWeightCheckout(currentWeight);
+//		setExpectedWeightNormalMode(currentWeight);
+//		setExpectedWeightScanner(currentWeight);
 		setExpectedWeight(currentWeight);
+		
 	}
 	
 	//Hannah Ku

@@ -412,6 +412,7 @@ public class SelfCheckoutGUIWelcome {
 //		Check if more money needs to be paid 
 		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) < 0)
 		{
+			stationData.resetTotalPaidThisTransaction();
 			stationData.changeState(StationState.NORMAL);
 		}
 		else
@@ -433,6 +434,14 @@ public class SelfCheckoutGUIWelcome {
 //        });
 //        timer.start();
 	}
+	
+	private void printTotals()
+    {
+    	System.out.println("!!! total due: " + stationData.getTotalDue());
+		System.out.println("!!! total money paid: " + stationData.getTotalMoneyPaid());
+		System.out.println("!!! total paid this transaction: " + stationData.getTotalPaidThisTransaction());
+		System.out.println("!!! transaction amount: " + stationData.getTransactionPaymentAmount());
+    }
 	//BRODY
 	private void debugRemoveItemsFromBaggingAreaButton() {
 		Color color = new Color(128, 128, 255);

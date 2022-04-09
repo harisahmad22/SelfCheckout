@@ -10,9 +10,11 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
-import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.GiftCardScannerHandler;
+import org.controlSoftware.deviceHandlers.payment.PayWithCard;
+import org.controlSoftware.deviceHandlers.payment.CardPaymentSoftware;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.OverloadException;
@@ -28,19 +30,22 @@ public class SelfCheckoutSoftware {
 	private SelfCheckoutData stationData;
 	
 	private CheckoutHandler checkoutHandler;
+	private CardPaymentSoftware cardPaymentSoftware;
+	private CashPaymentHandler cashPaymentHandler;
+	private GiftCardScannerHandler giftCardHandler;
 	private ScannerHandler scannerHandler;
 	private BaggingAreaScaleHandler baggingAreaScaleHandler;
 	private ReceiptHandler receiptHandler;
 	
 	private TouchScreenSoftware touchScreenSoftware;
-	private CashPaymentHandler cashPaymentHandler;
-	private CardReaderObserver membershipCardScannerHandler;
-	private GiftCardScannerHandler giftCardHandler; 
+	private ScansMembershipCard membershipCardHandler;
+	 
 	
 	
 	private AtomicBoolean weightIssueHandlerRunning = new AtomicBoolean(false);
 	
 	ScheduledExecutorService blockedStateChecker = Executors.newScheduledThreadPool(1);
+	private PayWithCard cardPaymentHandler;
 	
 	/***
 	 * This Class will deal with initializing all the handlers in the system and attaching them
@@ -49,15 +54,15 @@ public class SelfCheckoutSoftware {
 	 * Methods will also be provided to access individual handlers. (May not be needed) 
 	 */
 	
-	public SelfCheckoutSoftware(SelfCheckoutStationUnit stationUnit, SelfCheckoutData stationData)
+	public SelfCheckoutSoftware(SelfCheckoutStationUnit stationUnit, SelfCheckoutData newStationData)
 	{
 		this.stationUnit = stationUnit;
 		
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		
-		this.stationData = stationData;
+		this.stationData = newStationData;
 		
-		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationUnit.getTouchScreen(), stationData);
+		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationUnit.getTouchScreen(), this.stationData);
 		
 		this.receiptHandler = new ReceiptHandler(this.stationUnit, this.stationHardware.printer);
 		
@@ -67,23 +72,45 @@ public class SelfCheckoutSoftware {
 		
 		this.baggingAreaScaleHandler = new BaggingAreaScaleHandler(this.stationData, this);
 		
-		this.membershipCardScannerHandler = new MembershipCardScannerHandler(this.stationData);
+		this.cardPaymentSoftware = new CardPaymentSoftware(this.stationData, this.cardPaymentHandler, this.membershipCardHandler);
 		
-		this.giftCardHandler = new GiftCardScannerHandler(stationData);
+		this.cardPaymentHandler = new PayWithCard(this.stationData, this);
+		
+		this.membershipCardHandler = new ScansMembershipCard(this.stationData, this);
+		
+		this.giftCardHandler = new GiftCardScannerHandler(this.stationData);
 		
 		//CashPaymentHandler will deal with attaching to hardware
 		this.cashPaymentHandler = new CashPaymentHandler(this.stationData);
 		
+		attachObservers();
+		
+		this.cardPaymentHandler.addCardIssuer("Credit", this.stationData.getCreditCardIssuer());
+		this.cardPaymentHandler.addCardIssuer("Debit", stationData.getDebitCardIssuer());
+		
+	}
+	
+	public void attachObservers()
+	{
 		this.stationHardware.mainScanner.attach((BarcodeScannerObserver) scannerHandler);
 		this.stationHardware.handheldScanner.attach((BarcodeScannerObserver) scannerHandler);
 		
 		this.stationHardware.baggingArea.attach((ElectronicScaleObserver) baggingAreaScaleHandler);
 				
-		this.stationHardware.cardReader.attach(membershipCardScannerHandler);
+		this.stationHardware.cardReader.attach(cardPaymentHandler);
+		this.stationHardware.cardReader.attach(membershipCardHandler);
 		this.stationHardware.cardReader.attach(giftCardHandler);
+	}
+	public void detachObservers()
+	{
+		this.stationHardware.mainScanner.detach((BarcodeScannerObserver) scannerHandler);
+		this.stationHardware.handheldScanner.detach((BarcodeScannerObserver) scannerHandler);
 		
-		
-
+		this.stationHardware.baggingArea.detach((ElectronicScaleObserver) baggingAreaScaleHandler);
+				
+		this.stationHardware.cardReader.detach(cardPaymentHandler);
+		this.stationHardware.cardReader.detach(membershipCardHandler);
+		this.stationHardware.cardReader.detach(giftCardHandler);
 	}
 
 	public ReceiptHandler getReceiptHandler() {
@@ -343,6 +370,10 @@ public class SelfCheckoutSoftware {
 			System.out.println("Error! Cannot remove item when station is not in NORMAL state!");
 		}
 		
+	}
+
+	public CardPaymentSoftware getCardPaymentSoftware() {
+		return cardPaymentSoftware;
 	}
 
 	
