@@ -130,7 +130,7 @@ public class GiftCardScannerHandler implements CardReaderObserver
 
 	            stationData.addToTotalPaid(giftCard.getBalance());
 	            giftCard.updateBalance(giftCard.getBalance());
-	            stationData.changeState(StationState.PAYMENT_MODE_PROMPT);
+	            stationData.changeState(StationState.INSUFFICIENT_FUNDS);
 	            return;
 	        }
 	        else if(paymentAmount.compareTo(giftCard.getBalance()) == 0)

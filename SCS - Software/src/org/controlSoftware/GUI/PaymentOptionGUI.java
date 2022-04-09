@@ -47,6 +47,10 @@ public class PaymentOptionGUI {
 		case PARTIAL_PAYMENT_KEYPAD:
 			partialPaymentKeypad();
 			break;
+			
+		case INSUFFICIENT_FUNDS:
+			insufficientFundsScreen();
+			break;
 		default:
 			break;
 		}
@@ -71,8 +75,13 @@ public class PaymentOptionGUI {
 		frame.add(panel);
 		JLabel title = new JLabel("Select Payment Type");  
 	    title.setBounds(10,10,750,100);  
-	    title.setFont(new Font("Calibri", Font.BOLD,75));
+	    title.setFont(new Font("Calibri", Font.BOLD,65));
 	    frame.add(title);
+	    
+	    JLabel amountToPay = new JLabel("Amount owed: $" + data.getTransactionPaymentAmount());  
+	    amountToPay.setBounds(600,10,500,100);  
+	    amountToPay.setFont(new Font("Calibri", Font.BOLD, 38));
+	    frame.add(amountToPay);
 	}
 	
 	//(BRODY)
@@ -405,5 +414,50 @@ public class PaymentOptionGUI {
 		b4.addActionListener(keyList);
 		frame.getContentPane().add(b4);
 	}
+	
+	private void insufficientFundsScreen() {
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Insufficient funds available to complete purchase.");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("Remaining card funds have been applied to remaining balance");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+		
+		final JButton b1 = new JButton("Return");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(100,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		final JButton b2 = new JButton("Make another payment");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b2.setBounds(400,300,300,100);
+		frame.getContentPane().add(b2);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				data.changeState(StationState.NORMAL);
+			}
+		});
+		
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+			}
+		});
+		
+	
+	}
+
 	
 }

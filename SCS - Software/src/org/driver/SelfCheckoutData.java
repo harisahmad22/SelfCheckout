@@ -310,7 +310,10 @@ public class SelfCheckoutData {
 		ATTENDANT_OVERRIDE, 
 		
 		// State to inform GUI to display keypad for user to enter in their payment amount
-		PARTIAL_PAYMENT_KEYPAD 
+		PARTIAL_PAYMENT_KEYPAD,
+		
+		// State to inform user that their gift card does not have enough funds to complete transaction
+		INSUFFICIENT_FUNDS
 	}
 
 
@@ -417,7 +420,6 @@ public class SelfCheckoutData {
 //			stationSoftware.getTouchScreenSoftware().choosePaymentAmount( getTotalDue(), getTotalMoneyPaid());
 			break;
 		
-		
 			
 		case PAYMENT_MODE_PROMPT:
 			//Ask user how they would like to pay (Cash, Credit, Debt) TODO 
@@ -485,6 +487,9 @@ public class SelfCheckoutData {
 		case PAY_GIFTCARD:
 			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
+			break;
+			
+		case INSUFFICIENT_FUNDS:
 			break;
 			
 //		case ADD_MEMBERSHIP:
