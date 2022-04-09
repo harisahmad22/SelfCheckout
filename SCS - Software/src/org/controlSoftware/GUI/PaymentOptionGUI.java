@@ -96,7 +96,7 @@ public class PaymentOptionGUI {
 		JButton debit = new JButton();
 		debit.setBounds(50,150,300,200);
 		debit.setText("Partial Payment");
-		debit.setFont(new Font("Calibri", Font.BOLD,48));
+		debit.setFont(new Font("Calibri", Font.BOLD, 24));
 		debit.setBackground(color);
 		
 		debit.addActionListener(new ActionListener(){  
@@ -118,7 +118,7 @@ public class PaymentOptionGUI {
 		JButton credit = new JButton();
 		credit.setBounds(350,150,300,200);
 		credit.setText("Full Payment");
-		credit.setFont(new Font("Calibri", Font.BOLD,48));
+		credit.setFont(new Font("Calibri", Font.BOLD, 24));
 		credit.setBackground(color);
 		
 		credit.addActionListener(new ActionListener(){  
