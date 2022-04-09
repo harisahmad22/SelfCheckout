@@ -2,6 +2,7 @@ package org.driver;
 
 import java.util.ArrayList;
 
+import org.controlSoftware.GUI.SupervisorGUIMaster;
 import org.controlSoftware.attendant.AttendantSoftware;
 import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
@@ -21,20 +22,27 @@ public class AttendantUnit {
 	private AttendantSoftware attendantSoftware;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	private AttendantData attendantData;
+	private SupervisorGUIMaster gui;
+	
 	public AttendantUnit()
 	{
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
+		this.attendantData.attachCheckoutStationUnits(checkoutStations);
 		this.attendantStation = new SupervisionStation();
 		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
 		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
 		//Have to add in attendant touch screen software 
+		
+		this.gui = new SupervisorGUIMaster(attendantStation, attendantData);
+		this.attendantData.registerGUI(gui);
 	}
 	
 	public void attachCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> unitList)
 	{
 		checkoutStations = unitList;
+		attendantData.attachCheckoutStationUnits(unitList);
 		
 		this.attendantSoftware.setCheckoutStationUnits(checkoutStations);
 		
@@ -130,6 +138,10 @@ public class AttendantUnit {
 
 	public AttendantSoftware getAttendantSoftware() {
 		return attendantSoftware;
+	}
+	
+	public AttendantData getAttendantData() {
+		return attendantData;
 	}
 
 	public void setAttendantSoftware(AttendantSoftware attendantSoftware) {
