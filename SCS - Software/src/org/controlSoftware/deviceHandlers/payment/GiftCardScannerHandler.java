@@ -93,8 +93,11 @@ public class GiftCardScannerHandler implements CardReaderObserver
 	 */
 	@Override
 	public void cardSwiped(CardReader reader) {
-		System.out.println("A Card has been Swiped!");
-		stationData.setCardSwiped(true); //Inform checkout of swipe
+		if (stationData.getCurrentState() == StationState.PAY_GIFTCARD)
+		{
+			System.out.println("A GiftCard has been Swiped!");
+			stationData.setCardSwiped(true); //Inform checkout of swipe
+		}
 	}
 
 	/**
@@ -107,43 +110,80 @@ public class GiftCardScannerHandler implements CardReaderObserver
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (stationData.getCardSwiped() && (data.getType() == "GiftCard") && (stationData.getCurrentState() == StationState.PAY_GIFTCARD)) {
-			stationData.setGiftCardNo(data.getNumber());
+		if (stationData.getCardSwiped() && (data.getType() == "GiftCard") && (stationData.getCurrentState() == StationState.PAY_GIFTCARD)) 
+		{
+			String GiftCardNumber = data.getNumber();
+			stationData.setGiftCardNo(GiftCardNumber);
+			
+			BigDecimal paymentAmount = stationData.getTransactionPaymentAmount();
+			System.out.println("Gift card handler: " + paymentAmount);
+	        Map<String, GiftCardInfo> giftCardDataBase = stationData.getGiftCardDatabase().getDatabase();
+	        GiftCardInfo giftCard = giftCardDataBase.get(GiftCardNumber);
+	        if (giftCard == null)
+	        {
+	        	System.out.println("Error! Invalid Giftcard ID!");
+	        	return;
+	        }
+	        else if(paymentAmount.compareTo(giftCard.getBalance()) == 1)
+	        { //Need to pay more that giftcard balance, just pay balance and go back
+	          //To payment mode screen
+
+	            stationData.addToTotalPaid(giftCard.getBalance());
+	            giftCard.updateBalance(giftCard.getBalance());
+	            stationData.changeState(StationState.PAYMENT_MODE_PROMPT);
+	            return;
+	        }
+	        else if(paymentAmount.compareTo(giftCard.getBalance()) == 0)
+	        {
+	        	//Card has at exactly enough to pay
+	            stationData.addToTotalPaid(giftCard.getBalance());
+	            giftCard.updateBalance(giftCard.getBalance());
+	            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+	            return;
+	        }
+	        else if(paymentAmount.compareTo(giftCard.getBalance()) == -1)
+	        {
+	        	//Card has at more than enough to pay, just pay paymentAmount
+	            stationData.addToTotalPaid(paymentAmount);
+	            giftCard.updateBalance(paymentAmount);
+	            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+	            return;
+	        }
 		}
 	}
 
-    public void payWithGiftCard(String GiftCardNumber, 
-//    		BigDecimal valuePurchase, 
-    		GiftCardDatabase giftCardDB)
-    {
-    	BigDecimal paymentAmount = stationData.getTransactionPaymentAmount();
-        Map<String, GiftCardInfo> giftCardDataBase = giftCardDB.getDatabase();
-        GiftCardInfo giftCard = giftCardDataBase.get(GiftCardNumber);
-        if(paymentAmount.equals(giftCard.getBalance()) || (paymentAmount.compareTo(giftCard.getBalance()) == 1))
-        {
-        	giftCard.updateBalance(giftCard.getBalance());
-        	stationData.addToTotalPaidThisTransaction(giftCard.getBalance());
-            stationData.addToTotalPaid(giftCard.getBalance());
-            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
-            
-//            valuePurchase = valuePurchase.subtract(giftCard.getBalance());
-//            giftCard.updateBalance(giftCard.getBalance());
-             // as all the value has been used up
-//            return valuePurchase;
-            return;
-        }
-
-        else
-        {
-            giftCard.updateBalance(paymentAmount);
-            
-            stationData.addToTotalPaidThisTransaction(paymentAmount);
-            stationData.addToTotalPaid(paymentAmount);
-            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
-//            paymentAmount.valueOf(0); // as we paid for the entire purchase
-            
-//            return valuePurchase;
-            return;
-        }
-    }
+//    public void payWithGiftCard(String GiftCardNumber)
+////    		BigDecimal valuePurchase, 
+////    		GiftCardDatabase giftCardDB)
+//    {
+//    	BigDecimal paymentAmount = stationData.getTransactionPaymentAmount();
+//        Map<String, GiftCardInfo> giftCardDataBase = stationData.getGiftCardDatabase().getDatabase();
+//        GiftCardInfo giftCard = giftCardDataBase.get(GiftCardNumber);
+//        if(paymentAmount.equals(giftCard.getBalance()) || (paymentAmount.compareTo(giftCard.getBalance()) == 1))
+//        {
+//        	giftCard.updateBalance(giftCard.getBalance());
+//        	stationData.addToTotalPaidThisTransaction(giftCard.getBalance());
+//            stationData.addToTotalPaid(giftCard.getBalance());
+//            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+//            
+////            valuePurchase = valuePurchase.subtract(giftCard.getBalance());
+////            giftCard.updateBalance(giftCard.getBalance());
+//             // as all the value has been used up
+////            return valuePurchase;
+//            return;
+//        }
+//
+//        else
+//        {
+//            giftCard.updateBalance(paymentAmount);
+//            
+//            stationData.addToTotalPaidThisTransaction(paymentAmount);
+//            stationData.addToTotalPaid(paymentAmount);
+//            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+////            paymentAmount.valueOf(0); // as we paid for the entire purchase
+//            
+////            return valuePurchase;
+//            return;
+//        }
+//    }
 }

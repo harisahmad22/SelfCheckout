@@ -127,8 +127,10 @@ public class PaymentOptionGUI {
 		credit.setBackground(color);
 		
 		credit.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  
-				data.setTransactionPaymentAmount(data.getTotalDue());
+			public void actionPerformed(ActionEvent e){
+				BigDecimal remainingDue = data.getTotalDue().subtract(data.getTotalMoneyPaid());
+				data.setTransactionPaymentAmount(remainingDue);
+				System.out.println("FULL PAYMENT BUTTON: " + remainingDue);
 				data.changeState(StationState.PAYMENT_MODE_PROMPT);
 			}  
 		});
@@ -187,6 +189,7 @@ public class PaymentOptionGUI {
 		gift.addActionListener(new ActionListener(){  
 			public void actionPerformed(ActionEvent e){  
 				//switch to gift card state
+				data.changeState(StationState.PAY_GIFTCARD);
 			}  
 		});
 		
