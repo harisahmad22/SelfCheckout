@@ -82,6 +82,8 @@ public class ScanningScreenGUI {
 		productListString += "</html>";
 		
 		debugScanTestItemButton();
+		
+		debugBlockStationButton();
 
 		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20,20,700,420);
@@ -134,6 +136,21 @@ public class ScanningScreenGUI {
 		frame.setVisible(true);
 	}
 	
+	private void debugBlockStationButton() {
+
+		final JButton b1 = new JButton("[DEBUG] Block Station");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(0,0,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationSoftware().blockStation();
+			}
+		});
+	}
+
 	//BRODY
 	private void debugScanTestItemButton() {
 		Color color = new Color(128, 128, 255);
