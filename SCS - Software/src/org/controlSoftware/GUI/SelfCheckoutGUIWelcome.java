@@ -356,18 +356,22 @@ public class SelfCheckoutGUIWelcome {
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 		
-		debugRemoveItemsFromBaggingAreaButton();
-		
-		takeReceiptButton();
-		
-		//Print Receipt
-		stationData.getStationSoftware().getReceiptHandler().printReceipt();
-
-		//Check if more money needs to be paid 
+//		Check if more money needs to be paid 
 		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) < 0)
 		{
 			stationData.changeState(StationState.NORMAL);
 		}
+		else
+		{
+			debugRemoveItemsFromBaggingAreaButton();
+			
+			takeReceiptButton();
+			
+			//Print Receipt
+			stationData.getStationSoftware().getReceiptHandler().printReceipt();
+		}
+		
+		
 //		Timer timer = new Timer(5000, new ActionListener() {
 //            @Override
 //            public void actionPerformed(ActionEvent e) {
