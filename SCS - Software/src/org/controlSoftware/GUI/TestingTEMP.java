@@ -14,9 +14,9 @@ public class TestingTEMP {
 		
 		SelfCheckoutStation station = unit.getSelfCheckoutStation();
 		SelfCheckoutData data = unit.getSelfCheckoutData();
-		System.out.println(data.getCurrentState());
+		
 		data.changeState(StationState.WELCOME);
-		System.out.println(data.getCurrentState());
+		
 		//CardOptionGUI gui = new CardOptionGUI(station, data);
 		//gui.showCardOptionGUI();
 		

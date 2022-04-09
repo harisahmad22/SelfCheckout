@@ -316,7 +316,6 @@ public class SelfCheckoutData {
 			stationHardware.scanningArea.disable();
 			disablePaymentDevices();
 			wipeSessionData();
-			
 			//SIGNAL GUI TO DISPLAY WELCOME SCREEN WINDOW
 			
 			break;
@@ -343,7 +342,8 @@ public class SelfCheckoutData {
 			stationHardware.mainScanner.disable();
 			stationHardware.handheldScanner.disable();
 			disablePaymentDevices();
-			stationSoftware.getCheckoutHandler().startCheckout();
+			//startCheckout must be retooled, as questions handled by gui.
+			//stationSoftware.getCheckoutHandler().startCheckout();
 			break;
 		
 		case CLEANUP:
@@ -462,7 +462,7 @@ public class SelfCheckoutData {
 			break;
 
 		default:
-			return;
+			break;
 		} 
 		//Made it here, assume target state is valid
 		setCurrentState(targetState);
@@ -548,7 +548,7 @@ public class SelfCheckoutData {
 			break;
 
 		default:
-			return;
+			break;
 		}
 	}
 
@@ -1011,8 +1011,8 @@ public void disablePaymentDevices() {
 	public StationState getCurrentState() {
 		return currentState;
 	}
-	public void setCurrentState(StationState currentState) {
-		this.currentState = currentState;
+	public void setCurrentState(StationState targetState) {
+		this.currentState = targetState;
 	}
 	public StationState getPreBlockedState() {
 		return preBlockedState;
