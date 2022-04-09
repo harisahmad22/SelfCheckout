@@ -82,9 +82,9 @@ public class ScanningScreenGUI {
 		productListString += "</html>";
 		
 		debugScanTestItemButton();
-		
 		debugBlockStationButton();
-
+		debugForceWeightIssueButton();
+		
 		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20,20,700,420);
 		itemList.setBackground(Color.blue);
@@ -147,6 +147,21 @@ public class ScanningScreenGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				stationData.getStationSoftware().blockStation();
+			}
+		});
+	}
+	
+	private void debugForceWeightIssueButton() {
+
+		final JButton b1 = new JButton("[DEBUG] Force Weight Issue");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(0,100,300,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.changeState(StationState.WEIGHT_ISSUE);
 			}
 		});
 	}
