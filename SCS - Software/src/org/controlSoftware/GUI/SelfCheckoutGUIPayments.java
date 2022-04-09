@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,8 +14,10 @@ import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import org.controlSoftware.data.GiftCardInfo;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.StationState;
+import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -49,6 +52,9 @@ public class SelfCheckoutGUIPayments {
 			break;
 		case PAY_DEBIT:
 			payDebitScreen();
+			break;
+		case PAY_GIFTCARD:
+			payGiftCardScreen();
 			break;
 		default:
 			break;
@@ -159,5 +165,47 @@ public class SelfCheckoutGUIPayments {
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
+	}
+	
+	private void payGiftCardScreen(){
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Please swipe your");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("gift card");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+		
+		debugGiftCardButton();
+	}
+	
+	private void debugGiftCardButton() {
+		Color color = new Color(128, 128, 255);
+		JButton payBanknote = new JButton();
+		payBanknote.setBounds(50,150,300,200);
+		payBanknote.setText("[DEBUG] Pay with $150 Giftcard");
+		payBanknote.setFont(new Font("Calibri", Font.BOLD, 24));
+		payBanknote.setBackground(color);
+		
+		payBanknote.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				Card giftCard = new Card("GiftCard", "2", "Gift Card Holder", null, null, false, false);
+
+				try { stationData.getStationHardware().cardReader.swipe(giftCard); } 
+				catch (IOException e1) 
+				{ System.out.println("Error! IO exception during debug giftcard swipe."); }
+			}  
+		});
+		
+		frame.add(payBanknote);
+		payBanknote.setVisible(true);
 	}
 }

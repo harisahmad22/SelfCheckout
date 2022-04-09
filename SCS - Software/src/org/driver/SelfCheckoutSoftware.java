@@ -12,6 +12,7 @@ import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
+import org.controlSoftware.deviceHandlers.payment.GiftCardScannerHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.OverloadException;
@@ -34,10 +35,12 @@ public class SelfCheckoutSoftware {
 	private TouchScreenSoftware touchScreenSoftware;
 	private CashPaymentHandler cashPaymentHandler;
 	private CardReaderObserver membershipCardScannerHandler;
+	private GiftCardScannerHandler giftCardHandler; 
+	
 	
 	private AtomicBoolean weightIssueHandlerRunning = new AtomicBoolean(false);
 	
-	ScheduledExecutorService blockedStateChecker = Executors.newScheduledThreadPool(1); 
+	ScheduledExecutorService blockedStateChecker = Executors.newScheduledThreadPool(1);
 	
 	/***
 	 * This Class will deal with initializing all the handlers in the system and attaching them
@@ -66,6 +69,8 @@ public class SelfCheckoutSoftware {
 		
 		this.membershipCardScannerHandler = new MembershipCardScannerHandler(this.stationData);
 		
+		this.giftCardHandler = new GiftCardScannerHandler(stationData);
+		
 		//CashPaymentHandler will deal with attaching to hardware
 		this.cashPaymentHandler = new CashPaymentHandler(this.stationData);
 		
@@ -75,6 +80,8 @@ public class SelfCheckoutSoftware {
 		this.stationHardware.baggingArea.attach((ElectronicScaleObserver) baggingAreaScaleHandler);
 				
 		this.stationHardware.cardReader.attach(membershipCardScannerHandler);
+		this.stationHardware.cardReader.attach(giftCardHandler);
+		
 		
 
 	}

@@ -15,6 +15,7 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.databases.BarcodedProductDatabase;
+import org.driver.databases.GiftCardDatabase;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.ProductInfo;
@@ -159,6 +160,8 @@ public class SelfCheckoutData {
 	
 	private PLUProductDatabase PLU_Product_Database;
 	private BarcodedProductDatabase Barcoded_Product_Database;
+	private GiftCardDatabase giftCardDB;
+	
 	private StoreInventory Store_Inventory;
 	
 	
@@ -177,7 +180,10 @@ public class SelfCheckoutData {
 		this.scanningAreaScale = this.stationHardware.scanningArea;
 		this.cardReader = this.stationHardware.cardReader;
 		
-		//Initialize Product Databases
+		//Initialize Databases
+		
+		//Initialize giftcard database (Contains 3 cards with different values)
+		giftCardDB = new GiftCardDatabase();
 		
 		// Initialize some test Products
 		// 3 Products, rice, pear, and banana
@@ -475,7 +481,12 @@ public class SelfCheckoutData {
 			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
-
+			
+		case PAY_GIFTCARD:
+			setMidPaymentFlag(true);
+			stationHardware.cardReader.enable();
+			break;
+			
 //		case ADD_MEMBERSHIP:
 //			stationSoftware.getReceiptHandler().setMembershipID(getMembershipID());
 //			break;
@@ -587,7 +598,10 @@ public class SelfCheckoutData {
 		case PAY_DEBIT:
 			stationHardware.cardReader.disable();
 			break;
-
+			
+		case PAY_GIFTCARD:
+			stationHardware.cardReader.disable();
+			break;
 
 		case FINISHED:
 			break;
@@ -654,6 +668,10 @@ public class SelfCheckoutData {
 		return membershipID;
 	}
 
+	public GiftCardDatabase getGiftCardDatabase() {
+		return giftCardDB;
+	}
+
 	public void debugAddProductToCheckout(BarcodedProduct product) {
 		ProductInfo PI = new ProductInfo(product);
 		if (productsAddedToCheckout.containsKey(product.getDescription()))
@@ -671,7 +689,6 @@ public class SelfCheckoutData {
 		ProductInfo PI = new ProductInfo(product);
 		if (productsAddedToCheckout.containsKey(product.getDescription()))
 		{
-			System.out.println("@@@@@");
 			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
 		}
 		else {
@@ -679,17 +696,6 @@ public class SelfCheckoutData {
 		}
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
-	public void setGuiBuffer(String text) {
-		guiBuffer = text;
-		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
-	}
-	public String getGuiBuffer() {
-		return guiBuffer;
-	}
-	
-	// public void addScannedProduct(Product product) {
-	// 	scannedProductList.add(product);
-	// }
 
 	public void addProductToCheckout(PLUCodedProduct product, double weight) {
 		ProductInfo PI = new ProductInfo(product, weight);
@@ -724,6 +730,19 @@ public class SelfCheckoutData {
 		}
 	}
 
+	public void setGuiBuffer(String text) {
+		guiBuffer = text;
+		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+	}
+	public String getGuiBuffer() {
+		return guiBuffer;
+	}
+	
+	// public void addScannedProduct(Product product) {
+	// 	scannedProductList.add(product);
+	// }
+
+	
 	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
 		this.stationSoftware = stationSoftware;
 	}
@@ -740,6 +759,8 @@ public class SelfCheckoutData {
 	private void wipeSessionData() {
 		totalDue = BigDecimal.ZERO;
 		totalMoneyPaid = BigDecimal.ZERO;
+		transactionPaymentAmount = BigDecimal.ZERO;
+		totalPaidThisTransaction = BigDecimal.ZERO;
 		setAllExpectedWeights(0.0);
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		productsAddedToCheckout = new HashMap<String, ProductInfo>();
@@ -829,6 +850,7 @@ public class SelfCheckoutData {
 		setExpectedWeightCheckout(currentWeight);
 		setExpectedWeightNormalMode(currentWeight);
 		setExpectedWeightScanner(currentWeight);
+		setExpectedWeight(currentWeight);
 	}
 	
 	//Hannah Ku
@@ -874,7 +896,7 @@ public class SelfCheckoutData {
 	}
 	
 	public void setTransactionPaymentAmount(BigDecimal paymentAmount) {
-		transactionPaymentAmount = transactionPaymentAmount.add(paymentAmount);
+		transactionPaymentAmount = paymentAmount;
 	}
 	
 	public BigDecimal getTransactionPaymentAmount() {
