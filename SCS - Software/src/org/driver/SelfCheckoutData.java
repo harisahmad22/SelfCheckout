@@ -696,17 +696,6 @@ public class SelfCheckoutData {
 		}
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
-	public void setGuiBuffer(String text) {
-		guiBuffer = text;
-		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
-	}
-	public String getGuiBuffer() {
-		return guiBuffer;
-	}
-	
-	// public void addScannedProduct(Product product) {
-	// 	scannedProductList.add(product);
-	// }
 
 	public void addProductToCheckout(PLUCodedProduct product, double weight) {
 		ProductInfo PI = new ProductInfo(product, weight);
@@ -741,6 +730,19 @@ public class SelfCheckoutData {
 		}
 	}
 
+	public void setGuiBuffer(String text) {
+		guiBuffer = text;
+		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+	}
+	public String getGuiBuffer() {
+		return guiBuffer;
+	}
+	
+	// public void addScannedProduct(Product product) {
+	// 	scannedProductList.add(product);
+	// }
+
+	
 	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
 		this.stationSoftware = stationSoftware;
 	}
