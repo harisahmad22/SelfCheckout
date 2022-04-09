@@ -54,7 +54,7 @@ public class PLUProductDatabase {
 		database.put(product.getPLUCode(), product);
 	}
 
-	public void removePLUProductToDatabase(PriceLookupCode pluCode) {
+	public void removePLUProductFromDatabase(PriceLookupCode pluCode) {
 		database.remove(pluCode);
 	}
 
@@ -64,7 +64,8 @@ public class PLUProductDatabase {
 	// returns list of products whose first letter matches the inputed letter
 	@SuppressWarnings("null")
 	public ArrayList<PLUCodedProduct> productSearch(char c) {
-		ArrayList<PLUCodedProduct> searchOutcomes = null;
+
+		ArrayList<PLUCodedProduct> searchOutcomes = new ArrayList<>();
 
 		for (PLUCodedProduct p : database.values())
 			if (p.getDescription().charAt(0) == c) {

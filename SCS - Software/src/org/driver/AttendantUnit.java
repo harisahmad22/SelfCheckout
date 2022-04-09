@@ -3,8 +3,17 @@ package org.driver;
 import java.util.ArrayList;
 
 import org.controlSoftware.attendant.AttendantSoftware;
+import org.driver.AttendantData.AttendantState;
+import org.driver.SelfCheckoutData.StationState;
+import org.driver.databases.PLUProductDatabase;
+import org.driver.databases.PLUTestProducts;
+import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
+
 
 public class AttendantUnit {
 	
@@ -17,7 +26,9 @@ public class AttendantUnit {
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantStation = new SupervisionStation();
-		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations);
+		
+		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
+		this.attendantSoftware = new AttendantSoftware(attendantStation, checkoutStations, new PLUProductDatabase(testProducts));
 		//Have to add in attendant touch screen software 
 	}
 	
@@ -27,7 +38,7 @@ public class AttendantUnit {
 		
 		this.attendantSoftware.setCheckoutStationUnits(checkoutStations);
 		
-		
+
 		for (SelfCheckoutStation station : this.attendantStation.supervisedStations())
 		{
 			this.attendantStation.remove(station);
@@ -53,6 +64,32 @@ public class AttendantUnit {
 		//For now just print to console
 		System.out.println("Station " + stationID + " is being shutdown!");		
 	}
+
+
+//	public void logInStation(String attendantIdEntered,  String passwordEntered)
+//	{
+//		//System.out.println("Starting station: " + station.getStationID());
+//        System.out.println("Logging in");
+//
+//        ArrayList<String> AttendantIdStored = station.getAttendantID();
+//        ArrayList<String> PasswordStored = station.getPassword();
+//        for(int i = 0 ; i < AttendantIdStored.size(); i++){
+//            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
+//                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
+//                unBlockStation(station);
+//                break;
+//            }
+//        }
+//        System.out.println("Error! Wrong ID or password. Fail to log in.");
+//	}
+//	
+//	
+//	public void logOutStation(SelfCheckoutStationUnit station)
+//	{
+//		System.out.println("Log out: " + station.getStationID());
+//		station.getSelfCheckoutSoftware().LogOutStation();
+//        blockStation(station);
+//	}
 
 	public void stationLogin(String AttendantID, String password) {
 		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION STARTUP

@@ -2,9 +2,22 @@ package org.driver;
 
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.OverloadException;
+import org.controlSoftware.GUI.SupervisorGUIMaster;
+//import org.driver.SelfCheckoutData.StationState;\
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 
 public class AttendantData {
+	// private SupervisionStation station;
 	
+	// Buffer for passing values between gui and logic
+	private String guiBuffer = null;
+	
+	private SupervisorGUIMaster gui;
+	
+	public AttendantData() {
+		// station = newStation;
+	}
+
 	//Put states in with methods for changing state
 	
 	public enum AttendantState {
@@ -74,6 +87,18 @@ public class AttendantData {
 	
 	private AttendantState currentState = AttendantState.INACTIVE;
 	
+	public void registerGUI(SupervisorGUIMaster newGui) {
+		gui = newGui;
+	}
+	
+	public void setGuiBuffer(String text) {
+		guiBuffer = text;
+		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+	}
+	public String getGuiBuffer() {
+		return guiBuffer;
+	}
+	
 	// Changes to new state while properly exiting old one (enabling/disabling relevant hardware)
 	public void changeState(AttendantState targetState) {
 		// Disable hardware for old state
@@ -127,6 +152,8 @@ public class AttendantData {
 		} 
 		//Made it here, assume target state is valid
 		setCurrentState(targetState);
+
+		notifyStateChanged();
 	}
 	
 
@@ -177,7 +204,10 @@ public class AttendantData {
 		}
 	}
 	
-	private AttendantState getCurrentState() {
+	private void notifyStateChanged() {
+		gui.stateChanged();
+	}
+	public AttendantState getCurrentState() {
 		return currentState;
 	}
 
