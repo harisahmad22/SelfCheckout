@@ -53,12 +53,16 @@ public class SelfCheckoutGUIWelcome {
 		case ASK_MEMBERSHIP:
 			askMembershipScreen();
 			break;
-		case SCAN_MEMBERSHIP:
+		case SWIPE_MEMBERSHIP:
 			scanMembershipScreen();
 			break;
 		case TYPE_MEMBERSHIP:
 			typeMembershipScreen();
 			break;
+		case BAD_MEMBERSHIP:
+			badMembershipScreen();
+			break;
+			
 		case ADD_BAGS_PROMPT:
 			askBagsScreen();
 			break;
@@ -99,6 +103,8 @@ public class SelfCheckoutGUIWelcome {
 		frame.getContentPane().add(l1);
 	}*/
 	
+	
+
 	private void weightIssueScreen() {
 		frame.setLayout(null);
 		
@@ -205,7 +211,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.SCAN_MEMBERSHIP);
+				stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 			}
 		});
 		
@@ -287,17 +293,16 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.SCAN_MEMBERSHIP);
+				stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.setMembershipID(l1.getText());
-//				stationData.changeState(StationState.TEST_MEMBERSHIP);
-				stationData.changeState(StationState.CHECKOUT);//(Brody) for now just skip verification
-				stationData.getStationSoftware().getCheckoutHandler().startCheckout();
+				stationData.getStationSoftware().manualMembershipCheck(l1.getText());
+//				stationData.setMembershipID(l1.getText());
+//				stationData.getStationSoftware().getCheckoutHandler().startCheckout();
 			}
 		});
 		
@@ -490,32 +495,74 @@ public class SelfCheckoutGUIWelcome {
 	}
 	
 	//BRODY
-		private void takeReceiptButton() {
-			Color color = new Color(128, 128, 255);
-			JButton payCoin = new JButton();
-			payCoin.setBounds(500,300,300,200);
-			payCoin.setText("Take Receipt (Will print it to console)");
-			payCoin.setFont(new Font("Calibri", Font.BOLD, 14));
-			payCoin.setBackground(color);
-			
-			payCoin.addActionListener(new ActionListener(){  
-				public void actionPerformed(ActionEvent e){  
-					
-					try {
-						String receipt = stationData.getStationHardware().printer.removeReceipt();
-						System.out.println("RECEIPT GENERATED: \n" + receipt);
-					} catch (InvalidArgumentSimulationException execption)
-					{
-						System.out.println("Error! No receipt to take!");
-					}
-					
-					
-				}  
-			});
-			
-			frame.add(payCoin);
-			payCoin.setVisible(true);
-		}
-	
-	
+	private void takeReceiptButton() {
+		Color color = new Color(128, 128, 255);
+		JButton payCoin = new JButton();
+		payCoin.setBounds(500,300,300,200);
+		payCoin.setText("Take Receipt (Will print it to console)");
+		payCoin.setFont(new Font("Calibri", Font.BOLD, 14));
+		payCoin.setBackground(color);
+		
+		payCoin.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  
+				
+				try {
+					String receipt = stationData.getStationHardware().printer.removeReceipt();
+					System.out.println("RECEIPT GENERATED: \n" + receipt);
+				} catch (InvalidArgumentSimulationException execption)
+				{
+					System.out.println("Error! No receipt to take!");
+				}
+				
+				
+			}  
+		});
+		
+		frame.add(payCoin);
+		payCoin.setVisible(true);
+	}
+
+	private void badMembershipScreen() {
+		frame.setLayout(null);
+
+		JLabel l1 = new JLabel("Membership is Invalid");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+
+		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+
+		final JButton b1 = new JButton("Return to Main Screen");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(100,300,300,100);
+		frame.getContentPane().add(b1);
+
+		final JButton b2 = new JButton("Try Again");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b2.setBounds(400,300,300,100);
+		frame.getContentPane().add(b2);
+
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.setIsFirstCheckout(true);
+				stationData.changeState(StationState.NORMAL);
+			}
+		});
+
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.changeState(StationState.SWIPE_MEMBERSHIP);
+			}
+		});
+	}
+
 }

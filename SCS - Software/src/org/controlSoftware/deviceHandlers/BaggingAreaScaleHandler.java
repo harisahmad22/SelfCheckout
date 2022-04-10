@@ -81,7 +81,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 //			}
 //			else if (stationData.isInCheckout()) {
 			else if (stationData.getCurrentState() == StationState.CHECKOUT 
-//				|| stationData.getCurrentState() == StationState.PAY_CASH
+				|| stationData.getCurrentState() == StationState.PAY_CASH
 				|| stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT) {
 				//For now If user is paying, ignore weight events
 					handleCheckoutWeightEvent(weightOnScale, thisExpectedWeight);
@@ -143,6 +143,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
 			//Weight is OK
 			//Return to previous state, if previous state was waiting for item, just go to Normal state
+			System.out.println("WEIGHT ISSUE CORRECTED");
 			if (stationData.getPreBlockedState() == StationState.WAITING_FOR_ITEM) 
 			{ 
 				if (stationData.getMidPaymentFlag()) { stationData.changeState(StationState.PAY_CASH); }

@@ -391,6 +391,18 @@ public class SelfCheckoutSoftware {
 	}
 
 	
+	public void manualMembershipCheck(String membershipID)
+	{
+		if(membershipCardHandler.getMembershipCards().containsKey(membershipID) == true) {
+			stationData.setMembershipID(membershipID);
+			stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+			
+		}
+		else {
+			//membership number does not exist
+			stationData.changeState(StationState.BAD_MEMBERSHIP);
+		}
+	}
 	public BarcodedProduct getBarcodedItem(Barcode barcode) {
 		try {
 			BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
@@ -411,4 +423,6 @@ public class SelfCheckoutSoftware {
 			return null;
 		}
 	}
+	
+
 }

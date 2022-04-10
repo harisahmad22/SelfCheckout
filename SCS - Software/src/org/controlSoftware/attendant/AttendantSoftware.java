@@ -150,6 +150,30 @@ public class AttendantSoftware {
 		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().unBlockStation();
 	}
 
+	public void LogInStation(SelfCheckoutStationUnit station, String attendantIdEntered,  String passwordEntered)
+	{
+		//System.out.println("Starting station: " + station.getStationID());
+        System.out.println("Log in: " + station.getStationID());
+
+        ArrayList<String> AttendantIdStored = station.getAttendantID();
+        ArrayList<String> PasswordStored = station.getPassword();
+        for(int i = 0 ; i < AttendantIdStored.size(); i++){
+            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
+                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
+                unBlockStation(station);
+                break;
+            }
+        }
+        System.out.println("Error! Wrong ID or password. Fail to log in.");
+	}
+	
+	public void logOutStation(SelfCheckoutStationUnit station)
+	{
+		System.out.println("Log out: " + station.getStationID());
+		station.getSelfCheckoutSoftware().LogOutStation();
+        blockStation(station);
+	}
+	
 	public void setCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> newCheckoutStationUnits) {
 		this.checkoutStationUnits = newCheckoutStationUnits;
 		
@@ -217,7 +241,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinDispensers.get(coins[0].getValue()).load(coins);
+			for(Coin coin : coins)
+				checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinDispensers.get(coin.getValue()).load(coin);
 		}
 	}
 	
@@ -228,7 +253,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinDispensers.get(coins[0].getValue()).load(coins);
+			for(Coin coin : coins)
+				checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinDispensers.get(coin.getValue()).load(coin);
 		}
 	}
 
@@ -243,7 +269,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteDispensers.get(banknotes[0].getValue()).load(banknotes);
+			for(Banknote banknote : banknotes)
+				checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteDispensers.get(banknote.getValue()).load(banknote);
 		}
 	}
 	
@@ -253,7 +280,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteDispensers.get(banknotes[0].getValue()).load(banknotes);
+			for(Banknote banknote : banknotes)
+				checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteDispensers.get(banknote.getValue()).load(banknote);
 		}
 	}
 	
