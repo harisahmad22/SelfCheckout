@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -33,7 +34,7 @@ public class SupervisorGUIMaster {
 	private final int HEIGHT = 600;
 	
 	// Index for cycling through this of items for remove item.
-	private int itemListIndex;
+	private int itemListIndex = 0;
 	
 	// Selected station is stored here to be target of additional operations
 	private SelfCheckoutStationUnit targetStation;
@@ -67,7 +68,7 @@ public class SupervisorGUIMaster {
 			optionsScreen();
 			break;
 		case PRODUCT_LOOKUP:
-			addItemScreen();
+			searchItemScreen();
 			break;
 		case REMOVE_ITEM_AT_STATION:
 			removeItemScreen();
@@ -95,7 +96,7 @@ public class SupervisorGUIMaster {
 
 		
 	}
-	private void addItemScreen() {
+	private void searchItemScreen() {
 		frame.setLayout(null);
 
 		
@@ -103,15 +104,6 @@ public class SupervisorGUIMaster {
 	
 	private void removeItemScreen() {
 		frame.setLayout(null);
-
-		// TESTING
-		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
-		targetStation.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));
-		targetStation.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(1));
-		targetStation.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(2));
-		targetStation.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(3));
-		targetStation.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(4));
-		//targetStation.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(5));
 		
 		//Display scanned items
 		HashMap<String, ProductInfo> currentAddedProducts = targetStation.getSelfCheckoutData().getProductsAddedToCheckoutHashMap();
@@ -119,27 +111,37 @@ public class SupervisorGUIMaster {
 		String quantityString = "<html><br>";
 		String priceString = "<html><br>";
 		
-		for (String prodDescription : currentAddedProducts.keySet())
+		ArrayList<String> items = new ArrayList<String>(currentAddedProducts.keySet());
+		for (int i = itemListIndex; i < itemListIndex + 5; i++)
+		//for (String prodDescription : currentAddedProducts.keySet())
 		{
+			if (i >= items.size()) {
+				break;
+			}
+			String prodDescription = items.get(i);
 			descriptionString += prodDescription + "<br><br>";
 			quantityString += "x " + currentAddedProducts.get(prodDescription).getQuantity() + "<br><br>";
 			priceString += "$" + currentAddedProducts.get(prodDescription).getProduct().getPrice() + "<br><br>";					  
 		}
+		
 		descriptionString += "</html>";
 		quantityString += "</html>";
 		priceString += "</html>";
 		
 		JLabel itemList = new JLabel(descriptionString);
 		itemList.setBounds(25,25,625,425);
+		itemList.setVerticalAlignment(JLabel.TOP);
 		itemList.setFont(new Font("Tahoma", Font.PLAIN, 34));
 		itemList.setOpaque(true);
 		frame.getContentPane().add(itemList);
 		JLabel quantList = new JLabel(quantityString);
+		quantList.setVerticalAlignment(JLabel.TOP);
 		quantList.setBounds(650,25,100,425);
 		quantList.setFont(new Font("Tahoma", Font.PLAIN, 34));
 		quantList.setOpaque(true);
 		frame.getContentPane().add(quantList);
 		JLabel priceList = new JLabel(priceString);
+		priceList.setVerticalAlignment(JLabel.TOP);
 		priceList.setBounds(750,25,100,425);
 		priceList.setFont(new Font("Tahoma", Font.PLAIN, 34));
 		priceList.setOpaque(true);
@@ -150,31 +152,72 @@ public class SupervisorGUIMaster {
 		for(Integer i = 0; i < delButtons.length; i++) {
 			delButtons[i]  = new JButton("[X]");
 			delButtons[i].setFont(new Font("Tahoma", Font.PLAIN, 36));
-			delButtons[i].setBounds(875, 35 + i * 83, 100, 75);
-			//keypad[i].addActionListener(buttList);
+			delButtons[i].setBounds(875, 45 + i * 83, 100, 75);
+			String item = null;
+			if (itemListIndex + i < items.size()) {
+				item = items.get(itemListIndex + i);
+			}
+			delButtons[i].putClientProperty("item", item);
 			ActionListener buttList = new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					JButton src = (JButton) e.getSource();
+					System.out.println("Button Pressed");
+					JButton butt = (JButton) e.getSource();
+					targetStation.getSelfCheckoutData().removeProductFromCheckoutHashMap((String) butt.getClientProperty("item"));
+					attendantData.changeState(AttendantState.REMOVE_ITEM_AT_STATION);
 				}
 			};
-			frame.getContentPane().add(delButtons[i]);
+			delButtons[i].addActionListener(buttList);
+			if (itemListIndex + i < items.size()) {
+				frame.getContentPane().add(delButtons[i]);
+			}
 		}
-		
 		
 		// Back button
 		final JButton b1 = new JButton("BACK");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		b1.setBounds(25, 475, 200, 100);
 		frame.getContentPane().add(b1);
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				attendantData.changeState(AttendantState.STATIONS);
+				attendantData.changeState(AttendantState.ACTIVE);
 			}
 		});
 		
+		// next button
+		final JButton b2 = new JButton(">");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		b2.setBounds(825, 475, 150, 100);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemListIndex += 5;
+				attendantData.changeState(AttendantState.REMOVE_ITEM_AT_STATION);
+			}
+		});
+		
+		// next button
+		final JButton b3 = new JButton("<");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		b3.setBounds(650, 475, 150, 100);
+		b3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemListIndex += -5;
+				attendantData.changeState(AttendantState.REMOVE_ITEM_AT_STATION);
+			}
+		});
+		
+		if (itemListIndex + 5 < items.size()) {
+			frame.getContentPane().add(b2);
+		}
+		if (itemListIndex - 5 >= 0) {
+			frame.getContentPane().add(b3);
+		}
+		
 	}
+	
 	
 	private void startScreen() {
 		frame.setLayout(null);
@@ -419,7 +462,7 @@ public class SupervisorGUIMaster {
 		// Add product button
 		JButton b6 = new JButton();
 		b6.setFont(new Font("Tahoma", Font.PLAIN, 36));
-		b6.setText("ADD ITEM");
+		b6.setText("LOOK UP ITEM");
 		b6.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

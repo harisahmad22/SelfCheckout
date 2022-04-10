@@ -720,7 +720,7 @@ public class SelfCheckoutData {
 		{
 			setTotalDue(getTotalDue().subtract(product.getProduct().getPrice()));
 			setExpectedWeight(getExpectedWeight() - product.getWeight());
-			changeState(StationState.WAITING_FOR_ITEM);
+			//changeState(StationState.WAITING_FOR_ITEM);
 		}
 	}
 
