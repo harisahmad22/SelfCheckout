@@ -184,4 +184,12 @@ public class SelfCheckoutStationUnit {
 	public SelfCheckoutStation getSelfCheckoutStation() {
 		return station;
 	}
+	
+	public static BigDecimal[] getCoinDenominations() {
+		return coinDenominations;
+	}
+	
+	public static int[] getBanknoteDenominations() {
+		return banknoteDenominations;
+	}
 }

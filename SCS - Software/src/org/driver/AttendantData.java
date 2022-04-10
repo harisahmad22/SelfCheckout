@@ -6,6 +6,7 @@ import org.lsmr.selfcheckout.devices.OverloadException;
 import java.util.ArrayList;
 
 import org.controlSoftware.GUI.SupervisorGUIMaster;
+import org.controlSoftware.attendant.AttendantSoftware;
 //import org.driver.SelfCheckoutData.StationState;\
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
@@ -16,6 +17,7 @@ public class AttendantData {
 	private String guiBuffer = null;
 	
 	private SupervisorGUIMaster gui;
+	private AttendantSoftware software;
 	
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	
@@ -27,7 +29,7 @@ public class AttendantData {
 	
 	public enum AttendantState {
 		// Current GUI associated states. Can be changed in GUI to match implementation. Not sure what they are there.
-		START, TEST_LOGIN, STATIONS, MAINTENANCE, WEIGHT_ERROR,
+		START, TEST_LOGIN, STATIONS, MAINTENANCE, WEIGHT_ERROR, REFILL_PAPER, REFILL_INK, EMPTY_COINS, EMPTY_NOTES, REFILL_COINS, REFILL_NOTES,
 		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?
@@ -99,6 +101,10 @@ public class AttendantData {
 		gui = newGui;
 	}
 	
+	public void registerSoftware(AttendantSoftware newSoftware) {
+		software = newSoftware;
+	}
+	
 	public void setGuiBuffer(String text) {
 		guiBuffer = text;
 		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
@@ -165,7 +171,7 @@ public class AttendantData {
 			break;
 			
 		default:
-			return;
+			break;
 		} 
 		//Made it here, assume target state is valid
 		setCurrentState(targetState);
@@ -216,7 +222,7 @@ public class AttendantData {
 			break;
 			
 		default:
-			return;
+			break;
 		}
 	}
 	
@@ -243,6 +249,10 @@ public class AttendantData {
 		else {
 			return checkoutStations.get(index);
 		}
+	}
+	
+	public AttendantSoftware getSoftware() {
+		return software;
 	}
 		
 }
