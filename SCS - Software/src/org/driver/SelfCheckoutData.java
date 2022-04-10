@@ -1144,6 +1144,10 @@ public void disablePaymentDevices() {
 	public Map<Barcode, BarcodedProduct> getBarcodedProductDatabase() {
 		return Barcoded_Product_Database.getDatabase();
 	}
+	
+	public PLUProductDatabase getPLUDatabaseObject() {
+		return PLU_Product_Database;
+	}
 
 	public BarcodedProductDatabase getBarcodedProductDatabaseObject() {
 		return Barcoded_Product_Database;

@@ -23,8 +23,8 @@ import org.controlSoftware.data.BankClientInfo;
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
+import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
@@ -96,7 +96,7 @@ public class StationUnitTestIter2Tests {
 	private BarcodedItem cornFlakesItem;
 	
 	private ReceiptHandler receiptHandler;
-	private MembershipCardScannerHandler customMembershipScannerObserver;
+	private ScansMembershipCard customMembershipScannerObserver;
 	
 	private SelfCheckoutStationUnit stationUnit;
 	private SelfCheckoutStation stationHardware;
@@ -175,7 +175,7 @@ public class StationUnitTestIter2Tests {
         
     	stationSoftware.getCheckoutHandler().startCheckout();
         // verify device is disabled or not
-        assertTrue(Math.floor(stationData.getExpectedWeightCheckout()) == 4000.0);
+        assertTrue(Math.floor(stationData.getExpectedWeight()) == 4000.0);
     }
         
     
@@ -711,7 +711,7 @@ public class StationUnitTestIter2Tests {
 
     	//Bypass startCheckout method
     	stationData.setInCheckout(true);
-    	stationData.setExpectedWeightCheckout(4000);
+    	stationData.setExpectedWeight(4000);
     	
     	//Put 2 $20 bills in before removing milk jug
     	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote };
@@ -741,7 +741,7 @@ public class StationUnitTestIter2Tests {
     	stationData.setTotalDue(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	stationData.setInCheckout(true);
-    	stationData.setExpectedWeightCheckout(4000);
+    	stationData.setExpectedWeight(4000);
     	//Put 2 toonies in before removing milk jug
     	Coin[] coins1 = { toonie, toonie };
     	//After putting the jug back on the scale, pay the rest
@@ -837,7 +837,7 @@ public class StationUnitTestIter2Tests {
 				TimeUnit.MILLISECONDS);
 		// start checkout
 		stationSoftware.getCheckoutHandler().startCheckout();
-		assertTrue(Math.floor(stationData.getExpectedWeightCheckout()) == stationData.getBagWeight());
+		assertTrue(Math.floor(stationData.getExpectedWeight()) == stationData.getBagWeight());
 	}
     
 //===================================================WAITING FOR RE-IMPLEMENTATION===================================================

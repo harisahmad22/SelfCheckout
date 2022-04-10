@@ -219,7 +219,7 @@ public class ScanningScreenGUI {
 					double weight = 0;
 					String search = codePLU.getText();
 					PriceLookupCode PLUCode = new PriceLookupCode(search);
-					PLUCodedProduct PLUProduct = stationData.getPLUDatabase().getPLUProductFromDatabase(PLUCode);
+					PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
 					try {
 						weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
 					} catch (OverloadException e1) {
