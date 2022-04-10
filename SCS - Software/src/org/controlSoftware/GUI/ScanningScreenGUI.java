@@ -52,20 +52,18 @@ public class ScanningScreenGUI {
 		case PLU_SEARCH:
 			PluSearch();
 			break;
+		case WAITING_FOR_SCANNED_ITEM:
+
 		case CHECKOUT_CHECK:
 			checkoutPopup();
 			break;
 		case WAITING_FOR_ITEM:
 			scanPopup();
 			break;
-		case BAD_PLU:
-			badPLUScreen();
-			break;
 		default:
 			break;
 		}
 	}
-
 
 	// The main page for scanning
 	private void Main() {
@@ -211,7 +209,7 @@ public class ScanningScreenGUI {
 		codePLU.setBackground(Color.gray);
 		codePLU.setOpaque(true);
 
-		// Code for recording numbers (From Jonah)
+		// Code for recording numbers (From Jonah & Shufan)
 		ActionListener Numpad = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -223,15 +221,14 @@ public class ScanningScreenGUI {
 					double weight = 0;
 					String search = codePLU.getText();
 					PriceLookupCode PLUCode = new PriceLookupCode(search);
-					PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-					if (PLUProduct == null)
-					{
+					PLUCodedProduct PLUProduct = stationData.getPLUDatabase().getPLUProductFromDatabase(PLUCode);
+					if (PLUProduct == null) {
 						System.out.println("Error! PLU Code is invalid!");
-						stationData.changeState(StationState.BAD_PLU);
+						stationData.changeState(StationState.Bad_PLU);
 						return;
-					}
-					else 
-					{  // ADD STATE CHANGE HERE
+					} else {
+						System.out.println("Please place item on the scale");
+						stationData.changeState(StationState.WAITING_FOR_SCANNED_ITEM);
 						try {
 							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
 						} catch (OverloadException e1) {
@@ -306,50 +303,94 @@ public class ScanningScreenGUI {
 
 	// Screen for searching by letter
 	private void LetterSearch() {
-		final String[] letters = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
-				"R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
-
+		
+		final JList invisibleProduct = new JList();
 		// Display for search
-		JLabel inventoryLetter = new JLabel("Placeholder for inventory");
-		frame.add(inventoryLetter);
-		inventoryLetter.setBounds(20, 20, 700, 520);
-		inventoryLetter.setBackground(Color.blue);
-		inventoryLetter.setOpaque(true);
-
+		final JList inventoryLetter = new JList();
+		final JScrollPane searchContainer = new JScrollPane();
+		searchContainer.setViewportView(inventoryLetter);
+		inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		searchContainer.setBounds(20, 20, 700, 520);
+		frame.add(searchContainer);
+		
 		// List of letters to select
 		JScrollPane alphabetContainer = new JScrollPane();
 		final JList alphabetList = new JList(letters);
 		alphabetContainer.setViewportView(alphabetList);
-		alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		frame.add(alphabetContainer);
 		alphabetList.setFont(new Font("Tahoma", Font.PLAIN, 80));
-		alphabetContainer.setBounds(740, 100, 220, 360);
-
+		alphabetContainer.setBounds(740,100,220,360);
+		
 		// Button that gets the letter from the list
 		JButton alphabetSearch = new JButton("Search");
 		alphabetSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				frame.remove(searchContainer);
 				int index = alphabetList.getSelectedIndex();
+				ArrayList<String> itemList = new ArrayList<String>();
+				ArrayList<String> PLUList = new ArrayList<String>();
 				if (index != -1) {
 					String search = letters[index];
-					System.out.println(search);
+					ArrayList<PLUCodedProduct> searchOutcomes = stationData.getPLUDatabaseObject().productSearch(search.charAt(0));
+					if (searchOutcomes.size() > 0) {
+						for(int i = 0; i < searchOutcomes.size(); i++) {
+							PLUList.add(searchOutcomes.get(i).getPLUCode().toString());
+							itemList.add(searchOutcomes.get(i).getDescription());
+						}
+					}
+					JScrollPane searchContainer = new JScrollPane();
+					JList inventoryLetter = new JList(itemList.toArray());
+					frame.add(searchContainer);
+					searchContainer.setViewportView(inventoryLetter);
+					inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
+					inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					searchContainer.setBounds(20, 20, 700, 520);
+					JList invisibleProduct = new JList(PLUList.toArray());
+					frame.add(invisibleProduct);
 				}
 			}
 		});
 		frame.add(alphabetSearch);
-		alphabetSearch.setBounds(740, 480, 220, 60);
+		alphabetSearch.setBounds(740, 480, 100, 60);
+		
+		JButton productGet = new JButton("Get Item");
+		productGet.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double weight = 0;
+				if(inventoryLetter != null) {
+					int index = inventoryLetter.getSelectedIndex();
+					if (index != -1) {
+						String PLU = (String) invisibleProduct.getSelectedValue();
+						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
+						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+						try {
+							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
+						} catch (OverloadException e1) {
+							e1.printStackTrace();
+						}
+						stationData.addProductToCheckout(product, weight);
+					}
+				}	
+			}
+		});
+		frame.add(productGet);
+		productGet.setBounds(860, 480, 100, 60);
+
 
 		// Return to main scanning screen
 		JButton alphabetReturn = new JButton("Return to Scanning");
 		frame.add(alphabetReturn);
 		alphabetReturn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.NORMAL);
-			}
-		});
-		alphabetReturn.setBounds(740, 20, 220, 60);
-
+	        public void actionPerformed(ActionEvent e) {
+	        	stationData.changeState(StationState.MAIN_SCAN);
+	        }
+	    });
+		alphabetReturn.setBounds(740,20,220,60);
+		
 		frame.setVisible(true);
 	}
 
@@ -446,49 +487,5 @@ public class ScanningScreenGUI {
 
 		frame.add(payCoin);
 		payCoin.setVisible(true);
-	}
-	
-	private void badPLUScreen() {
-	frame.setLayout(null);
-		
-		JLabel l1 = new JLabel("PLU Code is Invalid");
-		l1.setVerticalAlignment(SwingConstants.BOTTOM);
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
-		l1.setHorizontalAlignment(SwingConstants.CENTER);
-		l1.setBounds(0, 0, 1000, 150);
-		frame.getContentPane().add(l1);
-		
-		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
-		l2.setVerticalAlignment(SwingConstants.TOP);
-		l2.setHorizontalAlignment(SwingConstants.CENTER);
-		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
-		l2.setBounds(0, 150, 1000, 150);
-		frame.getContentPane().add(l2);
-		
-		final JButton b1 = new JButton("Return to Main Screen");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(100,300,300,100);
-		frame.getContentPane().add(b1);
-		
-		final JButton b2 = new JButton("Try Again");
-		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b2.setBounds(400,300,300,100);
-		frame.getContentPane().add(b2);
-		
-		b1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.NORMAL);
-			}
-		});
-		
-		b2.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.PLU_SEARCH);
-			}
-		});
-		
-		
 	}
 }
