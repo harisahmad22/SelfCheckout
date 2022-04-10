@@ -830,6 +830,28 @@ public class StationUnitTestIter3Tests {
 		assertTrue(stationData.getCurrentState() == StationState.NORMAL);
   }
     
+  @Test
+  public void testResetAfterTakingItems() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+  	
+	  	this.stationHardware.baggingArea.add(milkJugItem);
+	  	this.stationHardware.baggingArea.add(cornFlakesItem);
+    	
+	  
+	  	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 1500, TimeUnit.MILLISECONDS);
+	  	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 2500, TimeUnit.MILLISECONDS);
+	
+		stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+		TimeUnit.SECONDS.sleep(5);
+	
+	
+		String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+			
+	  	assertTrue(stationData.getCurrentState() == StationState.WELCOME);
+	  	
+	  }
+  
+  
 	@After
     public void reset()
     {
