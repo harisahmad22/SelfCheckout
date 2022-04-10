@@ -13,7 +13,7 @@ import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.PLUProductDatabase;
 import org.driver.databases.PLUTestProducts;
 import org.driver.databases.StoreInventory;
-import org.driver.databases.TestBarcodedProducts;
+import org.driver.databases.TestProducts;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
@@ -37,7 +37,15 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
  *  **TO-DO
  *  Exception handling
  *  Input validation?
- *  
+ *Divyansh Rana
+ *1)Implemented Customer removes purchased items from bagging Area
+ *  in exitState() and changeState() FINISHED state
+ * 
+ *2)Customer Enters number of plastic bags used
+ * 	added getter and setter for number of bags  
+ * 
+ *3)Customer Pays with gift card
+ *  added getter and setters for giftCard
  */
 
 public class SelfCheckoutData {
@@ -71,6 +79,7 @@ public class SelfCheckoutData {
 
 	private static double bagWeight = 40;
 	private String membershipID = "null"; // Default to null, change when membership card is scanned in
+	private String giftCardNumber = "null"; // Default to null, change when gift card is scanned in
 	// No implementation yet
 	private String membershipPoints = "0\n";
 
@@ -135,13 +144,12 @@ public class SelfCheckoutData {
 
 		// Initialize some test Products
 		// 3 Products, milk, orange juice, and corn flakes
-		TestBarcodedProducts testProducts = new TestBarcodedProducts();
+		TestProducts testProducts = new TestProducts();
 		Barcoded_Product_Database = new BarcodedProductDatabase(testProducts.getBarcodedProductList());
 
-		// Initialize some test quantities for test Products within inventory
-		// Quantity of products set to same arbitrary amount for all PLU or barcoded
-		// products. NEED FIX
-		Store_Inventory = new StoreInventory(PLUTestProducts, 3, testProducts, 4);
+		// TODO
+		Store_Inventory = new StoreInventory();
+
 	}
 
 	/*
@@ -219,6 +227,15 @@ public class SelfCheckoutData {
 		return membershipID;
 	}
 
+	
+	public void setGiftCardNo(String giftNumber) {
+		giftCardNumber = giftNumber;
+	}
+
+	public String GiftCardNo() {
+		return giftCardNumber;
+	}
+
 	public void addProductToCheckout(BarcodedProduct product) {
 		ProductInfo PI = new ProductInfo(product);
 		productsAddedToCheckout.put(product.getDescription(), PI);
@@ -292,7 +309,17 @@ public class SelfCheckoutData {
 			break;
 
 		case FINISHED:
-			station.printer.enable(); // **Not sure where we want receipt printed. Can be changed.
+			this.disableAllDevices();
+			this.setInCleanup(true);
+			this.setWeightValidCheckout(false);
+			while(this.isWeightValidCheckout.get() == false)
+			{
+				// if weight changes on the scale then weightChanged method is called and the observer can set isWeightValidCheckout = true if weight = 0
+
+				// wait for customer to remove all the items
+			}
+			station.printer.enable(); 	// **Not sure where we want receipt printed. Can be changed. // prints receipt first of all
+			// don't enable all the devices, do that while existing the FINISHED state
 			break;
 
 		case ERROR:
@@ -340,6 +367,7 @@ public class SelfCheckoutData {
 			break;
 
 		case FINISHED:
+			this.enableAllDevices();
 			station.printer.disable();
 			break;
 
@@ -544,6 +572,14 @@ public class SelfCheckoutData {
 		;
 	}
 
+	public boolean isWaitingForGiftCard() {
+		return isCheckoutWaitingForGiftCard.get();
+	}
+
+	public void setWaitingForGiftCard(boolean bool) {
+		isCheckoutWaitingForGiftCard.set(bool);
+	}
+
 	public boolean getCardSwiped() {
 		return cardSwipedCheckout.get();
 	}
@@ -655,6 +691,7 @@ public class SelfCheckoutData {
 		return Barcoded_Product_Database;
 	}
 
+
 	public void resetScannerWeightFlags() {
 		// Reset weight change flags
 		setIsScannerWaitingForWeightChange(false);
@@ -668,3 +705,20 @@ public class SelfCheckoutData {
 
 	// ===========================For ScannerHandler===========================
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
