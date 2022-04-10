@@ -383,6 +383,19 @@ public class SelfCheckoutSoftware {
 	}
 
 	
+	public void manualMembershipCheck(String membershipID)
+	{
+		if(membershipCardHandler.getMembershipCards().containsKey(membershipID) == true) {
+			stationData.setMembershipID(membershipID);
+			stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+			
+		}
+		else {
+			//membership number does not exist
+			stationData.changeState(StationState.BAD_MEMBERSHIP);
+		}
+	}
+	
 	
 
 }

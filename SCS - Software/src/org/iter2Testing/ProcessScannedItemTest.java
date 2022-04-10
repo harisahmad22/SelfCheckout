@@ -17,6 +17,8 @@ import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.iter3Testing.PlaceItemOnScaleRunnable;
+import org.iter3Testing.RemoveItemOnScaleRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

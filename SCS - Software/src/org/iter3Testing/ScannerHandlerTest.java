@@ -21,9 +21,8 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
+import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.TestBarcodedProducts;
-import org.iter2Testing.PlaceItemOnScaleRunnable;
-import org.iter2Testing.RemoveItemOnScaleRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -132,15 +131,15 @@ public class ScannerHandlerTest {
 
     @Test
     public void testScanValidItemPutValidWeight() {
-    	
     	//Put a 4L milk jug on the scale 1 second after scanning
-    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 1000, TimeUnit.MILLISECONDS);
+//    	addItemsToScaleScheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 1000, TimeUnit.MILLISECONDS);
     	
     	//Scan in a 4L jug of milk (Barcode = 1)
     	this.stationHardware.mainScanner.scan(milkJugItem); 
     	
-    	//Touch screen should have been informed of the invalid barcode
-    	assertFalse(stationSoftware.getTouchScreenSoftware().invalidBarcodeDetected.get());
+    	this.stationHardware.baggingArea.add(milkJugItem);
+    	
+    	
     	//Total cost should equal the cost of a milk jug 
     	assertTrue(stationData.getTotalDue().compareTo(milkJug.getPrice()) == 0);
 		//Re-initialize the station, touchscreen, and checkout totals.

@@ -1,4 +1,4 @@
-package org.iter2Testing;
+package org.iter3Testing;
 
 import java.io.IOException;
 
@@ -7,15 +7,15 @@ import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.devices.CardReader;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 
-public class ScanTestMembershipCardRunnable implements Runnable {
+public class SwipeTestCardRunnable implements Runnable {
 
 	private CardReader reader;
 	private Card testMembershipCard;
-	public ScanTestMembershipCardRunnable(CardReader reader, String type)
+	public SwipeTestCardRunnable(CardReader reader, String type, String num, String name, String cvv, String pin, boolean isTap, boolean hasChip)
 	{
 		this.reader = reader;
 		//Membership Card has no pin, chip, or ability to tap
-		this.testMembershipCard = new Card(type, "123456789", "Test User", null, null, false, false);
+		this.testMembershipCard = new Card(type, num, name, cvv, pin, isTap, hasChip);
 	}
 	
 	@Override

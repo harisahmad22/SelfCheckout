@@ -10,6 +10,7 @@ import org.controlSoftware.deviceHandlers.payment.CardPaymentSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.SelfCheckoutSoftware;
+import org.driver.databases.MembershipDatabase;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -27,6 +28,14 @@ public class ScansMembershipCard implements CardReaderObserver{
 	String memberNumber;
 	Map<String, Integer> membershipCards = new HashMap<>();
 	
+	public Map<String, Integer> getMembershipCards() {
+		return membershipCards;
+	}
+
+	public void setMembershipCards(Map<String, Integer> membershipCards) {
+		this.membershipCards = membershipCards;
+	}
+
 	int discountPercentage = 0;
 	
 	//if customer is currently trying to scan their membership card, this will be set to true
@@ -42,14 +51,12 @@ public class ScansMembershipCard implements CardReaderObserver{
 		this.stationSoftware = stationSoftware;
 		this.station = stationData.getStationHardware();
 //		station.cardReader.attach(this);
-		
+		this.membershipCards = new MembershipDatabase().getDatabase();
 		this.paymentHandler = this.stationSoftware.getCardPaymentSoftware();
 	}
 	
 	public void applyMembershipBenefits(String number) {
-	
-		
-		
+
 	}
 	
 	public int getLoyaltyPoints(String cardNumber) {
@@ -89,23 +96,29 @@ public class ScansMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.getCurrentState() == StationState.ASK_MEMBERSHIP)) {
+		if ((stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
 			String type = data.getType();
-			
 			String[] memberCard = {"member", "Member"};
-			if((type.indexOf(memberCard[0]) > 0) || (type.indexOf(memberCard[1]) > 0) ) {
+//			if((type.indexOf(memberCard[0]) > 0) || (type.indexOf(memberCard[1]) > 0) ) {
+			if(type.equals("Member") || type.equals("member")) {
 				String cardNum = data.getNumber();
 				if(membershipCards.containsKey(cardNum) == true) {
 					scanSuccessful = new AtomicBoolean(true);
-					paymentHandler.membershipCardScanSuccessful(getPercentDiscount());
+					stationData.setMembershipID(data.getNumber());
+					stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+//					paymentHandler.membershipCardScanSuccessful(getPercentDiscount());
+					
 				}
 				else {
 					//membership number does not exist
+					stationData.changeState(StationState.BAD_MEMBERSHIP);
 					paymentHandler.membershipScanUnsuccessful();
 				}
 			}
 			else {
 				//card not of type membership
+				System.out.println("ASDASD");
+				stationData.changeState(StationState.BAD_MEMBERSHIP);
 				paymentHandler.membershipScanUnsuccessful();		}
 			
 			/*

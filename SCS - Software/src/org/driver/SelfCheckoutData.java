@@ -17,6 +17,7 @@ import org.driver.SelfCheckoutData.StationState;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.GiftCardDatabase;
+import org.driver.databases.MembershipDatabase;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.ProductInfo;
@@ -174,6 +175,7 @@ public class SelfCheckoutData {
 	
 	private PLUTestProducts PLUTestProducts;
 	private TestBarcodedProducts testProducts;
+	private MembershipDatabase memberDB;
 	
 
 	public SelfCheckoutData(SelfCheckoutStation station) {
@@ -199,6 +201,9 @@ public class SelfCheckoutData {
 		
 		//Initialize giftcard database (Contains 3 cards with different values)
 		giftCardDB = new GiftCardDatabase();
+		
+		//Initialize Member datatbase
+		memberDB = new MembershipDatabase();
 		
 		// Initialize some test Products
 		// 3 Products, rice, pear, and banana
@@ -249,12 +254,11 @@ public class SelfCheckoutData {
 		// Item has been scanned, enter processing state to block new scans/additions until item has been put in bagging area. 
 		PROCESSING_SCAN,
 		
-		// Membership related states. Need only enable disable card reader for SCAN state.
-		ASK_MEMBERSHIP, SCAN_MEMBERSHIP, TYPE_MEMBERSHIP, TEST_MEMBERSHIP,
+		// Membership related states. Need only enable disable card reader for SWIPE state.
+		ASK_MEMBERSHIP, SWIPE_MEMBERSHIP, TYPE_MEMBERSHIP, TEST_MEMBERSHIP,
 		
 		// Customer uses own bags related states.
 		ASK_BAGS, ADDING_BAGS, ADDED_BAGS,
-		
 		
 		// Ready for item to be scanned. Could proceed to checkout from here
 		MAIN_SCAN, LETTER_SEARCH, PLU_SEARCH, CHECKOUT_CHECK,
@@ -346,7 +350,10 @@ public class SelfCheckoutData {
 		INSUFFICIENT_FUNDS,
 		
 		// State to inform user that given PLU code is not in database
-		BAD_PLU
+		BAD_PLU, 
+		
+		// State to inform user that their membership is invalid 
+		BAD_MEMBERSHIP
 	}
 
 
@@ -417,6 +424,9 @@ public class SelfCheckoutData {
 			break;
 			
 		case BAD_PLU:
+			break;
+			
+		case BAD_MEMBERSHIP:
 			break;
 			
 		case PARTIAL_PAYMENT_KEYPAD:
@@ -546,7 +556,8 @@ public class SelfCheckoutData {
 			//Otherwise system will change to checkout state after card is swiped
 			break;
 	
-		case SCAN_MEMBERSHIP:
+		case SWIPE_MEMBERSHIP:
+			this.stationHardware.cardReader.enable();
 			break;
 			
 		case TYPE_MEMBERSHIP:
