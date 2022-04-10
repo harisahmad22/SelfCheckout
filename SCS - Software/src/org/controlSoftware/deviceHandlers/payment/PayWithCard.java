@@ -203,9 +203,8 @@ public class PayWithCard implements CardReaderObserver {
 	}
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if ((data.getType() != "Membership") && 
-			(stationData.getCurrentState() == StationState.PAY_CREDIT 
-		  || stationData.getCurrentState() == StationState.PAY_DEBIT))
+		if (stationData.getCurrentState() == StationState.PAY_CREDIT 
+		    || stationData.getCurrentState() == StationState.PAY_DEBIT)
 		{
 			cardData = data;
 			cardType = data.getType();
@@ -217,38 +216,6 @@ public class PayWithCard implements CardReaderObserver {
 			if(cardIssuers.containsKey(cardType) == true) {
 				cardIssuer = cardIssuers.get(cardType);
 			}
-			/*
-			else if(cardKind == "Giftcard") {
-				if(checkGiftCardBalance == true) {
-					if(giftcards.getDatabase().containsKey(data.getNumber()) == true) {
-						BigDecimal balance = BigDecimal.valueOf(giftcards.getDatabase().get(data.getNumber()));
-						payment.getGiftCardBalance(balance, true);
-						//no longer in checking balance phase
-						checkGiftCardBalance = false;
-						return;
-					}
-					else {
-						payment.getGiftCardBalance(new BigDecimal(0), false);
-						checkGiftCardBalance = false;
-						return;
-					}
-				}
-				else if(giftcards.getDatabase().containsKey(data.getNumber()) == true) {
-					success = payWithGiftCard(cardData);
-					if(success == true) {
-						payment.giftCardPaymentSuccessful();
-					}
-					else {
-						payment.giftCardPaymentUnsuccessful();
-						
-					}
-				}
-				else {
-					success = false;
-					paymentUnsuccessful();
-				}
-			}
-			*/
 			else {
 				paymentUnsuccessful();
 				return;
@@ -256,8 +223,6 @@ public class PayWithCard implements CardReaderObserver {
 				//thus, payment with membership card is not possible
 			}
 			
-	
-		
 			switch(cardType) {
 			case "Debit":
 				success = payWithDebit(cardData);
@@ -267,7 +232,7 @@ public class PayWithCard implements CardReaderObserver {
 				}
 				else {
 					paymentSoftware.debitPaymentUnsuccessful();
-					//TODO Change state to handle unsuccessful payment
+					stationData.changeState(StationState.BAD_CARD);
 				}
 				break;
 				
@@ -279,6 +244,7 @@ public class PayWithCard implements CardReaderObserver {
 				}
 				else {
 					paymentSoftware.creditPaymentUnsuccessful();
+					stationData.changeState(StationState.BAD_CARD);
 				}
 				break;
 			}
