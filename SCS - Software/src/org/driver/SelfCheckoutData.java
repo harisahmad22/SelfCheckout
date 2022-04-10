@@ -805,6 +805,7 @@ public class SelfCheckoutData {
 		totalMoneyPaid = BigDecimal.ZERO;
 		transactionPaymentAmount = BigDecimal.ZERO;
 		totalPaidThisTransaction = BigDecimal.ZERO;
+		isFirstCheckout.set(true);
 		setAllExpectedWeights(0.0);
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		productsAddedToCheckout = new HashMap<String, ProductInfo>();

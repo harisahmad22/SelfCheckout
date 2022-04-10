@@ -422,17 +422,9 @@ public class SelfCheckoutGUIWelcome {
 			takeReceiptButton();
 			
 			//Print Receipt
+			stationData.getStationSoftware().getReceiptHandler().setMembershipID(stationData.getMembershipID());
 			stationData.getStationSoftware().getReceiptHandler().printReceipt();
 		}
-		
-		
-//		Timer timer = new Timer(5000, new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//				stationData.changeState(StationState.WELCOME);
-//            }
-//        });
-//        timer.start();
 	}
 	
 	private void printTotals()

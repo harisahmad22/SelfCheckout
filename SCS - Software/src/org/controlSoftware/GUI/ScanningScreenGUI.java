@@ -230,12 +230,15 @@ public class ScanningScreenGUI {
 						stationData.changeState(StationState.BAD_PLU);
 						return;
 					}
-					try {
-						weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
-					} catch (OverloadException e1) {
-						e1.printStackTrace();
+					else 
+					{
+						try {
+							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
+						} catch (OverloadException e1) {
+							e1.printStackTrace();
+						}
+						stationData.addProductToCheckout(PLUProduct, weight);
 					}
-					stationData.addProductToCheckout(PLUProduct, weight);
 				} else {
 					if (codePLU.getText().length() < 5) {
 						codePLU.setText(codePLU.getText() + val);
