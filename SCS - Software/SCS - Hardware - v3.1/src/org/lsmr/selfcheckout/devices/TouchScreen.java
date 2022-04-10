@@ -36,7 +36,7 @@ public final class TouchScreen extends AbstractDevice<TouchScreenObserver> {
 	private JFrame createGUI() {
 		final JFrame frame = new JFrame(); //Changed To Final to fix error!
 
-		frame.setUndecorated(true);
+		//frame.setUndecorated(true);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {

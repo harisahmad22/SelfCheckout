@@ -2,6 +2,9 @@ package org.driver;
 
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.OverloadException;
+
+import java.util.ArrayList;
+
 import org.controlSoftware.GUI.SupervisorGUIMaster;
 //import org.driver.SelfCheckoutData.StationState;\
 import org.lsmr.selfcheckout.devices.SupervisionStation;
@@ -14,6 +17,8 @@ public class AttendantData {
 	
 	private SupervisorGUIMaster gui;
 	
+	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
+	
 	public AttendantData() {
 		// station = newStation;
 	}
@@ -21,6 +26,9 @@ public class AttendantData {
 	//Put states in with methods for changing state
 	
 	public enum AttendantState {
+		// Current GUI associated states. Can be changed in GUI to match implementation. Not sure what they are there.
+		START, TEST_LOGIN, STATIONS, MAINTENANCE, WEIGHT_ERROR,
+		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?
 		ERROR, 
@@ -106,6 +114,15 @@ public class AttendantData {
 		// Enable hardware for new state
 		switch(targetState) {
 		
+		case START:
+			break;
+		case STATIONS:
+			break;
+		case MAINTENANCE:
+			break;
+		case WEIGHT_ERROR:
+			break;
+		
 		case INACTIVE:
 							
 			//SIGNAL GUI TO CLOSE ALL WINDOWS
@@ -169,7 +186,6 @@ public class AttendantData {
 			break;
 			
 		case LOG_IN:
-			
 			break;
 			
 		case ERROR:
@@ -214,4 +230,19 @@ public class AttendantData {
 	private void setCurrentState(AttendantState targetState) {
 		this.currentState = targetState;
 	}
+	
+	public void attachCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> unitList)
+	{
+		checkoutStations = unitList;
+	}
+	
+	public SelfCheckoutStationUnit getUnitAt(int index) {
+		if (checkoutStations.size() <= index) {
+			return null;
+		}
+		else {
+			return checkoutStations.get(index);
+		}
+	}
+		
 }
