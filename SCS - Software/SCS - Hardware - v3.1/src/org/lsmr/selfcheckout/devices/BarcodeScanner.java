@@ -22,7 +22,7 @@ public class BarcodeScanner extends AbstractDevice<BarcodeScannerObserver> {
 	public BarcodeScanner() {}
 
 	private Random random = new Random();
-	private static final int PROBABILITY_OF_FAILED_SCAN = 0; /* out of 100 */
+	private static final int PROBABILITY_OF_FAILED_SCAN = 10; /* out of 100 */
 
 	/**
 	 * Simulates the customer's action of scanning an item. The result of the scan
