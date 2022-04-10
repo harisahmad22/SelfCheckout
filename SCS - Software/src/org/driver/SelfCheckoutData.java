@@ -350,7 +350,10 @@ public class SelfCheckoutData {
 		INSUFFICIENT_FUNDS,
 		
 		// State to inform user that given PLU code is not in database
-		BAD_PLU
+		BAD_PLU, 
+		
+		// State to inform user that their membership is invalid 
+		BAD_MEMBERSHIP
 	}
 
 
@@ -421,6 +424,9 @@ public class SelfCheckoutData {
 			break;
 			
 		case BAD_PLU:
+			break;
+			
+		case BAD_MEMBERSHIP:
 			break;
 			
 		case PARTIAL_PAYMENT_KEYPAD:

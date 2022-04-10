@@ -1,6 +1,6 @@
 //Brody Long - 30022870
 
-package org.iter2Testing;
+package org.iter3Testing;
 
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.devices.ElectronicScale;

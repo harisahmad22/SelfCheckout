@@ -96,7 +96,7 @@ public class ScansMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if ((data.getType() == "Member") && (stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
+		if ((stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
 			String type = data.getType();
 			String[] memberCard = {"member", "Member"};
 //			if((type.indexOf(memberCard[0]) > 0) || (type.indexOf(memberCard[1]) > 0) ) {
@@ -111,11 +111,14 @@ public class ScansMembershipCard implements CardReaderObserver{
 				}
 				else {
 					//membership number does not exist
+					stationData.changeState(StationState.BAD_MEMBERSHIP);
 					paymentHandler.membershipScanUnsuccessful();
 				}
 			}
 			else {
 				//card not of type membership
+				System.out.println("ASDASD");
+				stationData.changeState(StationState.BAD_MEMBERSHIP);
 				paymentHandler.membershipScanUnsuccessful();		}
 			
 			/*

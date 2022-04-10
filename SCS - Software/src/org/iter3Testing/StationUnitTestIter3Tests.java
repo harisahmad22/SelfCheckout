@@ -34,13 +34,6 @@ import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.TestBarcodedProducts;
-import org.iter2Testing.PayWithBanknotesRunnable;
-import org.iter2Testing.PayWithCoinsRunnable;
-import org.iter2Testing.PlaceItemOnScaleRunnable;
-import org.iter2Testing.RemoveDanglingBanknotesRunnable;
-import org.iter2Testing.RemoveItemOnScaleRunnable;
-import org.iter2Testing.ScanItemRunnable;
-import org.iter2Testing.SwipeTestCardRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -250,30 +243,13 @@ public class StationUnitTestIter3Tests {
 
     @Test
     public void testScanningWrongCardAsMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-
-    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new SwipeTestCardRunnable(this.stationHardware.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
+    	stationData.changeState(StationState.SWIPE_MEMBERSHIP);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.stationHardware.cardReader, "Credit", "1", "Test", null, null, false, false), 100, TimeUnit.MILLISECONDS);   	
     	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to swipe their membership card
-    	//They will pay in full ($0)
-    	//They will pay with cash
-    	String inputString = "no\n" + "swipe\n" + "full\n" + "cash\n";
+    	TimeUnit.SECONDS.sleep(1);
     	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-    	stationSoftware.getCheckoutHandler().startCheckout();
-    	
-    	String finalReceipt = this.stationHardware.printer.removeReceipt();
-		System.out.println("Receipt Generated:\n" + finalReceipt);
-    	
-		assertTrue(stationData.getMembershipID().equals("null"));
-		assertTrue(stationSoftware.getReceiptHandler().getMembershipID().equals("null\n"));
+    	assertTrue(stationData.getCurrentState() == StationState.BAD_MEMBERSHIP);
+    	assertTrue(stationData.getMembershipID().equals("null"));
     }
 
     
