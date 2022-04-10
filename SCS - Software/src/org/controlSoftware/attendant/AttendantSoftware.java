@@ -213,13 +213,23 @@ public class AttendantSoftware {
 	 */
 	public void refillCoinDispenser(int stationID, Coin... coins) throws SimulationException, OverloadException
 	{
-		checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinStorage.load(coins);
+		if (coins.length == 0) {
+			return;
+		}
+		else {
+			checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinDispensers.get(coins[0].getValue()).load(coins);
+		}
 	}
 	
 	
 	public void refillCoinDispenser(String stationID, Coin... coins) throws SimulationException, OverloadException
 	{
-		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinStorage.load(coins);
+		if (coins.length == 0) {
+			return;
+		}
+		else {
+			checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinDispensers.get(coins[0].getValue()).load(coins);
+		}
 	}
 
 	
@@ -229,12 +239,22 @@ public class AttendantSoftware {
 	 */
 	public void refillbanknoteDispenser(int stationID, Banknote... banknotes) throws SimulationException, OverloadException
 	{
-		checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteStorage.load(banknotes);
+		if (banknotes.length == 0) {
+			return;
+		}
+		else {
+			checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteDispensers.get(banknotes[0].getValue()).load(banknotes);
+		}
 	}
 	
 	public void refillbanknoteDispenser(String stationID, Banknote... banknotes) throws SimulationException, OverloadException
 	{
-		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteStorage.load(banknotes);
+		if (banknotes.length == 0) {
+			return;
+		}
+		else {
+			checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteDispensers.get(banknotes[0].getValue()).load(banknotes);
+		}
 	}
 	
 	//=============================================Yiannis Hontzias=============================================

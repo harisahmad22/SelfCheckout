@@ -38,6 +38,7 @@ public class AttendantUnit {
 		
 		this.gui = new SupervisorGUIMaster(attendantStation, attendantData);
 		this.attendantData.registerGUI(gui);
+		this.attendantData.registerSoftware(attendantSoftware);
 	}
 	public void attachCheckoutStationUnit(SelfCheckoutStationUnit unit)
 	{

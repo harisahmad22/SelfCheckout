@@ -131,6 +131,8 @@ public class SelfCheckoutData {
 	// Product Lookup
 	private ProductDatabases productDatabases;
 
+	private PLUCodedProduct lookedUpProduct;
+
 	// ============================Software Flags============================
 	private AtomicBoolean isWeightValidNormalMode = new AtomicBoolean(true);
 	private AtomicBoolean isWeightValidCheckout = new AtomicBoolean(true);
@@ -323,10 +325,13 @@ public class SelfCheckoutData {
 		//Later could have all system's methods except startupStation() not work if the state == INACTIVE
 		INACTIVE, 
 		
-		//State that is entered after an item is scanned/added via lookup
+		//State that is entered after an item is scanned/looked up item put on scanning area scale
 		//Will only be exited once Bagging area scale handler detects weight on scale == expected weight 
 		//At which point system returns to NORMAL mode
 		WAITING_FOR_ITEM,
+		
+		//State that is entered after user chooses an item from lookup and it needs to be put on scanner scale to learn its weight
+		WAITING_FOR_LOOKUP_ITEM,
 		
 		//State that is entered once a weight issue is detected, can also be entered if weight is invalid after system begins waiting for item to be put down
 		WEIGHT_ISSUE, 
@@ -431,7 +436,9 @@ public class SelfCheckoutData {
 			
 		case WAITING_FOR_ITEM:
 //			System.out.println("WAITING FOR ITEM");
+			break;
 			
+		case WAITING_FOR_LOOKUP_ITEM:
 			break;
 			
 		case WEIGHT_ISSUE:
@@ -1205,6 +1212,13 @@ public void disablePaymentDevices() {
 	
 	public void setGiftCardNo(String number) {
 		giftCardNo = number;
+	}
+
+	public void setLookedUpProduct(PLUCodedProduct PLUProduct) {
+		lookedUpProduct = PLUProduct;
+	}	
+	public PLUCodedProduct getLookedUpProduct() {
+		return lookedUpProduct;
 	}	
 }
 

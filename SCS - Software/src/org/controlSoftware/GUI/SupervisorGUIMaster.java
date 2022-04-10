@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -21,6 +22,10 @@ import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.ProductInfo;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.SelfCheckoutStationUnit;
+import org.lsmr.selfcheckout.Banknote;
+import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.SimulationException;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 
@@ -79,6 +84,24 @@ public class SupervisorGUIMaster {
 		case WEIGHT_ERROR:
 			weightErrorScreen();
 			break;
+		case EMPTY_COINS:
+			emptyCoinsScreen();
+			break;
+		case EMPTY_NOTES:
+			emptyNotesScreen();
+			break;
+		case REFILL_COINS:
+			refillCoinsScreen();
+			break;
+		case REFILL_NOTES:
+			refillNotesScreen();
+			break;
+		case REFILL_PAPER:
+			refillPaperScreen();
+			break;
+		case REFILL_INK:
+			refillInkScreen();
+			break;
 		default:
 			break;
 		}
@@ -91,17 +114,575 @@ public class SupervisorGUIMaster {
 
 		
 	}
-	private void maintenanceScreen() {
-		frame.setLayout(null);
-
-		
-	}
 	private void searchItemScreen() {
 		frame.setLayout(null);
-
+		
 		
 	}
-	
+	private void maintenanceScreen() {
+		frame.setLayout(null);
+		
+		// Back button
+		final JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.ACTIVE);
+			}
+		});
+		
+		// Logout button
+		final JButton b2 = new JButton("LOGOUT");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(500, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.START);
+			}
+		});
+		
+		JLabel l1 = new JLabel("Select maintenance option");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 100);
+		frame.getContentPane().add(l1);
+		
+		JButton b3 = new JButton();
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setText("REFILL PRINTER PAPER");
+		b3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.REFILL_PAPER);
+			}
+		});
+		
+		JButton b4 = new JButton();
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setText("REFILL PRINTER INK");
+		b4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.REFILL_INK);
+			}
+		});
+		
+		JButton b5 = new JButton();
+		b5.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b5.setText("EMPTY COIN STORAGE");
+		b5.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.EMPTY_COINS);
+			}
+		});
+		
+		JButton b6 = new JButton();
+		b6.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b6.setText("EMPTY BILL STORAGE");
+		b6.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.EMPTY_NOTES);
+			}
+		});
+		
+		JButton b7 = new JButton();
+		b7.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b7.setText("REFILL COIN DISPENSER");
+		b7.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemListIndex = 0;
+				attendantData.changeState(AttendantState.REFILL_COINS);
+			}
+		});
+		
+		JButton b8 = new JButton();
+		b8.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b8.setText("REFILL BILL DISPENSER");
+		b8.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.REFILL_NOTES);
+			}
+		});
+		
+		//Initialize list of buttons to appear on this screen.
+		ArrayList<JButton> optionButtons = new ArrayList<JButton>();
+		
+		optionButtons.add(b3);	
+		optionButtons.add(b4);	
+		optionButtons.add(b5);	
+		optionButtons.add(b6);	
+		optionButtons.add(b7);	
+		optionButtons.add(b8);	
+		
+		// Place the buttons in optionButtons
+		for(Integer i = 0; i < optionButtons.size(); i++) {
+			optionButtons.get(i).setBounds(25 + (i % 2) * 475, 100 + (int) Math.floor(i.floatValue() / 2.0) * 125, 450, 100);
+			frame.getContentPane().add(optionButtons.get(i));
+		}
+		
+		
+	}
+	private void refillInkScreen() {
+		frame.setLayout(null);
+		
+		JLabel l2 = new JLabel("Confirm units of ink refilled");
+		l2.setBounds(0,0,1000,75);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l2);
+		
+		final JLabel l1 = new JLabel("");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 75, 1000, 75);
+		frame.getContentPane().add(l1);
+		
+		ActionListener keyList = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton src = (JButton) e.getSource();
+				String val = src.getText();
+				if (val == "DEL") {
+					l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+				}
+				else {
+					if (l1.getText().length() < 12) {
+						l1.setText(l1.getText() + val);
+					}
+				}
+				
+			}
+		};
+		
+		JButton[] keypad = new JButton[9];
+		for(Integer i = 0; i < keypad.length; i++) {
+			keypad[i]  = new JButton(String.valueOf((i+1) % 10));
+			keypad[i].setFont(new Font("Tahoma", Font.PLAIN, 36));
+			keypad[i].setBounds(275 + (i % 3) * 150, 150 + (int) Math.floor(i.floatValue() / 3.0) * 75, 150, 75);
+			keypad[i].addActionListener(keyList);
+			
+			frame.getContentPane().add(keypad[i]);
+		}
+		
+		JButton b3 = new JButton("DEL");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setBounds(275, 375, 150, 75);
+		b3.addActionListener(keyList);
+		frame.getContentPane().add(b3);
+		
+		JButton b4 = new JButton("0");
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setBounds(425, 375, 150, 75);
+		b4.addActionListener(keyList);
+		frame.getContentPane().add(b4);
+		
+		
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					targetStation.getSelfCheckoutStationHardware().printer.addInk(Integer.parseInt(l1.getText()));
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+					return;
+				} catch (OverloadException e1) {
+					e1.printStackTrace();
+					return;
+				}
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+	}
+	private void refillPaperScreen() {
+		frame.setLayout(null);
+		
+		JLabel l2 = new JLabel("Confirm units of paper refilled");
+		l2.setBounds(0,0,1000,75);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l2);
+		
+		final JLabel l1 = new JLabel("");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 75, 1000, 75);
+		frame.getContentPane().add(l1);
+		
+		ActionListener keyList = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton src = (JButton) e.getSource();
+				String val = src.getText();
+				if (val == "DEL") {
+					l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+				}
+				else {
+					if (l1.getText().length() < 12) {
+						l1.setText(l1.getText() + val);
+					}
+				}
+				
+			}
+		};
+		
+		JButton[] keypad = new JButton[9];
+		for(Integer i = 0; i < keypad.length; i++) {
+			keypad[i]  = new JButton(String.valueOf((i+1) % 10));
+			keypad[i].setFont(new Font("Tahoma", Font.PLAIN, 36));
+			keypad[i].setBounds(275 + (i % 3) * 150, 150 + (int) Math.floor(i.floatValue() / 3.0) * 75, 150, 75);
+			keypad[i].addActionListener(keyList);
+			
+			frame.getContentPane().add(keypad[i]);
+		}
+		
+		JButton b3 = new JButton("DEL");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setBounds(275, 375, 150, 75);
+		b3.addActionListener(keyList);
+		frame.getContentPane().add(b3);
+		
+		JButton b4 = new JButton("0");
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setBounds(425, 375, 150, 75);
+		b4.addActionListener(keyList);
+		frame.getContentPane().add(b4);
+		
+		
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					targetStation.getSelfCheckoutStationHardware().printer.addPaper(Integer.parseInt(l1.getText()));
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+					return;
+				} catch (OverloadException e1) {
+					e1.printStackTrace();
+					return;
+				}
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+	}
+	private void refillNotesScreen() {
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Confirm denominations added");
+		l1.setBounds(0,0,1000,100);
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l1);
+		
+		final int[] denominations = SelfCheckoutStationUnit.getBanknoteDenominations();
+		
+		ArrayList<JLabel> labels = new ArrayList<JLabel>();
+		ArrayList<JButton> buttons1 = new ArrayList<JButton>();
+		ArrayList<JButton> buttons2 = new ArrayList<JButton>();
+		final ArrayList<JLabel> quants = new ArrayList<JLabel>();
+		
+		for (int i = 0; i < denominations.length; i++) {
+			labels.add(new JLabel("$" + String.valueOf(denominations[i])));
+			labels.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			labels.get(i).setHorizontalAlignment(SwingConstants.CENTER);
+			labels.get(i).setBounds(225, 100 + i * 70, 200, 65);
+			frame.getContentPane().add(labels.get(i));
+			
+			quants.add(new JLabel("0"));
+			quants.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			quants.get(i).setHorizontalAlignment(SwingConstants.CENTER);
+			quants.get(i).setBounds(575, 100 + i * 70, 200, 65);
+			frame.getContentPane().add(quants.get(i));
+			
+			buttons1.add(new JButton("-"));
+			buttons1.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			buttons1.get(i).setBounds(425, 100 + i * 70, 75, 65);
+			buttons1.get(i).putClientProperty("index", i);
+			buttons1.get(i).addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JButton butt = (JButton) e.getSource();
+					int index = (int) butt.getClientProperty("index");
+					Integer quant = Integer.parseInt(quants.get(index).getText());
+					if (quant > 0) {
+						quant--;
+						quants.get(index).setText(quant.toString());
+					}
+				}
+			});
+			
+			frame.getContentPane().add(buttons1.get(i));
+			
+			buttons2.add(new JButton("+"));
+			buttons2.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			buttons2.get(i).setBounds(500, 100 + i * 70, 75, 65);
+			buttons2.get(i).putClientProperty("index", i);
+			buttons2.get(i).addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JButton butt = (JButton) e.getSource();
+					int index = (int) butt.getClientProperty("index");
+					Integer quant = Integer.parseInt(quants.get(index).getText());
+					quant += 10;
+					quants.get(index).setText(quant.toString());
+				}
+			});
+			frame.getContentPane().add(buttons2.get(i));
+		}
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 0; i < denominations.length; i++) {
+					int den = denominations[i];
+					int quant = Integer.parseInt(quants.get(i).getText());
+					Banknote banknote = new Banknote(SelfCheckoutStationUnit.getCurrency(), den);
+					Banknote[] banknotes = new Banknote [quant];
+					for (int j = 0; j < quant; j++) {
+						banknotes[j] = banknote;
+					}
+					try {
+						attendantData.getSoftware().refillbanknoteDispenser(targetStation.getStationID(), banknotes);
+					} catch (SimulationException e1) {
+						e1.printStackTrace();
+						return; // No state change if load fails
+					} catch (OverloadException e1) {
+						// Potentially add additional code to handle overload. Don't really care presently.
+						System.out.println("too full");
+						e1.printStackTrace();
+						return; // No state change if load fails
+					}
+				}
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+	}
+	private void refillCoinsScreen() {
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Confirm denominations added");
+		l1.setBounds(0,0,1000,100);
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l1);
+		
+		final BigDecimal[] denominations = SelfCheckoutStationUnit.getCoinDenominations();
+		
+		ArrayList<JLabel> labels = new ArrayList<JLabel>();
+		ArrayList<JButton> buttons1 = new ArrayList<JButton>();
+		ArrayList<JButton> buttons2 = new ArrayList<JButton>();
+		final ArrayList<JLabel> quants = new ArrayList<JLabel>();
+		
+		for (int i = 0; i < denominations.length; i++) {
+			labels.add(new JLabel("$" + denominations[i].toString()));
+			labels.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			labels.get(i).setHorizontalAlignment(SwingConstants.CENTER);
+			labels.get(i).setBounds(225, 100 + i * 70, 200, 65);
+			frame.getContentPane().add(labels.get(i));
+			
+			quants.add(new JLabel("0"));
+			quants.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			quants.get(i).setHorizontalAlignment(SwingConstants.CENTER);
+			quants.get(i).setBounds(575, 100 + i * 70, 200, 65);
+			frame.getContentPane().add(quants.get(i));
+			
+			buttons1.add(new JButton("-"));
+			buttons1.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			buttons1.get(i).setBounds(425, 100 + i * 70, 75, 65);
+			buttons1.get(i).putClientProperty("index", i);
+			buttons1.get(i).addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JButton butt = (JButton) e.getSource();
+					int index = (int) butt.getClientProperty("index");
+					Integer quant = Integer.parseInt(quants.get(index).getText());
+					if (quant > 0) {
+						quant--;
+						quants.get(index).setText(quant.toString());
+					}
+				}
+			});
+			
+			frame.getContentPane().add(buttons1.get(i));
+			
+			buttons2.add(new JButton("+"));
+			buttons2.get(i).setFont(new Font("Tahoma", Font.PLAIN, 36));
+			buttons2.get(i).setBounds(500, 100 + i * 70, 75, 65);
+			buttons2.get(i).putClientProperty("index", i);
+			buttons2.get(i).addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JButton butt = (JButton) e.getSource();
+					int index = (int) butt.getClientProperty("index");
+					Integer quant = Integer.parseInt(quants.get(index).getText());
+					quant += 10;
+					quants.get(index).setText(quant.toString());
+				}
+			});
+			frame.getContentPane().add(buttons2.get(i));
+		}
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 0; i < denominations.length; i++) {
+					BigDecimal den = denominations[i];
+					int quant = Integer.parseInt(quants.get(i).getText());
+					Coin coin = new Coin(SelfCheckoutStationUnit.getCurrency(), den);
+					Coin[] coins = new Coin [quant];
+					for (int j = 0; j < quant; j++) {
+						coins[j] = coin;
+					}
+					try {
+						attendantData.getSoftware().refillCoinDispenser(targetStation.getStationID(), coins);
+					} catch (SimulationException e1) {
+						e1.printStackTrace();
+						return; // No state change if load fails
+					} catch (OverloadException e1) {
+						// Potentially add additional code to handle overload. Don't really care presently.
+						System.out.println("too full");
+						e1.printStackTrace();
+						return; // No state change if load fails
+					}
+				}
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});		
+	}
+	private void emptyNotesScreen() {
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Confirm banknotes emptied from storage");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(500, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.getSoftware().emptyBanknoteStorageUnit(targetStation.getStationID());
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+	}
+	private void emptyCoinsScreen() {
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Confirm coins emptied from storage");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(500, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.getSoftware().emptyCoinStorageUnit(targetStation.getStationID());
+				attendantData.changeState(AttendantState.MAINTENANCE);
+			}
+		});
+	}
 	private void removeItemScreen() {
 		frame.setLayout(null);
 		
@@ -320,8 +901,7 @@ public class SupervisorGUIMaster {
 		b4.addActionListener(keyList);
 		frame.getContentPane().add(b4);
 	}
-		
-
+	
 	private void stationsScreen() {
 		final JButton b13 = new JButton("LOGOUT");
 		b13.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -334,7 +914,7 @@ public class SupervisorGUIMaster {
 			}
 		});
 		
-		final JLabel l1 = new JLabel("Select station to manage.");
+		final JLabel l1 = new JLabel("Select station to manage");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 100);
@@ -365,7 +945,6 @@ public class SupervisorGUIMaster {
 		
 	}
 	
-	
 	private void optionsScreen() {
 		// Back button
 		final JButton b1 = new JButton("BACK");
@@ -391,7 +970,7 @@ public class SupervisorGUIMaster {
 			}
 		});
 		
-		final JLabel l1 = new JLabel("Select an option.");
+		final JLabel l1 = new JLabel("Select a station option");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 100);
@@ -497,16 +1076,19 @@ public class SupervisorGUIMaster {
 		ArrayList<JButton> optionButtons = new ArrayList<JButton>();
 		
 		optionButtons.add(b3);	// ENABLE/DISABLE	
-		//Buttons to appear if station is active
+		// Appear on condition that station isn't shut down.
 		if (targetStation.getSelfCheckoutData().getCurrentState() != StationState.INACTIVE) {
 			optionButtons.add(b4);	// BLOCK/UNBLOCK
+		}
+		// Appear on condition that station is shut down
+		else {
+			optionButtons.add(b5);	// MAINTENANCE
 		}
 		//Buttons to appear if station is blocked
 		if (targetStation.getSelfCheckoutData().getCurrentState() == StationState.BLOCKED) {
 			optionButtons.add(b6);	// ADD PRODUCT
 			optionButtons.add(b7);	// REMOVE PRODUCT
 			optionButtons.add(b8);	// FIX WEIGHT ERROR
-			optionButtons.add(b5);	// MAINTENANCE
 		}
 		
 		// Place the buttons in optionButtons
@@ -521,3 +1103,89 @@ public class SupervisorGUIMaster {
 		targetStation = unit;
 	}
 }
+
+/*
+JLabel l2 = new JLabel("Units");
+l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+l2.setHorizontalAlignment(SwingConstants.CENTER);
+l2.setBounds(150, 100, 200, 75);
+frame.getContentPane().add(l2);
+
+final JLabel l3 = new JLabel("0");
+l3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+l3.setHorizontalAlignment(SwingConstants.CENTER);
+l3.setBounds(650, 100, 200, 75);
+frame.getContentPane().add(l3);
+
+JButton b5 = new JButton("--");
+b5.setFont(new Font("Tahoma", Font.PLAIN, 36));
+b5.setBounds(350, 100, 75, 75);
+b5.addActionListener(new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Integer quant = Integer.parseInt(l3.getText());
+		if (quant > 10) {
+			quant -= 10;
+			l3.setText(quant.toString());
+		}
+	}
+});
+frame.getContentPane().add(b5);
+
+JButton b3 = new JButton("-");
+b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+b3.setBounds(425, 100, 75, 75);
+b3.addActionListener(new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Integer quant = Integer.parseInt(l3.getText());
+		if (quant > 0) {
+			quant--;
+			l3.setText(quant.toString());
+		}
+	}
+});
+frame.getContentPane().add(b3);
+
+JButton b4 = new JButton("+");
+b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+b4.setBounds(500, 100, 75, 75);
+b4.addActionListener(new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Integer quant = Integer.parseInt(l3.getText());
+		quant += 10;
+		l3.setText(quant.toString());
+	}
+});
+frame.getContentPane().add(b4);
+
+JButton b6 = new JButton("++");
+b6.setFont(new Font("Tahoma", Font.PLAIN, 36));
+b6.setBounds(575, 100, 75, 75);
+b6.addActionListener(new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Integer quant = Integer.parseInt(l3.getText());
+		quant += 100;
+		l3.setText(quant.toString());
+	}
+});
+frame.getContentPane().add(b6);
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
