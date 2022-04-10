@@ -543,7 +543,7 @@ public class StationUnitTestIter3Tests {
     	
     	
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 12500, TimeUnit.MILLISECONDS);
-    	
+
     	stationData.changeState(StationState.PAY_CASH);
     	
     	TimeUnit.SECONDS.sleep(15);
