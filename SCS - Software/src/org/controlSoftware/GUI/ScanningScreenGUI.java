@@ -151,7 +151,7 @@ public class ScanningScreenGUI {
 
 		final JButton b1 = new JButton("[DEBUG] Block Station");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(0, 0, 300, 100);
+		b1.setBounds(1000, 0, 300, 100);
 		frame.getContentPane().add(b1);
 
 		b1.addActionListener(new ActionListener() {
@@ -166,7 +166,7 @@ public class ScanningScreenGUI {
 
 		final JButton b1 = new JButton("[DEBUG] Force Weight Issue");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(0, 100, 300, 100);
+		b1.setBounds(1000, 100, 300, 100);
 		frame.getContentPane().add(b1);
 
 		b1.addActionListener(new ActionListener() {
@@ -181,7 +181,7 @@ public class ScanningScreenGUI {
 	private void debugScanTestItemButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(350, 150, 300, 200);
+		payCoin.setBounds(1000, 200, 300, 200);
 		payCoin.setText("[DEBUG] Scan in a Milk Jug");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 18));
 		payCoin.setBackground(color);

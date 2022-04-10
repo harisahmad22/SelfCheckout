@@ -26,6 +26,7 @@ import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.SimulationException;
@@ -126,6 +127,9 @@ public class SupervisorGUIMaster {
 		case PLU_CHECK:
 			plucodeCheckScreen();
 			break;
+		case NOTIFIED_BY_STATION:
+			notificationScreen();
+			break;
 		default:
 			break;
 		}
@@ -135,8 +139,61 @@ public class SupervisorGUIMaster {
 	
 	private void weightErrorScreen() {
 		frame.setLayout(null);
-
 		
+		int stationNum = attendantData.getUnitIndex(targetStation) + 1;
+		
+		JLabel l1 = new JLabel("Clear weight issue at station " +  stationNum + "?");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 300, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.ACTIVE);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(500, 300, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				targetStation.getSoftware().performAttendantWeightOverride();
+				attendantData.changeState(AttendantState.ACTIVE);
+			}
+		});
+		
+	}
+	private void notificationScreen() {
+		frame.setLayout(null);
+		
+		System.out.println(attendantData.getGuiBuffer());
+		
+		final JLabel l1 = new JLabel(attendantData.getGuiBuffer());
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+		
+		final JButton b1 = new JButton("OK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		b1.setBounds(400,300,200,100);
+		frame.getContentPane().add(b1);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(attendantData.getPreviousState());
+			}
+		});
 	}
 	private void catalogueScreen() {
 		// Unused
@@ -174,7 +231,8 @@ public class SupervisorGUIMaster {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				PriceLookupCode pluCode = (PriceLookupCode) objectBuffer;
-				// Let station know to weigh item.
+				targetStation.getSelfCheckoutData().setLookedUpProduct(ProductDatabases.PLU_PRODUCT_DATABASE.get(pluCode));
+				targetStation.getSelfCheckoutData().changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
 				attendantData.changeState(AttendantState.ACTIVE);
 			}
 		});
@@ -254,7 +312,13 @@ public class SupervisorGUIMaster {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String string = l1.getText();
-				PriceLookupCode pluCode = new PriceLookupCode(string);
+				PriceLookupCode pluCode;
+				try {
+					pluCode = new PriceLookupCode(string);
+				}
+				catch (InvalidArgumentSimulationException E) {
+					pluCode = null;
+				}
 				PLUCodedProduct product = targetStation.getSoftware().getPLUCodedItem(pluCode);
 				if (product != null) {
 					buffer = product.getDescription();
@@ -1132,8 +1196,6 @@ public class SupervisorGUIMaster {
 		}
 		
 	}
-	
-	
 	private void startScreen() {
 		frame.setLayout(null);
 		
@@ -1155,8 +1217,6 @@ public class SupervisorGUIMaster {
 			}
 		});
 	}
-	
-	// Screen with keypad. Outputs value typed to SelfCheckoutData.guiBuffer
 	private void loginScreen(){
 
 		frame.setLayout(null);
@@ -1235,7 +1295,6 @@ public class SupervisorGUIMaster {
 		b4.addActionListener(keyList);
 		frame.getContentPane().add(b4);
 	}
-	
 	private void stationsScreen() {
 		final JButton b13 = new JButton("LOGOUT");
 		b13.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -1278,7 +1337,6 @@ public class SupervisorGUIMaster {
 		}
 		
 	}
-	
 	private void optionsScreen() {
 		// Back button
 		final JButton b1 = new JButton("BACK");
@@ -1315,7 +1373,7 @@ public class SupervisorGUIMaster {
 		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		// Text dependent on whether target station is enabled/disabled
 		if (targetStation.getSelfCheckoutData().getCurrentState() == StationState.INACTIVE) {
-			b3.setText("START UP STATION");
+			b3.setText("START STATION");
 		}
 		else {
 			b3.setText("SHUT DOWN STATION");
@@ -1412,7 +1470,14 @@ public class SupervisorGUIMaster {
 		optionButtons.add(b3);	// ENABLE/DISABLE	
 		// Appear on condition that station isn't shut down.
 		if (targetStation.getSelfCheckoutData().getCurrentState() != StationState.INACTIVE) {
-			optionButtons.add(b4);	// BLOCK/UNBLOCK
+			// Appears when no weight issue
+			if (targetStation.getSelfCheckoutData().getCurrentState() != StationState.WEIGHT_ISSUE) {
+				optionButtons.add(b4);	// BLOCK/UNBLOCK
+			}
+			// Appears when weight issue
+			else {
+				optionButtons.add(b8);	// FIX WEIGHT ERROR
+			}
 		}
 		// Appear on condition that station is shut down
 		else {
@@ -1425,8 +1490,6 @@ public class SupervisorGUIMaster {
 				optionButtons.add(b6);	// ADD PRODUCT
 				optionButtons.add(b7);	// REMOVE PRODUCT
 			}
-			// TBD WHEN THIS BUTTON APPEARS
-			optionButtons.add(b8);	// FIX WEIGHT ERROR
 		}
 		
 		// Place the buttons in optionButtons

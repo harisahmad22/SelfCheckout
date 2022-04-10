@@ -19,7 +19,10 @@ import org.controlSoftware.deviceHandlers.payment.CardPaymentSoftware;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
+import org.lsmr.selfcheckout.NullPointerSimulationException;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
@@ -40,6 +43,7 @@ public class SelfCheckoutSoftware {
 	public CashPaymentHandler cashPaymentHandler;
 	public GiftCardScannerHandler giftCardHandler;
 	public ScannerHandler scannerHandler;
+	public ScanningAreaScaleHandler scanningAreaScaleHandler;
 	public BaggingAreaScaleHandler baggingAreaScaleHandler;
 	public ReceiptHandler receiptHandler;
 	
@@ -399,10 +403,11 @@ public class SelfCheckoutSoftware {
 	
 	public PLUCodedProduct getPLUCodedItem(PriceLookupCode pluCode) {
 		try {
+			System.out.println("CHECK");
 			PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(pluCode);
 			return product;
 		}
-		catch (NullPointerException e) {
+		catch (Exception e) {
 			return null;
 		}
 	}
