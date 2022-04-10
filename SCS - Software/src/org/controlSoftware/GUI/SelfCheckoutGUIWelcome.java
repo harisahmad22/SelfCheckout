@@ -423,15 +423,31 @@ public class SelfCheckoutGUIWelcome {
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 		
-		Timer timer = new Timer(5000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.WELCOME);
-            }
-        });
-        timer.start();
-		
+//		Check if more money needs to be paid 
+		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) < 0)
+		{
+			stationData.resetTotalPaidThisTransaction();
+			stationData.changeState(StationState.NORMAL);
+		}
+		else
+		{
+			debugRemoveItemsFromBaggingAreaButton();
+			
+			takeReceiptButton();
+			
+			//Print Receipt
+			stationData.getStationSoftware().getReceiptHandler().setMembershipID(stationData.getMembershipID());
+			stationData.getStationSoftware().getReceiptHandler().printReceipt();
+		}
 	}
+	
+	private void printTotals()
+    {
+    	System.out.println("!!! total due: " + stationData.getTotalDue());
+		System.out.println("!!! total money paid: " + stationData.getTotalMoneyPaid());
+		System.out.println("!!! total paid this transaction: " + stationData.getTotalPaidThisTransaction());
+		System.out.println("!!! transaction amount: " + stationData.getTransactionPaymentAmount());
+    }
 	//BRODY
 	private void debugRemoveItemsFromBaggingAreaButton() {
 		Color color = new Color(128, 128, 255);

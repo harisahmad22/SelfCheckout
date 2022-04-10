@@ -59,7 +59,7 @@ public class GiftCardInfo implements CardData {
 	}
 	
 	public void updateBalance(BigDecimal spent) {
-		this.balance.add(spent);
+		this.balance = this.balance.subtract(spent);
 	}
 
     @Override // empty methods

@@ -26,6 +26,14 @@ public class GiftCardDatabase {
 	
 	private Map<String, GiftCardInfo> giftCardDB = new HashMap<String, GiftCardInfo>();
 
+	public GiftCardDatabase()
+	{
+		AddGiftCard("1", new BigDecimal("50")); // gift card 1
+		AddGiftCard("2", new BigDecimal("150")); // gift card 2
+		AddGiftCard("3", new BigDecimal("250")); // gift card 3
+		AddGiftCard("4", new BigDecimal("5")); // gift card 4
+	}
+	
 	public void AddGiftCard(String giftCardID, BigDecimal value)
 	{		
 		//Populate the database with some gift cards and their values as gift cards are given out by the store
