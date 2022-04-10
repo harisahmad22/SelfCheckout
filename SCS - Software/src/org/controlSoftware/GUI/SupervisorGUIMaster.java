@@ -98,7 +98,7 @@ public class SupervisorGUIMaster {
 	}
 	private void searchItemScreen() {
 		frame.setLayout(null);
-
+		
 		
 	}
 	
@@ -320,8 +320,7 @@ public class SupervisorGUIMaster {
 		b4.addActionListener(keyList);
 		frame.getContentPane().add(b4);
 	}
-		
-
+	
 	private void stationsScreen() {
 		final JButton b13 = new JButton("LOGOUT");
 		b13.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -364,7 +363,6 @@ public class SupervisorGUIMaster {
 		}
 		
 	}
-	
 	
 	private void optionsScreen() {
 		// Back button
@@ -497,16 +495,19 @@ public class SupervisorGUIMaster {
 		ArrayList<JButton> optionButtons = new ArrayList<JButton>();
 		
 		optionButtons.add(b3);	// ENABLE/DISABLE	
-		//Buttons to appear if station is active
+		// Appear on condition that station isn't shut down.
 		if (targetStation.getSelfCheckoutData().getCurrentState() != StationState.INACTIVE) {
 			optionButtons.add(b4);	// BLOCK/UNBLOCK
+		}
+		// Appear on condition that station is shut down
+		else {
+			optionButtons.add(b5);	// MAINTENANCE
 		}
 		//Buttons to appear if station is blocked
 		if (targetStation.getSelfCheckoutData().getCurrentState() == StationState.BLOCKED) {
 			optionButtons.add(b6);	// ADD PRODUCT
 			optionButtons.add(b7);	// REMOVE PRODUCT
 			optionButtons.add(b8);	// FIX WEIGHT ERROR
-			optionButtons.add(b5);	// MAINTENANCE
 		}
 		
 		// Place the buttons in optionButtons

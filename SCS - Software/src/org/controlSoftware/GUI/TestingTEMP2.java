@@ -39,14 +39,14 @@ public class TestingTEMP2 {
 		aUnit.attachCheckoutStationUnit(sUnit1);
 		//aUnit.attachCheckoutStationUnit(sUnit2);
 		
-		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
 		
 		AttendantData data = aUnit.getAttendantData();
 		
 		aUnit.getAttendantGUI().setTargetStation(sUnit1);
 		data.changeState(AttendantState.START);
 		
-		/*sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));
+		/*ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
+		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(1));
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(2));
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(3));
