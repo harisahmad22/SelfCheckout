@@ -40,7 +40,7 @@ import org.iter2Testing.PlaceItemOnScaleRunnable;
 import org.iter2Testing.RemoveDanglingBanknotesRunnable;
 import org.iter2Testing.RemoveItemOnScaleRunnable;
 import org.iter2Testing.ScanItemRunnable;
-import org.iter2Testing.ScanTestMembershipCardRunnable;
+import org.iter2Testing.SwipeTestCardRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -157,68 +157,16 @@ public class StationUnitTestIter3Tests {
 
 	}
 	 
+          
     @Test
-    public void newAddBagsTestNoBags() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to swipe their membership card
-    	//They will pay in full ($0)
-    	//They will pay with cash
+    public void addBagsTest() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	
-    	String inputString = "no\n" + "skip\n" + "full\n" + "cash\n";
+    	stationData.setCurrentState(StationState.ADDING_BAGS);
     	
+    	this.stationHardware.baggingArea.add(testBag);
     	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-//    	// start checkout 
-//    	this.stationHardware.baggingArea.add(milkJugItem); //Weighs 4000 grams
-//    	this.scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2500, TimeUnit.MILLISECONDS);
-//        
-    	stationSoftware.getCheckoutHandler().startCheckout();
-        // verify device is disabled or not
-        assertTrue(stationSoftware.getTouchScreenSoftware().askedForBagsPrompt.get());
-        assertTrue(stationData.getCurrentState() == StationState.WELCOME);
+        assertTrue(stationData.getCurrentState() == StationState.ASK_MEMBERSHIP);
     }
-        
-    @Test
-    public void newAddBagsTestYesBags() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to swipe their membership card
-    	//They will pay in full ($0)
-    	//They will pay with cash
-    	
-    	String inputString = "yes\n" + "skip\n" + "full\n" + "cash\n";
-    	
-    	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, testBag), 2000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, testBag2), 2500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, testBag), 5500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, testBag2), 6000, TimeUnit.MILLISECONDS);
-        
-//    	// start checkout 
-//    	this.stationHardware.baggingArea.add(milkJugItem); //Weighs 4000 grams
-//    	this.scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2500, TimeUnit.MILLISECONDS);
-//        
-    	stationSoftware.getCheckoutHandler().startCheckout();
-        // verify device is disabled or not
-        assertTrue(stationSoftware.getTouchScreenSoftware().askedForBagsPrompt.get());
-        
-//    	assertTrue(stationData.getExpectedWeightCheckout() == (testBag.getWeight() * 2));
-    	
-        assertTrue(stationData.getCurrentState() == StationState.WELCOME);
-    }
-        
     
     
     @Test
@@ -226,19 +174,10 @@ public class StationUnitTestIter3Tests {
   
     	stationData.changeState(StationState.NORMAL);
     	
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 5500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new ChangeStateRunnable(stationData, StationState.INACTIVE), 7500, TimeUnit.MILLISECONDS);
-    	
-    	while(stationData.getCurrentState() == StationState.NORMAL) {
-//    		System.out.println(stationData.getCurrentState());
-    		TimeUnit.SECONDS.sleep(1);
-    		//Wait
-    	}
+    	this.stationHardware.baggingArea.add(milkJugItem);
     	
         // verify device is disabled or not
-    	assertTrue(stationSoftware.getTouchScreenSoftware().normalModeWeightIssueDetected.get());
-    	assertTrue(stationSoftware.getTouchScreenSoftware().normalModeWeightIssueCorrected.get());
+    	 assertTrue(stationData.getCurrentState() == StationState.WEIGHT_ISSUE);
     }
     
     @Test
@@ -255,10 +194,11 @@ public class StationUnitTestIter3Tests {
   
     	stationData.changeState(StationState.NORMAL);
     	
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(stationHardware.baggingArea, cornFlakesItem), 2000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(stationHardware.baggingArea, cornFlakesItem), 1000, TimeUnit.MILLISECONDS);
             	
     	stationHardware.mainScanner.scan(cornFlakesItem);
 
+    	TimeUnit.SECONDS.sleep(2);
     	
     	assertTrue(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
     }
@@ -267,9 +207,12 @@ public class StationUnitTestIter3Tests {
     public void testDataResetOnReturnToWelcomeScreen() throws InterruptedException, OverloadException, EmptyException, DisabledException {
   
     	stationData.changeState(StationState.NORMAL);
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(stationHardware.baggingArea, cornFlakesItem), 2000, TimeUnit.MILLISECONDS);    	
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(stationHardware.baggingArea, cornFlakesItem), 1000, TimeUnit.MILLISECONDS);    	
     	stationHardware.mainScanner.scan(cornFlakesItem);
+    	
     	assertTrue(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
+    	
+    	TimeUnit.SECONDS.sleep(2);
     	
     	stationData.changeState(StationState.WELCOME);
     	
@@ -278,7 +221,15 @@ public class StationUnitTestIter3Tests {
     
     @Test
     public void testCorrectInitialState() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	assertTrue(stationData.getCurrentState() == StationState.INACTIVE);
+    	stationData.changeState(StationState.SWIPE_MEMBERSHIP);
+    	
+    	    	
+    	stationHardware.mainScanner.scan(cornFlakesItem);
+    	assertTrue(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
+    	
+    	stationData.changeState(StationState.WELCOME);
+    	
+    	assertTrue(stationData.getProductsAddedToCheckoutHashMap().isEmpty());
     }    
     
     
@@ -288,36 +239,20 @@ public class StationUnitTestIter3Tests {
     @Test
     public void testSwipingMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
-    	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.stationHardware.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
+    	stationData.changeState(StationState.SWIPE_MEMBERSHIP);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.stationHardware.cardReader, "Member", "1", "Test", null, null, false, false), 100, TimeUnit.MILLISECONDS);   	
     	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to swipe their membership card
-    	//They will pay in full ($0)
-    	//They will pay with cash
-    	String inputString = "no\n" + "swipe\n" + "full\n" + "cash\n";
+    	TimeUnit.SECONDS.sleep(1);
     	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-    	stationSoftware.getCheckoutHandler().startCheckout();
-    	
-    	String finalReceipt = this.stationHardware.printer.removeReceipt();
-		System.out.println("Receipt Generated:\n" + finalReceipt);
-    	
-//		assertTrue(stationData.getMembershipID().equals("123456789"));
-		assertTrue(stationSoftware.getReceiptHandler().getMembershipID().equals("123456789\n"));
+    	assertTrue(stationData.getCurrentState() == StationState.PAYMENT_AMOUNT_PROMPT);
+    	assertTrue(stationData.getMembershipID().equals("1"));
     }
 
     @Test
     public void testScanningWrongCardAsMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.stationHardware.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.stationHardware.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
     	
     	//Setup simulated input
     	//User will select 0 bags

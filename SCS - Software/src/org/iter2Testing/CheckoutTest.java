@@ -218,7 +218,7 @@ public class CheckoutTest {
     public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.Station.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
     	
     	//Setup simulated input
     	//User will select 0 bags
@@ -246,7 +246,7 @@ public class CheckoutTest {
     public void testScanningWrongCardAsMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.Station.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.Station.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
     	
     	//Setup simulated input
     	//User will select 0 bags

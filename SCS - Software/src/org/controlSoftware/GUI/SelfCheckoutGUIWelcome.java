@@ -52,7 +52,7 @@ public class SelfCheckoutGUIWelcome {
 		case ASK_MEMBERSHIP:
 			askMembershipScreen();
 			break;
-		case SCAN_MEMBERSHIP:
+		case SWIPE_MEMBERSHIP:
 			scanMembershipScreen();
 			break;
 		case TYPE_MEMBERSHIP:
@@ -189,7 +189,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.SCAN_MEMBERSHIP);
+				stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 			}
 		});
 		
@@ -271,7 +271,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.SCAN_MEMBERSHIP);
+				stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 			}
 		});
 		
