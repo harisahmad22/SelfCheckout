@@ -15,7 +15,7 @@ import org.controlSoftware.*;
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
-import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
@@ -48,7 +48,7 @@ public class ScannerHandlerTest {
 	private BarcodedItem cornFlakesItem;
 	
 	private ReceiptHandler receiptHandler;
-	private MembershipCardScannerHandler customMembershipScannerObserver;
+	private ScansMembershipCard customMembershipScannerObserver;
 	
 	private SelfCheckoutStationUnit stationUnit;
 	private SelfCheckoutStation stationHardware;

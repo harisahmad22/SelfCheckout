@@ -224,7 +224,7 @@ public class CheckoutHandler {
 		//Cash payments should only be allowed once this method is entered!
 		BigDecimal amountToPay = amount;
 		BigDecimal initialTotalDue = stationData.getTotalDue();
-		stationData.setExpectedWeightCheckout(stationData.getExpectedWeight());
+		stationData.setExpectedWeight(stationData.getExpectedWeight());
 		System.out.println("Starting pay with cash, total due: " + initialTotalDue);
 		System.out.println("Starting pay with cash, total paid so far: " + stationData.getTotalMoneyPaid());
 		System.out.println("Starting pay with cash, total paid this round: " + stationData.getTotalPaidThisTransaction());
