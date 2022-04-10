@@ -99,15 +99,16 @@ public class ScanningScreenGUI {
 
 		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20, 20, 700, 420);
-		itemList.setBackground(Color.blue);
+		itemList.setBackground(Color.gray);
+		itemList.setFont(new Font("Tahoma", Font.BOLD, 48));
 		itemList.setOpaque(true);
 		frame.getContentPane().add(itemList);
 
 		// Display of the total price
 		JLabel totalPrice = new JLabel("$" + stationData.getTotalDue().toString());
 		totalPrice.setBounds(20, 460, 700, 80);
-		totalPrice.setBackground(Color.red);
-		totalPrice.setFont(new Font("Calibri", Font.BOLD, 48));
+		totalPrice.setBackground(Color.gray);
+		totalPrice.setFont(new Font("Tahoma", Font.BOLD, 48));
 		totalPrice.setOpaque(true);
 		frame.getContentPane().add(totalPrice);
 
@@ -379,7 +380,6 @@ public class ScanningScreenGUI {
 				if(indexLocation != -1) {
 					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
 				}
-				System.out.println(index);
 				if (index != -1) {
 					String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
 					PriceLookupCode PLUCode = new PriceLookupCode(PLU);
