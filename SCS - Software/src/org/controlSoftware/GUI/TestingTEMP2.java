@@ -22,10 +22,10 @@ public class TestingTEMP2 {
 		
 		AttendantUnit aUnit = new AttendantUnit();
 		
-		SelfCheckoutStationUnit sUnit1 = new SelfCheckoutStationUnit(1);
+		SelfCheckoutStationUnit sUnit1 = new SelfCheckoutStationUnit(0);
 		sUnit1.getSelfCheckoutData().changeState(StationState.INACTIVE);
-		SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(2);
-		sUnit2.getSelfCheckoutData().changeState(StationState.INACTIVE);
+		//SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(1);
+		//sUnit2.getSelfCheckoutData().changeState(StationState.INACTIVE);
 		
 		/*ArrayList<SelfCheckoutStationUnit> checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		checkoutStations.add(sUnit1);
@@ -39,14 +39,14 @@ public class TestingTEMP2 {
 		aUnit.attachCheckoutStationUnit(sUnit1);
 		//aUnit.attachCheckoutStationUnit(sUnit2);
 		
-		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
 		
 		AttendantData data = aUnit.getAttendantData();
 		
-		aUnit.getAttendantGUI().setTargetStation(sUnit1);
+		//aUnit.getAttendantGUI().setTargetStation(sUnit1);
 		data.changeState(AttendantState.START);
 		
-		/*sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));
+		/*ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
+		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(1));
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(2));
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(3));

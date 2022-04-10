@@ -10,6 +10,7 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
+import org.controlSoftware.deviceHandlers.ScanningAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.GiftCardScannerHandler;
@@ -35,6 +36,7 @@ public class SelfCheckoutSoftware {
 	private GiftCardScannerHandler giftCardHandler;
 	private ScannerHandler scannerHandler;
 	private BaggingAreaScaleHandler baggingAreaScaleHandler;
+	private ScanningAreaScaleHandler scanningAreaScaleHandler;
 	private ReceiptHandler receiptHandler;
 	
 	private TouchScreenSoftware touchScreenSoftware;
@@ -72,6 +74,8 @@ public class SelfCheckoutSoftware {
 		
 		this.baggingAreaScaleHandler = new BaggingAreaScaleHandler(this.stationData, this);
 		
+		this.scanningAreaScaleHandler = new ScanningAreaScaleHandler(this.stationData, this);
+		
 		this.cardPaymentSoftware = new CardPaymentSoftware(this.stationData, this.cardPaymentHandler, this.membershipCardHandler);
 		
 		this.cardPaymentHandler = new PayWithCard(this.stationData, this);
@@ -96,6 +100,7 @@ public class SelfCheckoutSoftware {
 		this.stationHardware.handheldScanner.attach((BarcodeScannerObserver) scannerHandler);
 		
 		this.stationHardware.baggingArea.attach((ElectronicScaleObserver) baggingAreaScaleHandler);
+		this.stationHardware.scanningArea.attach((ElectronicScaleObserver) scanningAreaScaleHandler);
 				
 		this.stationHardware.cardReader.attach(cardPaymentHandler);
 		this.stationHardware.cardReader.attach(membershipCardHandler);
@@ -107,6 +112,7 @@ public class SelfCheckoutSoftware {
 		this.stationHardware.handheldScanner.detach((BarcodeScannerObserver) scannerHandler);
 		
 		this.stationHardware.baggingArea.detach((ElectronicScaleObserver) baggingAreaScaleHandler);
+		this.stationHardware.scanningArea.detach((ElectronicScaleObserver) scanningAreaScaleHandler);
 				
 		this.stationHardware.cardReader.detach(cardPaymentHandler);
 		this.stationHardware.cardReader.detach(membershipCardHandler);

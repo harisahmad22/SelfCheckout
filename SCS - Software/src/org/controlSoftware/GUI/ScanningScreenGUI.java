@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -53,6 +54,9 @@ public class ScanningScreenGUI {
 		case PLU_SEARCH:
 			PluSearch();
 			break;
+		case WAITING_FOR_LOOKUP_ITEM:
+			scannerScalePopup();
+			break;
 		case CHECKOUT_CHECK:
 			checkoutPopup();
 			break;
@@ -61,13 +65,13 @@ public class ScanningScreenGUI {
 			break;
 		case BAD_PLU:
 			badPLUScreen();
-			break;
+			break;			
 		default:
 			break;
 		}
 	}
 
-
+	
 	// The main page for scanning
 	private void Main() {
 		frame.setLayout(null);
@@ -212,7 +216,7 @@ public class ScanningScreenGUI {
 		codePLU.setBackground(Color.gray);
 		codePLU.setOpaque(true);
 
-		// Code for recording numbers (From Jonah)
+		// Code for recording numbers (From Jonah & Shufan)
 		ActionListener Numpad = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -225,20 +229,15 @@ public class ScanningScreenGUI {
 					String search = codePLU.getText();
 					PriceLookupCode PLUCode = new PriceLookupCode(search);
 					PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-					if (PLUProduct == null)
-					{
+					if (PLUProduct == null) {
 						System.out.println("Error! PLU Code is invalid!");
 						stationData.changeState(StationState.BAD_PLU);
 						return;
-					}
-					else 
-					{
-						try {
-							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
-						} catch (OverloadException e1) {
-							e1.printStackTrace();
-						}
-						stationData.addProductToCheckout(PLUProduct, weight);
+					} else {
+						System.out.println("Please place item on the scale");
+						stationData.setLookedUpProduct(PLUProduct);
+						stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
+						return;
 					}
 				} else {
 					if (codePLU.getText().length() < 5) {
@@ -302,7 +301,7 @@ public class ScanningScreenGUI {
 		pluReturn.setBounds(740, 20, 220, 60);
 
 		frame.setVisible(true);
-
+		
 	}
 
 	// Screen for searching by letter
@@ -381,16 +380,18 @@ public class ScanningScreenGUI {
 				}
 				if(indexLocation != -1) {
 					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
+				System.out.println(invisibleProduct);
+				if(inventoryLetter != null) {
+					int index = inventoryLetter.getSelectedIndex();
+					System.out.println(index);
 					if (index != -1) {
 						String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
 						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
 						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-						try {
-							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
-						} catch (OverloadException e1) {
-							e1.printStackTrace();
-						}
-						stationData.addProductToCheckout(product, weight);
+						System.out.println("Please place item on the scale");
+						stationData.setLookedUpProduct(product);
+						stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
+						return;
 					}
 				}	
 			}
@@ -404,7 +405,7 @@ public class ScanningScreenGUI {
 		frame.add(alphabetReturn);
 		alphabetReturn.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	stationData.changeState(StationState.MAIN_SCAN);
+	        	stationData.changeState(StationState.NORMAL);
 	        }
 	    });
 		alphabetReturn.setBounds(740,20,220,60);
@@ -508,46 +509,84 @@ public class ScanningScreenGUI {
 	}
 	
 	private void badPLUScreen() {
-	frame.setLayout(null);
-		
+		frame.setLayout(null);
+
 		JLabel l1 = new JLabel("PLU Code is Invalid");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 150);
 		frame.getContentPane().add(l1);
-		
+
 		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
 		l2.setVerticalAlignment(SwingConstants.TOP);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
-		
+
 		final JButton b1 = new JButton("Return to Main Screen");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		b1.setBounds(100,300,300,100);
 		frame.getContentPane().add(b1);
-		
+
 		final JButton b2 = new JButton("Try Again");
 		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		b2.setBounds(400,300,300,100);
 		frame.getContentPane().add(b2);
-		
+
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.NORMAL);
 			}
 		});
-		
+
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.PLU_SEARCH);
 			}
 		});
-		
-		
 	}
+	
+	private void scannerScalePopup() {
+		frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("Please place Item on the scanning area scale.");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+			
+		debugPlaceTestItemScannerScaleButton();
+	}
+	
+	// BRODY
+	private void debugPlaceTestItemScannerScaleButton() {
+		TestBarcodedProducts testProducts = new TestBarcodedProducts();
+		final BarcodedItem testMilkJug = new TestBarcodedProducts()
+				.getItem(testProducts.getBarcodedProductList().get(0));
+		Color color = new Color(128, 128, 255);
+		JButton payCoin = new JButton();
+		payCoin.setBounds(250, 150, 300, 200);
+		payCoin.setText("[DEBUG] Put Milk Jug in Scanning Area");
+		payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
+		payCoin.setBackground(color);
+
+		payCoin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				stationData.getStationHardware().scanningArea.add(stationData.getTestProducts().getItemList().get(0));
+				
+				try { TimeUnit.SECONDS.sleep(2); } catch (InterruptedException e1) { }
+				
+				stationData.getStationHardware().scanningArea.remove(stationData.getTestProducts().getItemList().get(0));
+			}
+		});
+
+		frame.add(payCoin);
+		payCoin.setVisible(true);
+	}
+
 }
