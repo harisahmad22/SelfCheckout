@@ -71,7 +71,7 @@ public class PaymentOptionGUI {
 		creditCardButton();
 		cashButton();
 		backButton();
-//		assistanceButton();
+		assistanceButton();
 		frame.add(panel);
 		JLabel title = new JLabel("Select Payment Type");  
 	    title.setBounds(10,10,750,100);  

@@ -201,6 +201,16 @@ public class CustomerGUITesting {
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
+		// Attendant Button
+		
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
+		bot.mouseMove(750,490);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
 		// Partial Payment
 		
 		data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
