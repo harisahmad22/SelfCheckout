@@ -1,6 +1,7 @@
 package org.controlSoftware.GUI;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -300,7 +301,7 @@ public class ScanningScreenGUI {
 		pluReturn.setBounds(740, 20, 220, 60);
 
 		frame.setVisible(true);
-
+		
 	}
 
 	// Screen for searching by letter
@@ -308,9 +309,9 @@ public class ScanningScreenGUI {
 		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
 		
-		final JList invisibleProduct = new JList();
+		JList invisibleProduct = new JList();
 		// Display for search
-		final JList inventoryLetter = new JList();
+		JList inventoryLetter = new JList();
 		final JScrollPane searchContainer = new JScrollPane();
 		searchContainer.setViewportView(inventoryLetter);
 		inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
@@ -347,11 +348,13 @@ public class ScanningScreenGUI {
 					JScrollPane searchContainer = new JScrollPane();
 					JList inventoryLetter = new JList(itemList.toArray());
 					frame.add(searchContainer);
+					searchContainer.setName("inventoryLetter");
 					searchContainer.setViewportView(inventoryLetter);
 					inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
 					inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 					searchContainer.setBounds(20, 20, 700, 520);
 					JList invisibleProduct = new JList(PLUList.toArray());
+					invisibleProduct.setName("invisibleProduct");
 					frame.add(invisibleProduct);
 				}
 			}
@@ -362,15 +365,29 @@ public class ScanningScreenGUI {
 		JButton productGet = new JButton("Get Item");
 		productGet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int index = -1;
+				int listLocation = -1, indexLocation = -1;
+				double weight = 0;
+				Component[] componentsList = frame.getContentPane().getComponents();
+				for (int i = 0; i < componentsList.length; i++) {
+					System.out.println(componentsList[i].getName());
+					if (componentsList[i].getName() == "invisibleProduct") {
+						listLocation = i;
+                    }
+					else if(componentsList[i].getName() == "inventoryLetter"){
+						indexLocation = i;
+					}
+				}
+				if(indexLocation != -1) {
+					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
 				System.out.println(invisibleProduct);
 				if(inventoryLetter != null) {
 					int index = inventoryLetter.getSelectedIndex();
 					System.out.println(index);
 					if (index != -1) {
-						String PLU = (String) invisibleProduct.getSelectedValue();
+						String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
 						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
 						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-						
 						System.out.println("Please place item on the scale");
 						stationData.setLookedUpProduct(product);
 						stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);

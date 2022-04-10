@@ -150,6 +150,30 @@ public class AttendantSoftware {
 		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().unBlockStation();
 	}
 
+	public void LogInStation(SelfCheckoutStationUnit station, String attendantIdEntered,  String passwordEntered)
+	{
+		//System.out.println("Starting station: " + station.getStationID());
+        System.out.println("Log in: " + station.getStationID());
+
+        ArrayList<String> AttendantIdStored = station.getAttendantID();
+        ArrayList<String> PasswordStored = station.getPassword();
+        for(int i = 0 ; i < AttendantIdStored.size(); i++){
+            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
+                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
+                unBlockStation(station);
+                break;
+            }
+        }
+        System.out.println("Error! Wrong ID or password. Fail to log in.");
+	}
+	
+	public void logOutStation(SelfCheckoutStationUnit station)
+	{
+		System.out.println("Log out: " + station.getStationID());
+		station.getSelfCheckoutSoftware().LogOutStation();
+        blockStation(station);
+	}
+	
 	public void setCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> newCheckoutStationUnits) {
 		this.checkoutStationUnits = newCheckoutStationUnits;
 		
