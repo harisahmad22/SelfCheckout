@@ -73,6 +73,71 @@ public class TestCompleteSystemInit {
 	
 
 	//========================================Attendant Use Case Tests========================================
+	@Test
+	public void testAttendantLogsIn()
+	{
+		// do some stuff
+	}
+	
+	@Test
+	public void testAttendantLogsOut()
+	{
+		// do more stuff
+	}
+	
+	@Test
+	public void testAttendantStartsRunningStation()
+	{
+		Random rand = new Random();
+		int randIndex = rand.nextInt(checkoutStationUnits.size());
+		
+		SelfCheckoutStationUnit stationToStart = checkoutStationUnits.get(randIndex);
+		stationToStart.getSelfCheckoutData().setCurrentState(StationState.NORMAL);
+		
+		attendantUnit.getAttendantSoftware().startupStation(stationToStart);
+		
+		assertTrue(stationToStart.getSelfCheckoutData().getCurrentState() == StationState.NORMAL);
+	}
+	
+	@Test
+	public void testAttendantStartsStation()
+	{
+		Random rand = new Random();
+		int randIndex = rand.nextInt(checkoutStationUnits.size());
+		
+		SelfCheckoutStationUnit stationToStart = checkoutStationUnits.get(randIndex);
+		
+		attendantUnit.getAttendantSoftware().startupStation(stationToStart);
+		
+		assertTrue(stationToStart.getSelfCheckoutData().getCurrentState() == StationState.WELCOME);
+	}
+	
+	@Test
+	public void testAttendantShutsDownRunningStation()
+	{
+		Random rand = new Random();
+		int randIndex = rand.nextInt(checkoutStationUnits.size());
+		
+		SelfCheckoutStationUnit stationToShutDown = checkoutStationUnits.get(randIndex);
+		stationToShutDown.getSelfCheckoutData().setCurrentState(StationState.NORMAL);
+		
+		attendantUnit.getAttendantSoftware().shutdownStation(stationToShutDown);
+		
+		assertTrue(stationToShutDown.getSelfCheckoutData().getCurrentState() == StationState.NORMAL);
+	}
+	
+	@Test
+	public void testAttendantShutsDownStation()
+	{
+		Random rand = new Random();
+		int randIndex = rand.nextInt(checkoutStationUnits.size());
+		
+		SelfCheckoutStationUnit stationToShutDown = checkoutStationUnits.get(randIndex);
+		
+		attendantUnit.getAttendantSoftware().shutdownStation(stationToShutDown);
+		
+		assertTrue(stationToShutDown.getSelfCheckoutData().getCurrentState() == StationState.INACTIVE);
+	}
 	
 	@Test
 	public void testAttendantBlocksInactiveStation()
