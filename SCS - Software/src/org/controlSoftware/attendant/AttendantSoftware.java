@@ -281,7 +281,7 @@ public class AttendantSoftware {
 		}
 		else {
 			for(Banknote banknote : banknotes)
-				checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteDispensers.get(banknote.getValue()).load(banknote);
+				checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteDispensers.get(banknote.getValue()).load(banknote);
 		}
 	}
 	
