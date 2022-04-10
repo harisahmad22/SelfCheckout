@@ -43,6 +43,9 @@ public class SelfCheckoutGUIWelcome {
 	
 	public void stateChanged() {
 		switch (stationData.getCurrentState()) {
+		case INACTIVE:
+			frame.setVisible(false);
+			break;
 		case WELCOME:
 			welcomeScreen();
 			break;
@@ -83,6 +86,17 @@ public class SelfCheckoutGUIWelcome {
 		//frame.setVisible(true);
 		station.screen.setVisible(true);
 	}
+	
+	// Simple text only screen
+	/*private void inactiveScreen(){
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel("STATION IS INACTIVE");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+	}*/
 	
 	private void weightIssueScreen() {
 		frame.setLayout(null);
@@ -128,12 +142,12 @@ public class SelfCheckoutGUIWelcome {
 			}
 		});
 	}
-
+	
 	// Simple text and one button screen.
 	private void welcomeScreen(){
 		frame.setLayout(null);
 		
-		final JLabel l1 = new JLabel("WELCOME SCREEN TEXT");
+		final JLabel l1 = new JLabel("WELCOME");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 300);
