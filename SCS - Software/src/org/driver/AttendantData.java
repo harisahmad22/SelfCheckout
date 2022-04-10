@@ -30,6 +30,7 @@ public class AttendantData {
 	public enum AttendantState {
 		// Current GUI associated states. Can be changed in GUI to match implementation. Not sure what they are there.
 		START, TEST_LOGIN, STATIONS, MAINTENANCE, WEIGHT_ERROR, REFILL_PAPER, REFILL_INK, EMPTY_COINS, EMPTY_NOTES, REFILL_COINS, REFILL_NOTES,
+		BARCODE, BARCODE_CHECK, PLUCODE, PLU_CHECK, CATALOGUE, 
 		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?

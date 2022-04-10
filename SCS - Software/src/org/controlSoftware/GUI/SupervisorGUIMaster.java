@@ -23,11 +23,17 @@ import org.driver.databases.ProductInfo;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.SelfCheckoutStationUnit;
 import org.lsmr.selfcheckout.Banknote;
+import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Coin;
+import org.lsmr.selfcheckout.Numeral;
+import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
+import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 public class SupervisorGUIMaster {
 	private SupervisionStation station;
@@ -43,6 +49,9 @@ public class SupervisorGUIMaster {
 	
 	// Selected station is stored here to be target of additional operations
 	private SelfCheckoutStationUnit targetStation;
+	
+	private String buffer = "";
+	private Object objectBuffer = null;
 	
 	public SupervisorGUIMaster(SupervisionStation newStation, AttendantData newData) {
 		station = newStation;
@@ -102,6 +111,21 @@ public class SupervisorGUIMaster {
 		case REFILL_INK:
 			refillInkScreen();
 			break;
+		case BARCODE:
+			barcodeScreen();
+			break;
+		case PLUCODE:
+			plucodeScreen();
+			break;
+		case CATALOGUE:
+			catalogueScreen();
+			break;
+		case BARCODE_CHECK:
+			barcodeCheckScreen();
+			break;
+		case PLU_CHECK:
+			plucodeCheckScreen();
+			break;
 		default:
 			break;
 		}
@@ -114,10 +138,320 @@ public class SupervisorGUIMaster {
 
 		
 	}
+	private void catalogueScreen() {
+		// Unused
+	}
+	private void plucodeCheckScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel(buffer);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+		
+		final JButton b2 = new JButton("BACK");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(275,300,200,100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.PLUCODE);
+			}
+		});
+		
+		final JButton b1 = new JButton("CONFIRM");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(525,300,200,100);
+		if (buffer != "Invalid PLU code. Try again.") {
+			frame.getContentPane().add(b1);
+		}
+		else {
+			b2.setBounds(400,300,200,100);
+		}
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PriceLookupCode pluCode = (PriceLookupCode) objectBuffer;
+				// Let station know to weigh item.
+				attendantData.changeState(AttendantState.ACTIVE);
+			}
+		});
+	}
+	private void plucodeScreen() {
+		frame.setLayout(null);
+		
+		JLabel l2 = new JLabel("Enter item PLU code");
+		l2.setBounds(0,0,1000,75);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l2);
+		
+		final JLabel l1 = new JLabel("");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 75, 1000, 75);
+		frame.getContentPane().add(l1);
+		
+		ActionListener keyList = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton src = (JButton) e.getSource();
+				String val = src.getText();
+				if (val == "DEL") {
+					l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+				}
+				else {
+					if (l1.getText().length() < 48) {
+						l1.setText(l1.getText() + val);
+					}
+				}
+				
+			}
+		};
+		
+		JButton[] keypad = new JButton[9];
+		for(Integer i = 0; i < keypad.length; i++) {
+			keypad[i]  = new JButton(String.valueOf((i+1) % 10));
+			keypad[i].setFont(new Font("Tahoma", Font.PLAIN, 36));
+			keypad[i].setBounds(275 + (i % 3) * 150, 150 + (int) Math.floor(i.floatValue() / 3.0) * 75, 150, 75);
+			keypad[i].addActionListener(keyList);
+			
+			frame.getContentPane().add(keypad[i]);
+		}
+		
+		JButton b3 = new JButton("DEL");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setBounds(275, 375, 150, 75);
+		b3.addActionListener(keyList);
+		frame.getContentPane().add(b3);
+		
+		JButton b4 = new JButton("0");
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setBounds(425, 375, 150, 75);
+		b4.addActionListener(keyList);
+		frame.getContentPane().add(b4);
+		
+		
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.PRODUCT_LOOKUP);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String string = l1.getText();
+				PriceLookupCode pluCode = new PriceLookupCode(string);
+				PLUCodedProduct product = targetStation.getSoftware().getPLUCodedItem(pluCode);
+				if (product != null) {
+					buffer = product.getDescription();
+					objectBuffer = pluCode;
+				}
+				else {
+					buffer = "Invalid PLU code. Try again.";
+				}
+				attendantData.changeState(AttendantState.PLU_CHECK);
+			}
+		});
+	}
+	private void barcodeCheckScreen() {
+		frame.setLayout(null);
+		
+		final JLabel l1 = new JLabel(buffer);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 300);
+		frame.getContentPane().add(l1);
+		
+		final JButton b2 = new JButton("BACK");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(275,300,200,100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.BARCODE);
+			}
+		});
+		
+		final JButton b1 = new JButton("CONFIRM");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(525,300,200,100);
+		if (buffer != "Invalid barcode. Try again.") {
+			frame.getContentPane().add(b1);
+		}
+		else {
+			b2.setBounds(400,300,200,100);
+		}
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Barcode barcode = (Barcode) objectBuffer;
+				targetStation.getSoftware().scannerHandler.barcodeScanned(targetStation.getSelfCheckoutStationHardware().mainScanner, barcode);
+				attendantData.changeState(AttendantState.ACTIVE);
+			}
+		});
+	}
+	private void barcodeScreen() {
+		frame.setLayout(null);
+		
+		JLabel l2 = new JLabel("Enter item barcode");
+		l2.setBounds(0,0,1000,75);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l2);
+		
+		final JLabel l1 = new JLabel("");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 75, 1000, 75);
+		frame.getContentPane().add(l1);
+		
+		ActionListener keyList = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton src = (JButton) e.getSource();
+				String val = src.getText();
+				if (val == "DEL") {
+					l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+				}
+				else {
+					if (l1.getText().length() < 48) {
+						l1.setText(l1.getText() + val);
+					}
+				}
+				
+			}
+		};
+		
+		JButton[] keypad = new JButton[9];
+		for(Integer i = 0; i < keypad.length; i++) {
+			keypad[i]  = new JButton(String.valueOf((i+1) % 10));
+			keypad[i].setFont(new Font("Tahoma", Font.PLAIN, 36));
+			keypad[i].setBounds(275 + (i % 3) * 150, 150 + (int) Math.floor(i.floatValue() / 3.0) * 75, 150, 75);
+			keypad[i].addActionListener(keyList);
+			
+			frame.getContentPane().add(keypad[i]);
+		}
+		
+		JButton b3 = new JButton("DEL");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setBounds(275, 375, 150, 75);
+		b3.addActionListener(keyList);
+		frame.getContentPane().add(b3);
+		
+		JButton b4 = new JButton("0");
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setBounds(425, 375, 150, 75);
+		b4.addActionListener(keyList);
+		frame.getContentPane().add(b4);
+		
+		
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(275, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.PRODUCT_LOOKUP);
+			}
+		});
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String string = l1.getText();
+				Numeral[] code = new Numeral[string.length()];
+				for (int i = 0; i < string.length(); i++) {
+					char c = string.toCharArray()[i];
+					Numeral num = Numeral.valueOf((byte) Character.getNumericValue(c));
+					code[i] = num;
+				}
+				Barcode barcode = new Barcode(code);
+				BarcodedProduct product = targetStation.getSoftware().getBarcodedItem(barcode);
+				if (product != null) {
+					buffer = product.getDescription();
+					objectBuffer = barcode;
+				}
+				else {
+					buffer = "Invalid barcode. Try again.";
+				}
+				attendantData.changeState(AttendantState.BARCODE_CHECK);
+			}
+		});
+	}
 	private void searchItemScreen() {
 		frame.setLayout(null);
 		
+		JLabel l2 = new JLabel("Choose method");
+		l2.setBounds(0,0,1000,100);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l2);
 		
+		JButton b3 = new JButton("INPUT BARCODE");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setBounds(300, 100, 400, 100);
+		frame.getContentPane().add(b3);
+		b3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.BARCODE);
+			}
+		});
+		
+		JButton b4 = new JButton("INPUT PLU CODE");
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setBounds(300, 225, 400, 100);
+		frame.getContentPane().add(b4);
+		b4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.PLUCODE);
+			}
+		});		
+		
+		// Attendant no access to catalogue for times sake.
+		/*JButton b2 = new JButton("CATALOGUE");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(300, 350, 400, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.CATALOGUE);
+			}
+		});*/
+		
+		JButton b1 = new JButton("BACK");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(400, 475, 200, 100);
+		frame.getContentPane().add(b1);
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				attendantData.changeState(AttendantState.ACTIVE);
+			}
+		});
 	}
 	private void maintenanceScreen() {
 		frame.setLayout(null);
@@ -1041,7 +1375,7 @@ public class SupervisorGUIMaster {
 		// Add product button
 		JButton b6 = new JButton();
 		b6.setFont(new Font("Tahoma", Font.PLAIN, 36));
-		b6.setText("LOOK UP ITEM");
+		b6.setText("ADD ITEM");
 		b6.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1061,7 +1395,7 @@ public class SupervisorGUIMaster {
 			}
 		});
 		
-		// Remove product button
+		// Weight error
 		JButton b8 = new JButton();
 		b8.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		b8.setText("FIX WEIGHT ERROR");
@@ -1086,8 +1420,12 @@ public class SupervisorGUIMaster {
 		}
 		//Buttons to appear if station is blocked
 		if (targetStation.getSelfCheckoutData().getCurrentState() == StationState.BLOCKED) {
-			optionButtons.add(b6);	// ADD PRODUCT
-			optionButtons.add(b7);	// REMOVE PRODUCT
+			// Only allow add/remove product if station was in the main scanning screen prior to block.
+			if (targetStation.getSelfCheckoutData().getPreBlockedState() == StationState.NORMAL) {
+				optionButtons.add(b6);	// ADD PRODUCT
+				optionButtons.add(b7);	// REMOVE PRODUCT
+			}
+			// TBD WHEN THIS BUTTON APPEARS
 			optionButtons.add(b8);	// FIX WEIGHT ERROR
 		}
 		
@@ -1098,6 +1436,7 @@ public class SupervisorGUIMaster {
 		}
 		
 	}
+	
 	
 	public void setTargetStation(SelfCheckoutStationUnit unit) {
 		targetStation = unit;

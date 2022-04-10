@@ -192,4 +192,8 @@ public class SelfCheckoutStationUnit {
 	public static int[] getBanknoteDenominations() {
 		return banknoteDenominations;
 	}
+	
+	public SelfCheckoutSoftware getSoftware() {
+		return stationSoftware;
+	}
 }
