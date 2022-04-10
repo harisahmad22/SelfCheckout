@@ -63,43 +63,10 @@ public class CustomerGUITesting {
 	}
 	
 	@Test
-	public void stateChangedPAYMENTMODEPROMPT() {
-		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
-		gui.stateChanged();
-		assertTrue(data.getCurrentState() == StationState.PAYMENT_MODE_PROMPT);
-	}
-	
-	@Test
-	public void stateChangedPAYMENTAMOUNTPROMPT() {
-		data.setCurrentState(StationState.PAYMENT_AMOUNT_PROMPT);
-		gui.stateChanged();
-		assertTrue(data.getCurrentState() == StationState.PAYMENT_AMOUNT_PROMPT);
-	}
-	
-	@Test
-	public void stateChangedPARTIALPAYMENTKEYPAD() {
-		data.setCurrentState(StationState.PARTIAL_PAYMENT_KEYPAD);
-		gui.stateChanged();
-		assertTrue(data.getCurrentState() == StationState.PARTIAL_PAYMENT_KEYPAD);
-	}
-	
-	@Test
-	public void stateChangedINSUFFICIENTFUNDS() {
-		data.setCurrentState(StationState.INSUFFICIENT_FUNDS);
-		gui.stateChanged();
-		assertTrue(data.getCurrentState() == StationState.INSUFFICIENT_FUNDS);
-	}
-	
-	@Test
-	public void stateChangedOTHER() {
-		data.setCurrentState(StationState.WELCOME);
-		gui.stateChanged();
-		assertTrue(data.getCurrentState() == StationState.WELCOME);
-	}
-	
-	@Test
 	public void allStates() {
 		//Welcome screen
+		data.changeState(StationState.WELCOME);
+		gui.stateChanged();
 		bot.mouseMove(450,350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
@@ -165,10 +132,12 @@ public class CustomerGUITesting {
         bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         try{Thread.sleep(250);}catch(InterruptedException e){}
         bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK); 
+        try{Thread.sleep(250);}catch(InterruptedException e){}
         		
 		// Full Payment
 		
 		bot.mouseMove(380,190);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -176,63 +145,112 @@ public class CustomerGUITesting {
 		// Debit Payment
 		
 		bot.mouseMove(80,190);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 		// Credit Payment
 		
-		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
-		gui.stateChanged();
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseMove(380,190);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 		// Cash Payment
 		
-		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
-		gui.stateChanged();
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseMove(680,190);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 						
 		// Membership
 		
-		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
-		gui.stateChanged();
-		try{Thread.sleep(2500);}catch(InterruptedException e){}
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseMove(350,490);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 		// Gift Card
 		
-		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
-		gui.stateChanged();
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseMove(550,500);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 		// Return
 		
-		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
-		gui.stateChanged();
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
 		bot.mouseMove(80,490);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 		// Partial Payment
 		
-		data.setCurrentState(StationState.PAYMENT_AMOUNT_PROMPT);
+		data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseMove(80,190);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
+	}
+	
+	@Test
+	public void showHidePaymentGUI() {
+		gui.showPaymentOptionGUI();
+		gui.hidePaymentOptionGUI();
+	}
+	
+	@Test
+	public void stateChangedPAYMENTMODEPROMPT() {
+		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
+		gui.stateChanged();
+		assertTrue(data.getCurrentState() == StationState.PAYMENT_MODE_PROMPT);
+	}
+	
+	@Test
+	public void stateChangedPAYMENTAMOUNTPROMPT() {
+		data.setCurrentState(StationState.PAYMENT_AMOUNT_PROMPT);
+		gui.stateChanged();
+		assertTrue(data.getCurrentState() == StationState.PAYMENT_AMOUNT_PROMPT);
+	}
+	
+	@Test
+	public void stateChangedPARTIALPAYMENTKEYPAD() {
+		data.setCurrentState(StationState.PARTIAL_PAYMENT_KEYPAD);
+		gui.stateChanged();
+		assertTrue(data.getCurrentState() == StationState.PARTIAL_PAYMENT_KEYPAD);
+	}
+	
+	@Test
+	public void stateChangedINSUFFICIENTFUNDS() {
+		data.setCurrentState(StationState.INSUFFICIENT_FUNDS);
+		gui.stateChanged();
+		assertTrue(data.getCurrentState() == StationState.INSUFFICIENT_FUNDS);
+	}
+	
+	@Test
+	public void stateChangedOTHER() {
+		data.setCurrentState(StationState.WELCOME);
+		gui.stateChanged();
+		assertTrue(data.getCurrentState() == StationState.WELCOME);
 	}
 }
