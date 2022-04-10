@@ -1,5 +1,6 @@
 package org.driver;
 
+import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.devices.OverloadException;
 
@@ -30,6 +31,7 @@ public class AttendantData {
 	public enum AttendantState {
 		// Current GUI associated states. Can be changed in GUI to match implementation. Not sure what they are there.
 		START, TEST_LOGIN, STATIONS, MAINTENANCE, WEIGHT_ERROR, REFILL_PAPER, REFILL_INK, EMPTY_COINS, EMPTY_NOTES, REFILL_COINS, REFILL_NOTES,
+		BARCODE, BARCODE_CHECK, PLUCODE, PLU_CHECK, CATALOGUE, 
 		
 		// General error state. No implementation yet. Potentially when item is not bagged? Notify attendant?
 		// Maybe error sub-states are required? Maintenance state?
@@ -96,6 +98,7 @@ public class AttendantData {
 	}
 	
 	private AttendantState currentState = AttendantState.INACTIVE;
+	private AttendantState previousState;
 	
 	public void registerGUI(SupervisorGUIMaster newGui) {
 		gui = newGui;
@@ -107,7 +110,7 @@ public class AttendantData {
 	
 	public void setGuiBuffer(String text) {
 		guiBuffer = text;
-		System.out.println("GUI buffer in self checkout data set to " + guiBuffer);
+		System.out.println("GUI buffer in attendant data set to " + guiBuffer);
 	}
 	public String getGuiBuffer() {
 		return guiBuffer;
@@ -168,6 +171,7 @@ public class AttendantData {
 			break;
 		
 		case NOTIFIED_BY_STATION:
+			previousState = currentState;
 			break;
 			
 		default:
@@ -232,6 +236,9 @@ public class AttendantData {
 	public AttendantState getCurrentState() {
 		return currentState;
 	}
+	public AttendantState getPreviousState() {
+		return previousState;
+	}
 
 	private void setCurrentState(AttendantState targetState) {
 		this.currentState = targetState;
@@ -254,5 +261,8 @@ public class AttendantData {
 	public AttendantSoftware getSoftware() {
 		return software;
 	}
-		
+
+	public int getUnitIndex(SelfCheckoutStationUnit unit) {
+		return checkoutStations.indexOf(unit);
+	}
 }

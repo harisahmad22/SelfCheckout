@@ -59,7 +59,8 @@ import org.lsmr.selfcheckout.products.Product;
  */
 
 public class SelfCheckoutData {
-	
+	private AttendantUnit attendantUnit;
+	private SelfCheckoutStationUnit thisUnit;
 	
 	//Test Coins/Banknotes
 	public Currency CAD = Currency.getInstance("CAD");
@@ -1236,6 +1237,22 @@ public void disablePaymentDevices() {
 	}	
 	public PLUCodedProduct getLookedUpProduct() {
 		return lookedUpProduct;
-	}	
+	}
+	
+	public void setAttendantUnit (AttendantUnit newUnit) {
+		attendantUnit = newUnit;
+	}
+	
+	public AttendantUnit getAttendantUnit () {
+		return attendantUnit;
+	}
+	
+	public void setThisUnit (SelfCheckoutStationUnit newUnit) {
+		thisUnit = newUnit;
+	}
+	
+	public SelfCheckoutStationUnit getThisUnit () {
+		return thisUnit;
+	}
 }
 
