@@ -284,10 +284,9 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.setMembershipID(l1.getText());
-//				stationData.changeState(StationState.TEST_MEMBERSHIP);
-				stationData.changeState(StationState.CHECKOUT);//(Brody) for now just skip verification
-				stationData.getStationSoftware().getCheckoutHandler().startCheckout();
+				stationData.getStationSoftware().manualMembershipCheck(l1.getText());
+//				stationData.setMembershipID(l1.getText());
+//				stationData.getStationSoftware().getCheckoutHandler().startCheckout();
 			}
 		});
 		
@@ -537,6 +536,7 @@ public class SelfCheckoutGUIWelcome {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				stationData.setIsFirstCheckout(true);
 				stationData.changeState(StationState.NORMAL);
 			}
 		});
