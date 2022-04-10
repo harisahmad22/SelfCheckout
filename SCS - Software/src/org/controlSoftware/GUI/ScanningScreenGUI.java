@@ -306,50 +306,94 @@ public class ScanningScreenGUI {
 
 	// Screen for searching by letter
 	private void LetterSearch() {
-		final String[] letters = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
-				"R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
-
+		
+		final JList invisibleProduct = new JList();
 		// Display for search
-		JLabel inventoryLetter = new JLabel("Placeholder for inventory");
-		frame.add(inventoryLetter);
-		inventoryLetter.setBounds(20, 20, 700, 520);
-		inventoryLetter.setBackground(Color.blue);
-		inventoryLetter.setOpaque(true);
-
+		final JList inventoryLetter = new JList();
+		final JScrollPane searchContainer = new JScrollPane();
+		searchContainer.setViewportView(inventoryLetter);
+		inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		searchContainer.setBounds(20, 20, 700, 520);
+		frame.add(searchContainer);
+		
 		// List of letters to select
 		JScrollPane alphabetContainer = new JScrollPane();
 		final JList alphabetList = new JList(letters);
 		alphabetContainer.setViewportView(alphabetList);
-		alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		frame.add(alphabetContainer);
 		alphabetList.setFont(new Font("Tahoma", Font.PLAIN, 80));
-		alphabetContainer.setBounds(740, 100, 220, 360);
-
+		alphabetContainer.setBounds(740,100,220,360);
+		
 		// Button that gets the letter from the list
 		JButton alphabetSearch = new JButton("Search");
 		alphabetSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				frame.remove(searchContainer);
 				int index = alphabetList.getSelectedIndex();
+				ArrayList<String> itemList = new ArrayList<String>();
+				ArrayList<String> PLUList = new ArrayList<String>();
 				if (index != -1) {
 					String search = letters[index];
-					System.out.println(search);
+					ArrayList<PLUCodedProduct> searchOutcomes = stationData.getPLUDatabaseObject().productSearch(search.charAt(0));
+					if (searchOutcomes.size() > 0) {
+						for(int i = 0; i < searchOutcomes.size(); i++) {
+							PLUList.add(searchOutcomes.get(i).getPLUCode().toString());
+							itemList.add(searchOutcomes.get(i).getDescription());
+						}
+					}
+					JScrollPane searchContainer = new JScrollPane();
+					JList inventoryLetter = new JList(itemList.toArray());
+					frame.add(searchContainer);
+					searchContainer.setViewportView(inventoryLetter);
+					inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
+					inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					searchContainer.setBounds(20, 20, 700, 520);
+					JList invisibleProduct = new JList(PLUList.toArray());
+					frame.add(invisibleProduct);
 				}
 			}
 		});
 		frame.add(alphabetSearch);
-		alphabetSearch.setBounds(740, 480, 220, 60);
+		alphabetSearch.setBounds(740, 480, 100, 60);
+		
+		JButton productGet = new JButton("Get Item");
+		productGet.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double weight = 0;
+				if(inventoryLetter != null) {
+					int index = inventoryLetter.getSelectedIndex();
+					if (index != -1) {
+						String PLU = (String) invisibleProduct.getSelectedValue();
+						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
+						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+						try {
+							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
+						} catch (OverloadException e1) {
+							e1.printStackTrace();
+						}
+						stationData.addProductToCheckout(product, weight);
+					}
+				}	
+			}
+		});
+		frame.add(productGet);
+		productGet.setBounds(860, 480, 100, 60);
+
 
 		// Return to main scanning screen
 		JButton alphabetReturn = new JButton("Return to Scanning");
 		frame.add(alphabetReturn);
 		alphabetReturn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.NORMAL);
-			}
-		});
-		alphabetReturn.setBounds(740, 20, 220, 60);
-
+	        public void actionPerformed(ActionEvent e) {
+	        	stationData.changeState(StationState.MAIN_SCAN);
+	        }
+	    });
+		alphabetReturn.setBounds(740,20,220,60);
+		
 		frame.setVisible(true);
 	}
 
