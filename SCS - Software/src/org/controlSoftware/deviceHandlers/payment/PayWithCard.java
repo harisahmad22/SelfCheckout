@@ -27,11 +27,13 @@ public class PayWithCard implements CardReaderObserver {
 	protected BigDecimal paymentAmount = new BigDecimal("0");
 	protected BigDecimal paymentTotal = new BigDecimal("0");
 	
-	protected boolean useAllGiftCard = false;
+	protected boolean useAllGiftCard = true;
 	protected boolean checkGiftCardBalance = true;
 	
 	
-	//put Div's giftcard class into same branch, import and remember to set up!!!
+	//put Div's giftcard class into same branch, import!!!!!!!!!!!!!
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//
 	private GiftCardDatabase giftCards;
 	private PaymentHandler payment;
 	
@@ -62,6 +64,15 @@ public class PayWithCard implements CardReaderObserver {
 	
 	public void setPaymentTotal(BigDecimal total) {
 		paymentTotal = total;
+	}
+	
+	public void setCurrentPaymentAmount(BigDecimal amount) {
+		paymentAmount = amount;
+	}
+	
+	public void setUseAllGiftCard() {
+		useAllGiftCard = true;
+
 	}
 	
 	
@@ -142,6 +153,7 @@ public class PayWithCard implements CardReaderObserver {
 				giftCards.updateGiftCard(cardNum, amountOnGiftCard.doubleValue());
 				payment.paid(amountOnGiftCard);
 				paymentSuccessful = true;
+
 			}
 			else {
 				return paymentSuccessful;
@@ -161,11 +173,21 @@ public class PayWithCard implements CardReaderObserver {
 			
 		}
 		
-		public void reset() {
+		public void resetPayment() {
 			cardIssuer = null;
 			cardData = null;
+			cardType = null;
 			success = false;
 			paymentAmount = new BigDecimal("0");
+		    useAllGiftCard = true;
+		    checkGiftCardBalance = true;
+			
+		}
+		
+		public void resetEntireTransaction() {
+			resetPayment();
+			paymentTotal = new BigDecimal(0);
+			memberNumber = null;
 		}
 	
 	@Override
@@ -263,7 +285,7 @@ public class PayWithCard implements CardReaderObserver {
 		}
 		
 		checkCardRemoved();
-		reset();
+		resetPayment();
 		
 	}
 	
