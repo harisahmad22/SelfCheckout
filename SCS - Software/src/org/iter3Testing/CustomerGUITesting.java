@@ -197,8 +197,26 @@ public class CustomerGUITesting {
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+						
+		// Membership
+		
+		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
+		gui.stateChanged();
+		try{Thread.sleep(2500);}catch(InterruptedException e){}
+		bot.mouseMove(350,490);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-				
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		// Gift Card
+		
+		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
+		gui.stateChanged();
+		bot.mouseMove(550,500);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
 		// Return
 		
 		data.setCurrentState(StationState.PAYMENT_MODE_PROMPT);
@@ -208,8 +226,13 @@ public class CustomerGUITesting {
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
 		
+		// Partial Payment
 		
-		
+		data.setCurrentState(StationState.PAYMENT_AMOUNT_PROMPT);
+		bot.mouseMove(80,190);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 	}
 }
