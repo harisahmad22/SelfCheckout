@@ -369,31 +369,16 @@ public class StationUnitTestIter3Tests {
 		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
 		
 		//Touch screen should have been informed of change being dispensed
-    	assertTrue(stationSoftware.getTouchScreenSoftware().changeDispensed.get());
     	assertTrue(banknoteChangeValue == 5);
     	assertTrue(changeValue.equals(new BigDecimal("3.75")));
     }
  
     @Test
     public void testChangeDispensedWithEmptyDispensers() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	//Change will be given out
-    	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to skip membership card 
-    	//They will pay in full ($55)
-    	//They will pay with cash ($51.25)
-    	//Should get $1.25 back in Coin tray
-    	String inputString = "no\n" + "skip\n" + "full\n" + "cash\n";
-    	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
     	
     	BigDecimal total = new BigDecimal("55");
     	stationData.setTotalDue(total); //Add $55 to total cost
+    	stationData.setTransactionPaymentAmount(total);
     	
     	//Remove all $5 bills, and all toonies, shold be given back the coins we put in 
     	// plus $5 in loonies
@@ -415,7 +400,10 @@ public class StationUnitTestIter3Tests {
     	//Will be expecting $15 in change via 1x $10 note, and 1x $5 note
     	scheduler.schedule(new RemoveDanglingBanknotesRunnable(this.stationHardware.banknoteOutput, 1), 8500, TimeUnit.MILLISECONDS);
     	
-    	stationSoftware.getCheckoutHandler().startCheckout();
+    	stationData.changeState(StationState.PAY_CASH);
+		
+    	TimeUnit.SECONDS.sleep(15);
+    	
 
 		String finalReceipt = this.stationHardware.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);
@@ -426,8 +414,7 @@ public class StationUnitTestIter3Tests {
 		
 		for (Coin c : change) { if (!(c == null)) { changeValue = changeValue.add(c.getValue()); } }
 		
-		//Touch screen should have been informed of change being dispensed
-    	assertTrue(stationSoftware.getTouchScreenSoftware().changeDispensed.get());
+
     	assertTrue(banknoteChangeValue == 0);
     	assertTrue(changeValue.equals(new BigDecimal("8.75")));
     }
@@ -436,28 +423,13 @@ public class StationUnitTestIter3Tests {
     
     @Test
     public void testPayingWithCashAddItemNoScan() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to skip membership card 
-    	//They will pay in full ($50)
-    	//They will pay with cash ($51.25)
-    	//Should get $1.25 back in Coin tray
-    	String inputString = "no\n" + "skip\n" + "full\n" + "cash\n";
-
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
     	//Change will be given out
     	//Weight does not change during payment
     	//Cleanup will be tested in here also
     	BigDecimal total = new BigDecimal("50");
     	stationData.setTotalDue(total); //Add $50 to total cost
-    	//Bypass startCheckout method
-    	stationData.setInCheckout(true);
+    	stationData.setTransactionPaymentAmount(total);
+    	stationData.setMidPaymentFlag(true);
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
     	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
@@ -471,150 +443,25 @@ public class StationUnitTestIter3Tests {
     	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 4000, TimeUnit.MILLISECONDS);
     	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 6500, TimeUnit.MILLISECONDS);
     	
-    	stationSoftware.getCheckoutHandler().startCheckout();
-
+    	stationData.changeState(StationState.PAY_CASH);
+    	TimeUnit.SECONDS.sleep(2);
+    	assertTrue(stationData.getCurrentState() == StationState.WEIGHT_ISSUE);
+    	
+    	TimeUnit.SECONDS.sleep(8);
+    	
 		String finalReceipt = this.stationHardware.printer.removeReceipt();
 		System.out.println("Receipt Generated:\n" + finalReceipt);
-    	
-		//Touch screen should have been informed of the weight issue, and its correction
-    	assertTrue(stationSoftware.getTouchScreenSoftware().invalidWeightInCheckoutDetected.get());
-    	assertTrue(stationSoftware.getTouchScreenSoftware().invalidWeightInCheckoutCorrected.get());
 		
-    	//Should no longer be in checkout mode
-    	assertFalse(stationData.isInCheckout());
-    	//Touch screen should have reset to the welcome screen
-    	assertTrue(stationSoftware.getTouchScreenSoftware().resetSuccessful.get());
+    	assertTrue(stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT);
+    	
     }
-    
+        
     @Test
-    public void testStartCheckoutTwoPartialPaymentsWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to skip membership card 
-    	//They will pay partial ($50) each time
-
-    	String inputString = "no\n" + "skip\n" + "partial\n" + "5no\n" + "cash\n" + "partial\n" + "5no\n" + "cash\n";
-    	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-    	
-    	
-    	//Change will be given out
-    	//Weight does not change during payment
-    	//Cleanup will be tested in here also
+    public void testPartialPaymentWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+    	    	
     	BigDecimal total = new BigDecimal("100");
     	stationData.setTotalDue(total); //Add $100 to total cost
-    	//Create a list of banknotes exceeding the total cost of all items
-    	Banknote[] banknotes1 = { twentyDollarBanknote };
-    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
-    	Coin[] coins = { quarter, toonie, toonie, toonie};
-    	
-    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-    	//There is a 1 second delay between each banknote insertion.
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 3000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 6000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 9000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 11000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 14000, TimeUnit.MILLISECONDS);
-    	
-    	stationSoftware.getCheckoutHandler().startCheckout();
-
-		String partialReceipt = this.stationHardware.printer.removeReceipt();
-		System.out.println("Receipt Generated:\n" + partialReceipt);
-		
-    	
-		stationSoftware.getCheckoutHandler().startCheckout();
-
-		partialReceipt = this.stationHardware.printer.removeReceipt();
-		System.out.println("Receipt Generated:\n" + partialReceipt);
-		
-    	//Should no longer be in checkout mode
-    	assertFalse(stationData.isInCheckout());
-    	assertTrue(touchScreenSoftware.resetSuccessful.get());
-    }
-    
-    @Test
-    public void testStartCheckoutTwoPartialPaymentsWithCashAddItemInbetween() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to skip membership card 
-    	//They will pay partial ($50) each time
-
-    	String inputString = "no\n" + "skip\n" + "partial\n" + "5no\n" + "cash\n" + "full\n" + "cash\n";
-    	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-    	
-    	//Change will be given out
-    	//Weight does not change during payment
-    	//Cleanup will be tested in here also
-    	BigDecimal total = new BigDecimal("100");
-    	stationData.setTotalDue(total); //Add $100 to total cost
-    	//Create a list of banknotes exceeding the total cost of all items
-    	Banknote[] banknotes1 = { twentyDollarBanknote };
-    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
-    	Banknote[] banknotes3 = { fiftyDollarBanknote, fiveDollarBanknote };
-    	Coin[] coins = { quarter, toonie, toonie, toonie};
-    	
-    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-    	//There is a 1 second delay between each banknote insertion.
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 3000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 6000, TimeUnit.MILLISECONDS);
-
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes3), 15000, TimeUnit.MILLISECONDS);
-    	
-    	stationSoftware.getCheckoutHandler().startCheckout();
-		
-    	assertTrue(stationSoftware.getReceiptHandler().getFinalTotal().equals("$10no\n"));
-    	
-		//Scan in a milkJug and then schedule it to be put down
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 1000, TimeUnit.MILLISECONDS);
-		this.stationHardware.handheldScanner.scan(milkJugItem);
-
-		stationSoftware.getCheckoutHandler().startCheckout();
-    	
-    	assertTrue(stationSoftware.getReceiptHandler().getFinalTotal().equals("$104.89\n"));
-    	
-		String partialReceipt = this.stationHardware.printer.removeReceipt();
-		System.out.println("Receipt Generated:\n" + partialReceipt);
-		
-    	//Should no longer be in checkout mode
-    	assertFalse(stationData.isInCheckout());
-    	assertTrue(stationSoftware.getTouchScreenSoftware().resetSuccessful.get());
-    }
-
-    
-    @Test
-    public void testStartCheckoutPartialPaymentWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	
-    	//Setup simulated input
-    	//User will select 0 bags
-    	//Choose to skip membership card 
-    	//They will pay partial ($50) once
-
-    	String inputString = "no\n" + "skip\n" + "partial\n" + "5no\n" + "cash\n";
-    	
-    	//Change Input stream so inputString can simulate console input 
-    	customInputStream = new ByteArrayInputStream(inputString.getBytes());
-    	TouchScreenSoftware tss = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
-    	stationSoftware.updateTouchScreenSoftware(tss);
-    	this.touchScreenSoftware = tss;
-    	
-    	BigDecimal total = new BigDecimal("100");
-    	stationData.setTotalDue(total); //Add $100 to total cost
+    	stationData.setTransactionPaymentAmount(new BigDecimal("50"));
     	
     	//Create a list of banknotes exceeding the total cost of all items
     	Banknote[] banknotes1 = { twentyDollarBanknote };
@@ -622,44 +469,15 @@ public class StationUnitTestIter3Tests {
     	
     	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each banknote insertion.
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 5000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 6750, TimeUnit.MILLISECONDS);    	
-    	
-    	stationSoftware.getCheckoutHandler().startCheckout();
-
-		String partialReceipt = this.stationHardware.printer.removeReceipt();
-		System.out.println("Receipt Generated:\n" + partialReceipt);
-		
-    	//Should no longer be in checkout mode
-    	assertFalse(stationData.isInCheckout());
-    	assertTrue(stationSoftware.getTouchScreenSoftware().returnedToAddingItemMode.get());
-    }
-    
-    @Test
-    public void testPartialPaymentWithCash() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-
-    	//Change will be given out
-    	//Weight does not change during payment
-    	//Cleanup will be tested in here also
-    	BigDecimal total = new BigDecimal("100");
-    	stationData.setTotalDue(total); //Add $100 to total cost
-
-    	//Create a list of banknotes exceeding the total cost of all items
-    	Banknote[] banknotes1 = { twentyDollarBanknote };
-    	Banknote[] banknotes2 = { twentyDollarBanknote, fiveDollarBanknote };
-    	Coin[] coins = { loonie, toonie, toonie};
-    	
-    	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
-    	//There is a 1 second delay between each banknote insertion.
     	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes1), 1000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 2500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 5500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PayWithBanknotesRunnable(this.stationHardware.banknoteInput, banknotes2), 2500, TimeUnit.MILLISECONDS);    	
     	
-    	stationSoftware.getCheckoutHandler().payWithCash(total.divide(new BigDecimal("2"))); //Pay $50
+    	stationData.changeState(StationState.PAY_CASH);
+    	TimeUnit.SECONDS.sleep(5);
+    	
+		assertTrue(stationData.getCurrentState() == StationState.NORMAL);		
 
-    	assertTrue(stationData.getTotalMoneyPaid().equals(new BigDecimal("50.00")));
     }
-
     
     @Test
     public void testPayingWithBanknotesNoChangeRemoveScannedItem() throws InterruptedException, OverloadException, EmptyException, DisabledException {
@@ -671,9 +489,8 @@ public class StationUnitTestIter3Tests {
     	//Add a milk jug to the scale
     	this.stationHardware.baggingArea.add(milkJugItem);
     	stationData.setTotalDue(total); //Add $50 to total cost
+    	stationData.setTransactionPaymentAmount(total);
 
-    	//Bypass startCheckout method
-    	stationData.setInCheckout(true);
     	stationData.setExpectedWeight(4000);
     	
     	//Put 2 $20 bills in before removing milk jug
@@ -686,11 +503,16 @@ public class StationUnitTestIter3Tests {
     	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 4500, TimeUnit.MILLISECONDS);
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 5500, TimeUnit.MILLISECONDS);
     	
-    	stationSoftware.getCheckoutHandler().payWithCash(total);
-
-    	//Touch screen should have been informed of the weight issue, and its correction
-    	assertTrue(stationSoftware.getTouchScreenSoftware().invalidWeightInCheckoutDetected.get());
-    	assertTrue(stationSoftware.getTouchScreenSoftware().invalidWeightInCheckoutCorrected.get());
+    	stationData.changeState(StationState.PAY_CASH);
+    	TimeUnit.SECONDS.sleep(5);
+    	assertTrue(stationData.getCurrentState() == StationState.WEIGHT_ISSUE);
+    	
+    	TimeUnit.SECONDS.sleep(5);
+    	
+    	String finalReceipt = this.stationHardware.printer.removeReceipt();
+		System.out.println("Receipt Generated:\n" + finalReceipt);
+		
+    	assertTrue(stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT);
     }
     
     @Test
