@@ -369,7 +369,6 @@ public class ScanningScreenGUI {
 				int listLocation = -1, indexLocation = -1;
 				Component[] componentsList = frame.getContentPane().getComponents();
 				for (int i = 0; i < componentsList.length; i++) {
-					System.out.println(componentsList[i].getName());
 					if (componentsList[i].getName() == "invisibleProduct") {
 						listLocation = i;
                     }
@@ -380,17 +379,15 @@ public class ScanningScreenGUI {
 				if(indexLocation != -1) {
 					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
 				}
-				if(index != -1) {
-					System.out.println(index);
-					if (index != -1) {
-						String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
-						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
-						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-						System.out.println("Please place item on the scale");
-						stationData.setLookedUpProduct(product);
-						stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
-						return;
-					}
+				System.out.println(index);
+				if (index != -1) {
+					String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
+					PriceLookupCode PLUCode = new PriceLookupCode(PLU);
+					PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+					System.out.println("Please place item on the scale");
+					stationData.setLookedUpProduct(product);
+					stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
+					return;
 				}	
 			}
 		});
