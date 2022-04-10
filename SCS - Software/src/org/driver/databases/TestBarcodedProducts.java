@@ -25,7 +25,7 @@ public class TestBarcodedProducts {
 		Barcode barcode1 = new Barcode(new Numeral[] {Numeral.one});
 		BarcodedProduct P1 = new BarcodedProduct(
 				barcode1,
-				"4L Milk Jug.",
+				"Milk 4L",
 				new BigDecimal("4.89"),
 				4000.0);
 		BarcodeList.add(barcode1);
@@ -37,7 +37,7 @@ public class TestBarcodedProducts {
 		Barcode barcode2 = new Barcode(new Numeral[] {Numeral.two});
 		BarcodedProduct P2 = new BarcodedProduct(
 				barcode2,
-				"1.5L Orange Juice.",
+				"Orange Juice 1.5L",
 				new BigDecimal("3.75"),
 				1500.0);
 		BarcodeList.add(barcode2);
