@@ -252,15 +252,8 @@ public class StationUnitTestIter3Tests {
     
     @Test
     public void testCorrectInitialState() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	stationData.changeState(StationState.SWIPE_MEMBERSHIP);
-    	
-    	    	
-    	stationHardware.mainScanner.scan(cornFlakesItem);
-    	assertTrue(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
-    	
-    	stationData.changeState(StationState.WELCOME);
-    	
-    	assertTrue(stationData.getProductsAddedToCheckoutHashMap().isEmpty());
+   	    	
+    	assertTrue(stationData.getCurrentState() == StationState.INACTIVE);
     }    
     
     

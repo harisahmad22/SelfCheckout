@@ -39,7 +39,7 @@ public class PayWithCard implements CardReaderObserver {
 	
 	//put Div's giftcard class into same branch, import and remember to set up!!!
 	private GiftCardDatabase giftCards;
-	private CardPaymentSoftware paymentSoftware;
+//	private CardPaymentSoftware paymentSoftware;
 	
 	
 	//card issuers have unique card types that correspond with them (ex. "xxx company debit" or "a company visa credit")
@@ -53,7 +53,7 @@ public class PayWithCard implements CardReaderObserver {
 		this.station = stationData.getStationHardware();
 //		station.cardReader.attach(this);
 		
-		this.paymentSoftware = this.stationSoftware.getCardPaymentSoftware();
+//		this.paymentSoftware = this.stationSoftware.getCardPaymentSoftware();
 		
 	}
 	
@@ -89,7 +89,7 @@ public class PayWithCard implements CardReaderObserver {
 		}
 		if(holdNum >= 0) {
 			paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, stationData.getTransactionPaymentAmount());
-			paymentSoftware.paid(stationData.getTransactionPaymentAmount());
+			paid(stationData.getTransactionPaymentAmount());
 		}
 		
 		return paymentSuccessful;
@@ -111,7 +111,7 @@ public class PayWithCard implements CardReaderObserver {
 		}
 		if(holdNum >= 0) {
 			paymentSuccessful = true;		//credit card transactions are not posted immediately?
-			paymentSoftware.paid(stationData.getTransactionPaymentAmount());
+			paid(stationData.getTransactionPaymentAmount());
 		}
 		return paymentSuccessful;		
 	}
@@ -210,9 +210,6 @@ public class PayWithCard implements CardReaderObserver {
 			cardType = data.getType();
 			cardIssuer = cardIssuers.get(cardType);
 
-//			System.out.println("AAAAAA" + cardType);
-//			String cardKind = findCardKind(cardType);
-
 			if(cardIssuers.containsKey(cardType) == true) {
 				cardIssuer = cardIssuers.get(cardType);
 			}
@@ -227,11 +224,11 @@ public class PayWithCard implements CardReaderObserver {
 			case "Debit":
 				success = payWithDebit(cardData);
 				if(success == true) {
-					paymentSoftware.debitPaymentSuccessful();
+//					paymentSoftware.debitPaymentSuccessful();
 					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
 				}
 				else {
-					paymentSoftware.debitPaymentUnsuccessful();
+//					paymentSoftware.debitPaymentUnsuccessful();
 					stationData.changeState(StationState.BAD_CARD);
 				}
 				break;
@@ -239,11 +236,11 @@ public class PayWithCard implements CardReaderObserver {
 			case "Credit":
 				success = payWithCredit(cardData);
 				if(success == true) {
-					paymentSoftware.creditPaymentSuccessful();
+//					paymentSoftware.creditPaymentSuccessful();
 					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
 				}
 				else {
-					paymentSoftware.creditPaymentUnsuccessful();
+//					paymentSoftware.creditPaymentUnsuccessful();
 					stationData.changeState(StationState.BAD_CARD);
 				}
 				break;
@@ -278,6 +275,11 @@ public class PayWithCard implements CardReaderObserver {
 		return kind;
 		
 	}
+	
+	public void paid(BigDecimal paid) {
+		stationData.addToTotalPaid(paid);
+	}
+	
 	public void paymentUnsuccessful() {
 		
 	}
