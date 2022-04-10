@@ -16,6 +16,7 @@ public class TestingTEMP {
 		//SelfCheckoutStationUnit unit = new SelfCheckoutStationUnit();
 		
 		SelfCheckoutStationUnit unit = new SelfCheckoutStationUnit(1);
+		unit.getSelfCheckoutData().changeState(StationState.INACTIVE);
 		SelfCheckoutStation station = unit.getSelfCheckoutStation();
 		SelfCheckoutData data = unit.getSelfCheckoutData();
 		
@@ -23,7 +24,7 @@ public class TestingTEMP {
 		
 		attendant.attachCheckoutStationUnit(unit);
 		
-		attendant.getAttendantData().changeState(AttendantState.ACTIVE);
+		attendant.getAttendantData().changeState(AttendantState.START);
 		
 		station.printer.addInk(500);
 		station.printer.addPaper(250);
@@ -31,7 +32,7 @@ public class TestingTEMP {
 		unit.getSelfCheckoutData().setTotalDue(new BigDecimal("20.00"));
 		
 		System.out.println(data.getCurrentState());
-		data.changeState(StationState.WELCOME);
+//		data.changeState(StationState.WELCOME);
 		System.out.println(data.getCurrentState());
 		//CardOptionGUI gui = new CardOptionGUI(station, data);
 		//gui.showCardOptionGUI();

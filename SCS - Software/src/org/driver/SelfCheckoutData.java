@@ -741,8 +741,13 @@ public class SelfCheckoutData {
 		changeState(StationState.WAITING_FOR_ITEM);
 	}
 
-	public void addProductToCheckout(PLUCodedProduct product, double weight) {
-		ProductInfo PI = new ProductInfo(product, weight);
+	public void addProductToCheckout(PLUCodedProduct product, double weightInGrams) {
+		ProductInfo PI = new ProductInfo(product, weightInGrams);
+		
+		BigDecimal weightInKG = new BigDecimal(weightInGrams/1000);
+		//Update price based on the given weight
+		addToTotalCost(product.getPrice().multiply(weightInKG));
+		
 		if (productsAddedToCheckout.containsKey(product.getDescription()))
 		{
 			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
