@@ -231,7 +231,7 @@ public class ScanningScreenGUI {
 						return;
 					}
 					else 
-					{
+					{  // ADD STATE CHANGE HERE
 						try {
 							weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
 						} catch (OverloadException e1) {
