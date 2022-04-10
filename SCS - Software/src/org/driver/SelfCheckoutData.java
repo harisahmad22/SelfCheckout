@@ -338,7 +338,10 @@ public class SelfCheckoutData {
 		PARTIAL_PAYMENT_KEYPAD,
 		
 		// State to inform user that their gift card does not have enough funds to complete transaction
-		INSUFFICIENT_FUNDS
+		INSUFFICIENT_FUNDS,
+		
+		// State to inform user that given PLU code is not in database
+		BAD_PLU
 	}
 
 
@@ -406,6 +409,9 @@ public class SelfCheckoutData {
 			
 		case CHECKOUT_CHECK:
 			
+			break;
+			
+		case BAD_PLU:
 			break;
 			
 		case PARTIAL_PAYMENT_KEYPAD:

@@ -58,10 +58,14 @@ public class ScanningScreenGUI {
 		case WAITING_FOR_ITEM:
 			scanPopup();
 			break;
+		case BAD_PLU:
+			badPLUScreen();
+			break;
 		default:
 			break;
 		}
 	}
+
 
 	// The main page for scanning
 	private void Main() {
@@ -220,6 +224,12 @@ public class ScanningScreenGUI {
 					String search = codePLU.getText();
 					PriceLookupCode PLUCode = new PriceLookupCode(search);
 					PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+					if (PLUProduct == null)
+					{
+						System.out.println("Error! PLU Code is invalid!");
+						stationData.changeState(StationState.BAD_PLU);
+						return;
+					}
 					try {
 						weight = stationData.getStationHardware().scanningArea.getCurrentWeight();
 					} catch (OverloadException e1) {
@@ -433,5 +443,49 @@ public class ScanningScreenGUI {
 
 		frame.add(payCoin);
 		payCoin.setVisible(true);
+	}
+	
+	private void badPLUScreen() {
+	frame.setLayout(null);
+		
+		JLabel l1 = new JLabel("PLU Code is Invalid");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+		
+		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+		
+		final JButton b1 = new JButton("Return to Main Screen");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(100,300,300,100);
+		frame.getContentPane().add(b1);
+		
+		final JButton b2 = new JButton("Try Again");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b2.setBounds(400,300,300,100);
+		frame.getContentPane().add(b2);
+		
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.changeState(StationState.NORMAL);
+			}
+		});
+		
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.changeState(StationState.PLU_SEARCH);
+			}
+		});
+		
+		
 	}
 }
