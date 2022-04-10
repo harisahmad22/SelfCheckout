@@ -198,7 +198,8 @@ public class ScanningScreenGUI {
 	}
 
 	// Page for looking for PLU
-	private void PluSearch() {
+	private void PluSearch() 
+	{
 		frame.setLayout(null);
 
 		// Display of searched items
@@ -305,13 +306,14 @@ public class ScanningScreenGUI {
 	
 
 	// Screen for searching by letter
-	private void LetterSearch() {
+	private void LetterSearch() 
+	{
 		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
 		
-		JList invisibleProduct = new JList();
+		final JList invisibleProduct = new JList();
 		// Display for search
-		JList inventoryLetter = new JList();
+		final JList inventoryLetter = new JList();
 		final JScrollPane searchContainer = new JScrollPane();
 		searchContainer.setViewportView(inventoryLetter);
 		inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));

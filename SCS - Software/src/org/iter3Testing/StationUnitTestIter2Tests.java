@@ -33,13 +33,6 @@ import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
 import org.driver.databases.TestBarcodedProducts;
-import org.iter2Testing.PayWithBanknotesRunnable;
-import org.iter2Testing.PayWithCoinsRunnable;
-import org.iter2Testing.PlaceItemOnScaleRunnable;
-import org.iter2Testing.RemoveDanglingBanknotesRunnable;
-import org.iter2Testing.RemoveItemOnScaleRunnable;
-import org.iter2Testing.ScanItemRunnable;
-import org.iter2Testing.ScanTestMembershipCardRunnable;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -183,7 +176,7 @@ public class StationUnitTestIter2Tests {
     public void testScanningMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.stationHardware.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.stationHardware.cardReader, "Membership"), 10, TimeUnit.MILLISECONDS);
     	
     	//Setup simulated input
     	//User will select 0 bags
@@ -211,7 +204,7 @@ public class StationUnitTestIter2Tests {
     public void testScanningWrongCardAsMembershipCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
 
     	//Schedule the membership card to be swiped 2.5 seconds after starting checkout
-    	scheduler.schedule(new ScanTestMembershipCardRunnable(this.stationHardware.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new SwipeTestCardRunnable(this.stationHardware.cardReader, "Credit"), 10, TimeUnit.MILLISECONDS);
     	
     	//Setup simulated input
     	//User will select 0 bags
