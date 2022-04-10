@@ -290,7 +290,7 @@ public class ScanningScreenGUI {
 		numpad.add(numpadGo);
 		frame.add(numpad);
 		numpad.setBounds(740, 220, 220, 320);
-
+	
 		// Return to main scanning screen
 		JButton pluReturn = new JButton("Return");
 		frame.add(pluReturn);
@@ -302,8 +302,8 @@ public class ScanningScreenGUI {
 		pluReturn.setBounds(740, 20, 220, 60);
 
 		frame.setVisible(true);
-		
 	}
+	
 
 	// Screen for searching by letter
 	private void LetterSearch() 
@@ -369,10 +369,8 @@ public class ScanningScreenGUI {
 			public void actionPerformed(ActionEvent e) {
 				int index = -1;
 				int listLocation = -1, indexLocation = -1;
-				double weight = 0;
 				Component[] componentsList = frame.getContentPane().getComponents();
 				for (int i = 0; i < componentsList.length; i++) {
-					System.out.println(componentsList[i].getName());
 					if (componentsList[i].getName() == "invisibleProduct") {
 						listLocation = i;
                     }
@@ -383,18 +381,15 @@ public class ScanningScreenGUI {
 				if(indexLocation != -1) {
 					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
 				}
-				if(inventoryLetter != null) {
-					index = inventoryLetter.getSelectedIndex();
-					System.out.println(index);
-					if (index != -1) {
-						String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
-						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
-						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-						System.out.println("Please place item on the scale");
-						stationData.setLookedUpProduct(product);
-						stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
-						return;
-					}
+				System.out.println(index);
+				if (index != -1) {
+					String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
+					PriceLookupCode PLUCode = new PriceLookupCode(PLU);
+					PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+					System.out.println("Please place item on the scale");
+					stationData.setLookedUpProduct(product);
+					stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
+					return;
 				}	
 			}
 		});
