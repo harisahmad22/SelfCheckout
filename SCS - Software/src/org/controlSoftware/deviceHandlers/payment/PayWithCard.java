@@ -34,6 +34,8 @@ public class PayWithCard implements CardReaderObserver {
 	//put Div's giftcard class into same branch, import!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//
+	
+	//FOR FULL PAYMENTS, MAKE THE PAYMENTAMOUNT THE TOTAL DISCOUNTED PAYMENT AMOUNT 
 	private GiftCardDatabase giftCards;
 	private PaymentHandler payment;
 	
@@ -43,6 +45,7 @@ public class PayWithCard implements CardReaderObserver {
 	
 	protected String memberNumber;
 	
+	//constructor
 	public PayWithCard(SelfCheckoutStation station, PaymentHandler pay) {
 		this.station = station;
 		station.cardReader.attach(this);
@@ -91,8 +94,17 @@ public class PayWithCard implements CardReaderObserver {
 			return paymentSuccessful;
 		}
 		if(holdNum >= 0) {
-			paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, paymentAmount);
-			payment.paid(paymentAmount);
+			//if payment amount inputed by customer is greater than amount left to pay
+			if(paymentAmount.compareTo((paymentTotal.subtract(payment.getAmountPaid()))) > 0) {
+				paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, paymentTotal.subtract(payment.getAmountPaid()));
+				payment.paid(paymentTotal);
+			
+			}
+			else {
+				paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, paymentAmount);
+				payment.paid(paymentAmount);
+			}
+			
 		}
 		
 		return paymentSuccessful;
@@ -108,13 +120,32 @@ public class PayWithCard implements CardReaderObserver {
 		boolean paymentSuccessful = false;
 		
 		String cardNum = cardData.getNumber();
+		//first check
 		int holdNum = cardIssuer.authorizeHold(cardNum, paymentAmount);
 		if(holdNum == -1) {
 			return paymentSuccessful;
 		}
 		if(holdNum >= 0) {
-			paymentSuccessful = true;		//credit card transactions are not posted immediately?
-			payment.paid(paymentAmount);
+			//if payment amount inputed by customer is greater than amount left to pay
+			if(paymentAmount.compareTo((paymentTotal.subtract(payment.getAmountPaid()))) > 0) {
+				
+				paymentSuccessful = cardIssuer.releaseHold(cardNum, holdNum);
+				holdNum = cardIssuer.authorizeHold(cardNum, paymentTotal.subtract(payment.getAmountPaid()));
+				if(holdNum>=0) {
+					payment.paid(paymentTotal.subtract(payment.getAmountPaid()));
+				}
+				else {
+					paymentSuccessful = false;
+					return paymentSuccessful;
+				}
+			
+			}
+			//payment inputed by customer is less than amount left to pay 
+			else {
+				paymentSuccessful = true;		//credit card transactions are not posted immediately?
+				payment.paid(paymentAmount);
+			}
+	
 		}
 		return paymentSuccessful;		
 	}
@@ -132,14 +163,17 @@ public class PayWithCard implements CardReaderObserver {
 		//(customer chooses to use entire giftcard, if $0, then customer chooses to use all of that :D
 		//there should be something before hand that informs customer of amount left on card!!
 		if(useAllGiftCard == true) {
-			if(paymentTotal.compareTo(amountOnGiftCard) >= 0) {
+			//if amount left to pay is greater or equal to amount on gift card
+			if((paymentTotal.subtract(payment.getAmountPaid())).compareTo(amountOnGiftCard) >= 0) {
 				giftCards.updateGiftCard(cardNum, 0.00);
 				payment.paid(amountOnGiftCard);
 				paymentSuccessful = true;
 			}
+			//if amount left to pay is less than amount on giftcard
 			else {
-				BigDecimal amountLeft =  amountOnGiftCard.subtract(paymentTotal);
+				BigDecimal amountLeft =  amountOnGiftCard.subtract(paymentTotal.subtract(payment.getAmountPaid()));
 				giftCards.updateGiftCard(cardNum, amountLeft.doubleValue());
+				payment.paid(paymentTotal.subtract(payment.getAmountPaid()));
 				paymentSuccessful = true;
 			}
 				
@@ -148,15 +182,23 @@ public class PayWithCard implements CardReaderObserver {
 		//customer chooses certain amount of the giftcard to use
 		//paymentAmount is the amount inputed by customer to use
 		else {
+			//if amount on giftcard is greater than or equal to payment amount selected by customer
 			if(amountOnGiftCard.compareTo(paymentAmount) >= 0) {
 				amountOnGiftCard = amountOnGiftCard.subtract(paymentAmount);
 				giftCards.updateGiftCard(cardNum, amountOnGiftCard.doubleValue());
-				payment.paid(amountOnGiftCard);
+				payment.paid(paymentAmount);
 				paymentSuccessful = true;
 
 			}
+			//if amount on giftcard is less than amount to pay selected by customer (uses all of giftcard)
 			else {
-				return paymentSuccessful;
+				BigDecimal amountCanPay = amountOnGiftCard;
+				amountOnGiftCard = amountOnGiftCard.subtract(amountOnGiftCard);
+				giftCards.updateGiftCard(cardNum, amountOnGiftCard.doubleValue());
+				payment.paid(amountCanPay);
+				paymentSuccessful = true;
+
+				
 			}
 		}
 		

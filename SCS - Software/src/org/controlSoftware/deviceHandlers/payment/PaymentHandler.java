@@ -108,6 +108,10 @@ public class PaymentHandler {
 		giftCardExists = cardExists;
 	}
 	
+	public BigDecimal getAmountPaid() {
+		return amountPaid;
+	}
+	
 			
 			//ask user to swipe or input giftcard
 			//display giftCardBlance on screen or maybe customer swipes more giftcards?
@@ -123,7 +127,7 @@ public class PaymentHandler {
 		amountPaid.add(paid);
 	}
 	
-
+//????HELP
 	/**
 	 * Customer choose to pay with bank note and coin
 	 * @param payment
