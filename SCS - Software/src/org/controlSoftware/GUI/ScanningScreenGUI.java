@@ -99,15 +99,16 @@ public class ScanningScreenGUI {
 
 		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20, 20, 700, 420);
-		itemList.setBackground(Color.blue);
+		itemList.setBackground(Color.gray);
+		itemList.setFont(new Font("Tahoma", Font.BOLD, 48));
 		itemList.setOpaque(true);
 		frame.getContentPane().add(itemList);
 
 		// Display of the total price
 		JLabel totalPrice = new JLabel("$" + stationData.getTotalDue().toString());
 		totalPrice.setBounds(20, 460, 700, 80);
-		totalPrice.setBackground(Color.red);
-		totalPrice.setFont(new Font("Calibri", Font.BOLD, 48));
+		totalPrice.setBackground(Color.gray);
+		totalPrice.setFont(new Font("Tahoma", Font.BOLD, 48));
 		totalPrice.setOpaque(true);
 		frame.getContentPane().add(totalPrice);
 
@@ -152,7 +153,7 @@ public class ScanningScreenGUI {
 
 		final JButton b1 = new JButton("[DEBUG] Block Station");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(0, 0, 300, 100);
+		b1.setBounds(1000, 0, 300, 100);
 		frame.getContentPane().add(b1);
 
 		b1.addActionListener(new ActionListener() {
@@ -167,7 +168,7 @@ public class ScanningScreenGUI {
 
 		final JButton b1 = new JButton("[DEBUG] Force Weight Issue");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(0, 100, 300, 100);
+		b1.setBounds(1000, 100, 300, 100);
 		frame.getContentPane().add(b1);
 
 		b1.addActionListener(new ActionListener() {
@@ -182,7 +183,7 @@ public class ScanningScreenGUI {
 	private void debugScanTestItemButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(350, 150, 300, 200);
+		payCoin.setBounds(1000, 200, 300, 200);
 		payCoin.setText("[DEBUG] Scan in a Milk Jug");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 18));
 		payCoin.setBackground(color);
@@ -381,7 +382,6 @@ public class ScanningScreenGUI {
 				if(indexLocation != -1) {
 					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
 				}
-				System.out.println(index);
 				if (index != -1) {
 					String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
 					PriceLookupCode PLUCode = new PriceLookupCode(PLU);
