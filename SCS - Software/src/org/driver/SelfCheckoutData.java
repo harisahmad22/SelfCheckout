@@ -353,7 +353,10 @@ public class SelfCheckoutData {
 		BAD_PLU, 
 		
 		// State to inform user that their membership is invalid 
-		BAD_MEMBERSHIP
+		BAD_MEMBERSHIP, 
+		
+		// State to inform user that their card is invalid
+		BAD_CARD
 	}
 
 
@@ -427,6 +430,9 @@ public class SelfCheckoutData {
 			break;
 			
 		case BAD_MEMBERSHIP:
+			break;
+			
+		case BAD_CARD:
 			break;
 			
 		case PARTIAL_PAYMENT_KEYPAD:

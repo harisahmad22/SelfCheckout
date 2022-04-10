@@ -97,7 +97,7 @@ public final class BanknoteValidator extends AbstractDevice<BanknoteValidatorObs
 	}
 
 	private final Random pseudoRandomNumberGenerator = new Random();
-	private static final int PROBABILITY_OF_FALSE_REJECTION = 1; /* out of 100 */
+	private static final int PROBABILITY_OF_FALSE_REJECTION = 0; /* out of 100 */
 
 	private boolean isValid(Banknote banknote) {
 		if(currency.equals(banknote.getCurrency()))
