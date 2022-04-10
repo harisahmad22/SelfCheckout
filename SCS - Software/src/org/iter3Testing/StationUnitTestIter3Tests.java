@@ -29,6 +29,7 @@ import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
 import org.controlSoftware.general.TouchScreenSoftware;
+import org.driver.AttendantUnit;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
@@ -103,6 +104,9 @@ public class StationUnitTestIter3Tests {
 	private TouchScreenSoftware touchScreenSoftware;
 	private TestBarcodedProducts testProducts;
 	
+	private ArrayList<SelfCheckoutStationUnit> checkoutStationUnits = new ArrayList<SelfCheckoutStationUnit>();
+	private AttendantUnit attendantUnit;
+	
 	private ScheduledExecutorService scheduler;
 	
 	
@@ -118,6 +122,10 @@ public class StationUnitTestIter3Tests {
 		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
 		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
 		
+		checkoutStationUnits.add(stationUnit);
+		this.attendantUnit = new AttendantUnit();
+		attendantUnit.attachCheckoutStationUnits(checkoutStationUnits);
+		stationUnit.attachAttendant(attendantUnit);
 		
 		//Create some test products/items
 		this.testProducts = new TestBarcodedProducts();
@@ -194,6 +202,36 @@ public class StationUnitTestIter3Tests {
     	TimeUnit.SECONDS.sleep(2);
     	
     	assertTrue(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
+    }
+    
+    @Test
+    public void testAttendantRemovesItemFromStationData()
+    {
+    	stationData.changeState(StationState.NORMAL);
+    	
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(stationHardware.baggingArea, cornFlakesItem), 2000, TimeUnit.MILLISECONDS);
+    	stationHardware.mainScanner.scan(cornFlakesItem);
+    	
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 5500, TimeUnit.MILLISECONDS);
+    	
+    	assertFalse(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
+    	assertTrue(stationData.getTotalDue() == BigDecimal.ZERO);
+    	assertTrue(stationData.getExpectedWeight() == 0);
+    }
+    
+    @Test
+    public void testAttendantApprovesWeightDiscrepancy() throws InterruptedException
+    {
+    	stationData.changeState(StationState.NORMAL);
+    	
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 5500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new ChangeStateRunnable(stationData, StationState.INACTIVE), 7500, TimeUnit.MILLISECONDS);
+    	
+    	scheduler.schedule(new ApproveWeightDiscrepancyRunnable(attendantUnit, 0), 9000, TimeUnit.MILLISECONDS);
+    	
+    	assertTrue(stationData.getCurrentState() == StationState.NORMAL);
+    	assertTrue(stationData.getExpectedWeight() == milkJug.getExpectedWeight());
     }
     
     @Test
