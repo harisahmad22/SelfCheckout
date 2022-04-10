@@ -24,7 +24,7 @@ import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.deviceHandlers.membership.MembershipCardScannerHandler;
+import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
 import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
@@ -101,7 +101,7 @@ public class StationUnitTestIter3Tests {
 	private BarcodedItem testBag2 = new BarcodedItem(testBagBarcode, 115.5); //115.5g bag
 	
 	private ReceiptHandler receiptHandler;
-	private MembershipCardScannerHandler customMembershipScannerObserver;
+	private ScansMembershipCard customMembershipScannerObserver;
 	
 	private SelfCheckoutStationUnit stationUnit;
 	private SelfCheckoutStation stationHardware;
@@ -817,7 +817,7 @@ public class StationUnitTestIter3Tests {
 
     	//Bypass startCheckout method
     	stationData.setInCheckout(true);
-    	stationData.setExpectedWeightCheckout(4000);
+    	stationData.setExpectedWeight(4000);
     	
     	//Put 2 $20 bills in before removing milk jug
     	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote };
@@ -847,7 +847,7 @@ public class StationUnitTestIter3Tests {
     	stationData.setTotalDue(total); //Add $50 to total cost
     	//Bypass startCheckout method
     	stationData.setInCheckout(true);
-    	stationData.setExpectedWeightCheckout(4000);
+    	stationData.setExpectedWeight(4000);
     	//Put 2 toonies in before removing milk jug
     	Coin[] coins1 = { toonie, toonie };
     	//After putting the jug back on the scale, pay the rest

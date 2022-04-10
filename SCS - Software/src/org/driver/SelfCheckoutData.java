@@ -338,7 +338,10 @@ public class SelfCheckoutData {
 		PARTIAL_PAYMENT_KEYPAD,
 		
 		// State to inform user that their gift card does not have enough funds to complete transaction
-		INSUFFICIENT_FUNDS
+		INSUFFICIENT_FUNDS,
+		
+		// State to inform user that given PLU code is not in database
+		BAD_PLU
 	}
 
 
@@ -406,6 +409,9 @@ public class SelfCheckoutData {
 			
 		case CHECKOUT_CHECK:
 			
+			break;
+			
+		case BAD_PLU:
 			break;
 			
 		case PARTIAL_PAYMENT_KEYPAD:
@@ -799,6 +805,7 @@ public class SelfCheckoutData {
 		totalMoneyPaid = BigDecimal.ZERO;
 		transactionPaymentAmount = BigDecimal.ZERO;
 		totalPaidThisTransaction = BigDecimal.ZERO;
+		isFirstCheckout.set(true);
 		setAllExpectedWeights(0.0);
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		productsAddedToCheckout = new HashMap<String, ProductInfo>();
@@ -1143,6 +1150,10 @@ public void disablePaymentDevices() {
 
 	public Map<Barcode, BarcodedProduct> getBarcodedProductDatabase() {
 		return Barcoded_Product_Database.getDatabase();
+	}
+	
+	public PLUProductDatabase getPLUDatabaseObject() {
+		return PLU_Product_Database;
 	}
 
 	public BarcodedProductDatabase getBarcodedProductDatabaseObject() {
