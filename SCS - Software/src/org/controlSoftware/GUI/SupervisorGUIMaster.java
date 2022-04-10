@@ -146,7 +146,7 @@ public class SupervisorGUIMaster {
 			}
 		});
 		
-		JLabel l1 = new JLabel("Select an option.");
+		JLabel l1 = new JLabel("Select maintenance option");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 100);
@@ -234,7 +234,7 @@ public class SupervisorGUIMaster {
 	private void refillInkScreen() {
 		frame.setLayout(null);
 		
-		JLabel l2 = new JLabel("Enter units of ink refilled.");
+		JLabel l2 = new JLabel("Confirm units of ink refilled");
 		l2.setBounds(0,0,1000,75);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -321,7 +321,7 @@ public class SupervisorGUIMaster {
 	private void refillPaperScreen() {
 		frame.setLayout(null);
 		
-		JLabel l2 = new JLabel("Enter units of paper refilled.");
+		JLabel l2 = new JLabel("Confirm units of paper refilled");
 		l2.setBounds(0,0,1000,75);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -408,7 +408,7 @@ public class SupervisorGUIMaster {
 	private void refillNotesScreen() {
 		frame.setLayout(null);
 		
-		JLabel l1 = new JLabel("Select denominations added and confirm.");
+		JLabel l1 = new JLabel("Confirm denominations added");
 		l1.setBounds(0,0,1000,100);
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -515,7 +515,7 @@ public class SupervisorGUIMaster {
 	private void refillCoinsScreen() {
 		frame.setLayout(null);
 		
-		JLabel l1 = new JLabel("Select denominations added and confirm.");
+		JLabel l1 = new JLabel("Confirm denominations added");
 		l1.setBounds(0,0,1000,100);
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
@@ -622,7 +622,7 @@ public class SupervisorGUIMaster {
 	private void emptyNotesScreen() {
 		frame.setLayout(null);
 		
-		JLabel l1 = new JLabel("Empty banknotes from storage now.");
+		JLabel l1 = new JLabel("Confirm banknotes emptied from storage");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 300);
@@ -654,7 +654,7 @@ public class SupervisorGUIMaster {
 	private void emptyCoinsScreen() {
 		frame.setLayout(null);
 		
-		JLabel l1 = new JLabel("Empty coins from storage now.");
+		JLabel l1 = new JLabel("Confirm coins emptied from storage");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 300);
@@ -914,7 +914,7 @@ public class SupervisorGUIMaster {
 			}
 		});
 		
-		final JLabel l1 = new JLabel("Select station to manage.");
+		final JLabel l1 = new JLabel("Select station to manage");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 100);
@@ -970,7 +970,7 @@ public class SupervisorGUIMaster {
 			}
 		});
 		
-		final JLabel l1 = new JLabel("Select an option.");
+		final JLabel l1 = new JLabel("Select a station option");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 100);

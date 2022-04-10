@@ -43,7 +43,7 @@ public class TestingTEMP2 {
 		AttendantData data = aUnit.getAttendantData();
 		
 		//aUnit.getAttendantGUI().setTargetStation(sUnit1);
-		data.changeState(AttendantState.STATIONS);
+		data.changeState(AttendantState.START);
 		
 		/*ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));
