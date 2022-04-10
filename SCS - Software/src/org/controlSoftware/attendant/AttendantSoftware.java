@@ -241,7 +241,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinDispensers.get(coins[0].getValue()).load(coins);
+			for(Coin coin : coins)
+				checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().coinDispensers.get(coin.getValue()).load(coin);
 		}
 	}
 	
@@ -252,7 +253,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinDispensers.get(coins[0].getValue()).load(coins);
+			for(Coin coin : coins)
+				checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().coinDispensers.get(coin.getValue()).load(coin);
 		}
 	}
 
@@ -267,7 +269,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteDispensers.get(banknotes[0].getValue()).load(banknotes);
+			for(Banknote banknote : banknotes)
+				checkoutStationUnits.get(stationID).getSelfCheckoutStationHardware().banknoteDispensers.get(banknote.getValue()).load(banknote);
 		}
 	}
 	
@@ -277,7 +280,8 @@ public class AttendantSoftware {
 			return;
 		}
 		else {
-			checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteDispensers.get(banknotes[0].getValue()).load(banknotes);
+			for(Banknote banknote : banknotes)
+				checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutStationHardware().banknoteDispensers.get(banknote.getValue()).load(banknote);
 		}
 	}
 	

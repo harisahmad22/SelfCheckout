@@ -15,6 +15,7 @@ import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
+import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.TestBarcodedProducts;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -52,6 +53,16 @@ public class CashPaymentHandlerTest {
 		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
 		
 		this.cashPaymentHandler = new CashPaymentHandler(stationData);
+		
+		this.stationData.changeState(StationState.PAY_CASH);
+		
+		try {
+			this.stationHardware.printer.addPaper(100);
+			this.stationHardware.printer.addInk(100);
+		} catch (OverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
     @Test (expected = DisabledException.class)

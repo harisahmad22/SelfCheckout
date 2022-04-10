@@ -1,6 +1,7 @@
 package org.controlSoftware.GUI;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -98,15 +99,16 @@ public class ScanningScreenGUI {
 
 		JLabel itemList = new JLabel(productListString);
 		itemList.setBounds(20, 20, 700, 420);
-		itemList.setBackground(Color.blue);
+		itemList.setBackground(Color.gray);
+		itemList.setFont(new Font("Tahoma", Font.BOLD, 48));
 		itemList.setOpaque(true);
 		frame.getContentPane().add(itemList);
 
 		// Display of the total price
 		JLabel totalPrice = new JLabel("$" + stationData.getTotalDue().toString());
 		totalPrice.setBounds(20, 460, 700, 80);
-		totalPrice.setBackground(Color.red);
-		totalPrice.setFont(new Font("Calibri", Font.BOLD, 48));
+		totalPrice.setBackground(Color.gray);
+		totalPrice.setFont(new Font("Tahoma", Font.BOLD, 48));
 		totalPrice.setOpaque(true);
 		frame.getContentPane().add(totalPrice);
 
@@ -151,7 +153,7 @@ public class ScanningScreenGUI {
 
 		final JButton b1 = new JButton("[DEBUG] Block Station");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(0, 0, 300, 100);
+		b1.setBounds(1000, 0, 300, 100);
 		frame.getContentPane().add(b1);
 
 		b1.addActionListener(new ActionListener() {
@@ -166,7 +168,7 @@ public class ScanningScreenGUI {
 
 		final JButton b1 = new JButton("[DEBUG] Force Weight Issue");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(0, 100, 300, 100);
+		b1.setBounds(1000, 100, 300, 100);
 		frame.getContentPane().add(b1);
 
 		b1.addActionListener(new ActionListener() {
@@ -181,7 +183,7 @@ public class ScanningScreenGUI {
 	private void debugScanTestItemButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(350, 150, 300, 200);
+		payCoin.setBounds(1000, 200, 300, 200);
 		payCoin.setText("[DEBUG] Scan in a Milk Jug");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 18));
 		payCoin.setBackground(color);
@@ -197,7 +199,8 @@ public class ScanningScreenGUI {
 	}
 
 	// Page for looking for PLU
-	private void PluSearch() {
+	private void PluSearch() 
+	{
 		frame.setLayout(null);
 
 		// Display of searched items
@@ -288,7 +291,7 @@ public class ScanningScreenGUI {
 		numpad.add(numpadGo);
 		frame.add(numpad);
 		numpad.setBounds(740, 220, 220, 320);
-
+	
 		// Return to main scanning screen
 		JButton pluReturn = new JButton("Return");
 		frame.add(pluReturn);
@@ -300,11 +303,12 @@ public class ScanningScreenGUI {
 		pluReturn.setBounds(740, 20, 220, 60);
 
 		frame.setVisible(true);
-
 	}
+	
 
 	// Screen for searching by letter
-	private void LetterSearch() {
+	private void LetterSearch() 
+	{
 		final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
 		frame.setLayout(null);
 		
@@ -347,11 +351,13 @@ public class ScanningScreenGUI {
 					JScrollPane searchContainer = new JScrollPane();
 					JList inventoryLetter = new JList(itemList.toArray());
 					frame.add(searchContainer);
+					searchContainer.setName("inventoryLetter");
 					searchContainer.setViewportView(inventoryLetter);
 					inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
 					inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 					searchContainer.setBounds(20, 20, 700, 520);
 					JList invisibleProduct = new JList(PLUList.toArray());
+					invisibleProduct.setName("invisibleProduct");
 					frame.add(invisibleProduct);
 				}
 			}
@@ -362,20 +368,28 @@ public class ScanningScreenGUI {
 		JButton productGet = new JButton("Get Item");
 		productGet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(invisibleProduct);
-				if(inventoryLetter != null) {
-					int index = inventoryLetter.getSelectedIndex();
-					System.out.println(index);
-					if (index != -1) {
-						String PLU = (String) invisibleProduct.getSelectedValue();
-						PriceLookupCode PLUCode = new PriceLookupCode(PLU);
-						PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
-						
-						System.out.println("Please place item on the scale");
-						stationData.setLookedUpProduct(product);
-						stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
-						return;
+				int index = -1;
+				int listLocation = -1, indexLocation = -1;
+				Component[] componentsList = frame.getContentPane().getComponents();
+				for (int i = 0; i < componentsList.length; i++) {
+					if (componentsList[i].getName() == "invisibleProduct") {
+						listLocation = i;
+                    }
+					else if(componentsList[i].getName() == "inventoryLetter"){
+						indexLocation = i;
 					}
+				}
+				if(indexLocation != -1) {
+					index = ((JList) ((JScrollPane) componentsList[indexLocation]).getViewport().getView()).getSelectedIndex();
+				}
+				if (index != -1) {
+					String PLU = (String) ((JList) componentsList[listLocation]).getModel().getElementAt(index);
+					PriceLookupCode PLUCode = new PriceLookupCode(PLU);
+					PLUCodedProduct product = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+					System.out.println("Please place item on the scale");
+					stationData.setLookedUpProduct(product);
+					stationData.changeState(StationState.WAITING_FOR_LOOKUP_ITEM);
+					return;
 				}	
 			}
 		});

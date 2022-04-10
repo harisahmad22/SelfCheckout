@@ -25,7 +25,7 @@ public class BarcodedProductDatabaseTest {
 	public void setUp() {
 		BarcodedTestProducts = new TestBarcodedProducts();
 		Barcoded_Product_Database = new BarcodedProductDatabase(BarcodedTestProducts.getBarcodedProductList());
-		barcode = new Barcode(new Numeral[] { Numeral.four });
+		barcode = new Barcode(new Numeral[] { Numeral.nine });
 		description = "Apple Juice 1L";
 		price = new BigDecimal("3.79");
 		weight = 1000;
@@ -34,14 +34,14 @@ public class BarcodedProductDatabaseTest {
 	@Test
 	public void testAddBarcodedProductToDatabase() {
 		Barcoded_Product_Database.addBarcodedProductToDatabase(barcode, weight, description, price);
-		assertTrue(Barcoded_Product_Database.getDatabase().size() == 4);
+		assertTrue(Barcoded_Product_Database.getDatabase().size() == 7);
 	}
 
 	@Test
 	public void testAddBarcodedProductToDatabase2() {
 		double doublePrice = 3.79;
 		Barcoded_Product_Database.addBarcodedProductToDatabase(barcode, weight, description, doublePrice);
-		assertTrue(Barcoded_Product_Database.getDatabase().size() == 4);
+		assertTrue(Barcoded_Product_Database.getDatabase().size() == 7);
 	}
 
 	@Test
@@ -49,14 +49,14 @@ public class BarcodedProductDatabaseTest {
 		String stringPrice = "3.79";
 		String stringWeight = "1000";
 		Barcoded_Product_Database.addBarcodedProductToDatabase(barcode, stringWeight, description, stringPrice);
-		assertTrue(Barcoded_Product_Database.getDatabase().size() == 4);
+		assertTrue(Barcoded_Product_Database.getDatabase().size() == 7);
 	}
 
 	@Test
 	public void testAddBarcodedProductToDatabase4() {
 		BarcodedProduct testProduct = new BarcodedProduct(barcode, description, price, weight);
 		Barcoded_Product_Database.addBarcodedProductToDatabase(testProduct);
-		assertTrue(Barcoded_Product_Database.getDatabase().size() == 4);
+		assertTrue(Barcoded_Product_Database.getDatabase().size() == 7);
 	}
 
 	@Test
@@ -70,6 +70,6 @@ public class BarcodedProductDatabaseTest {
 	public void testRemoveBarcodedProductFromDatabase() {
 		Barcoded_Product_Database.addBarcodedProductToDatabase(barcode, weight, description, price);
 		Barcoded_Product_Database.removeBarcodedProductFromDatabase(barcode);
-		assertTrue(Barcoded_Product_Database.getDatabase().size() == 3);
+		assertTrue(Barcoded_Product_Database.getDatabase().size() == 6);
 	}
 }
