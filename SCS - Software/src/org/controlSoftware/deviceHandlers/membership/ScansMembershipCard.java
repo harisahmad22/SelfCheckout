@@ -50,7 +50,6 @@ public class ScansMembershipCard implements CardReaderObserver{
 		this.stationData = stationData;
 		this.stationSoftware = stationSoftware;
 		this.station = stationData.getStationHardware();
-//		station.cardReader.attach(this);
 		this.membershipCards = new MembershipDatabase().getDatabase();
 		this.paymentHandler = this.stationSoftware.getCardPaymentSoftware();
 	}
@@ -99,15 +98,12 @@ public class ScansMembershipCard implements CardReaderObserver{
 		if ((stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
 			String type = data.getType();
 			String[] memberCard = {"member", "Member"};
-//			if((type.indexOf(memberCard[0]) > 0) || (type.indexOf(memberCard[1]) > 0) ) {
 			if(type.equals("Member") || type.equals("member")) {
 				String cardNum = data.getNumber();
 				if(membershipCards.containsKey(cardNum) == true) {
 					scanSuccessful = new AtomicBoolean(true);
 					stationData.setMembershipID(data.getNumber());
 					stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
-//					paymentHandler.membershipCardScanSuccessful(getPercentDiscount());
-					
 				}
 				else {
 					//membership number does not exist
@@ -117,15 +113,9 @@ public class ScansMembershipCard implements CardReaderObserver{
 			}
 			else {
 				//card not of type membership
-				System.out.println("ASDASD");
 				stationData.changeState(StationState.BAD_MEMBERSHIP);
-				paymentHandler.membershipScanUnsuccessful();		}
-			
-			/*
-			if (checkout.getCardSwiped() && (data.getType() == "Membership") && (checkout.isWaitingForMembership())) {
-				checkout.setMembershipNumber(data.getNumber());
+				paymentHandler.membershipScanUnsuccessful();	
 			}
-			*/
 		}
 	}
 	
@@ -137,7 +127,6 @@ public class ScansMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardSwiped(CardReader reader) {
-		//checkout.setCardSwiped(true); //Inform checkout of swipe		//idk if this is still needed
 	}
 	
 	/**
@@ -196,15 +185,4 @@ public class ScansMembershipCard implements CardReaderObserver{
 			paymentHandler.membershipScanUnsuccessful();	//something to inform customer of unsuccessful scan
 		}
 	}
-
-	// OLD METHOD  
-	// @Override
-	// public void cardDataRead(CardReader reader, CardData data) {
-	// 	if (stationData.getCardSwiped() && (data.getType() == "Membership") && (stationData.getCurrentState() == StationState.ASK_MEMBERSHIP)) {
-	// 		stationData.setMembershipID(data.getNumber());
-	// 		stationData.setCardSwiped(false); //Reset flag for next event
-	// 		stationData.changeState(StationState.CHECKOUT);
-	// 		stationData.getStationSoftware().getCheckoutHandler().startCheckout();
-	// 	}
-	// }
 }

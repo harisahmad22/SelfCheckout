@@ -132,13 +132,11 @@ public class AttendantData {
 		case WEIGHT_ERROR:
 			break;
 		
-		case INACTIVE:
-							
+		case INACTIVE:	
 			//SIGNAL GUI TO CLOSE ALL WINDOWS
 			break;
 		
 		case ACTIVE:
-			
 			//SIGNAL GUI TO DISPLAY MAIN ATTENDANT WINDOW
 			break;
 			

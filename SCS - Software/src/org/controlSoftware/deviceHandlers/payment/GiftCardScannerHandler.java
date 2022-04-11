@@ -151,39 +151,4 @@ public class GiftCardScannerHandler implements CardReaderObserver
 	        }
 		}
 	}
-
-//    public void payWithGiftCard(String GiftCardNumber)
-////    		BigDecimal valuePurchase, 
-////    		GiftCardDatabase giftCardDB)
-//    {
-//    	BigDecimal paymentAmount = stationData.getTransactionPaymentAmount();
-//        Map<String, GiftCardInfo> giftCardDataBase = stationData.getGiftCardDatabase().getDatabase();
-//        GiftCardInfo giftCard = giftCardDataBase.get(GiftCardNumber);
-//        if(paymentAmount.equals(giftCard.getBalance()) || (paymentAmount.compareTo(giftCard.getBalance()) == 1))
-//        {
-//        	giftCard.updateBalance(giftCard.getBalance());
-//        	stationData.addToTotalPaidThisTransaction(giftCard.getBalance());
-//            stationData.addToTotalPaid(giftCard.getBalance());
-//            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
-//            
-////            valuePurchase = valuePurchase.subtract(giftCard.getBalance());
-////            giftCard.updateBalance(giftCard.getBalance());
-//             // as all the value has been used up
-////            return valuePurchase;
-//            return;
-//        }
-//
-//        else
-//        {
-//            giftCard.updateBalance(paymentAmount);
-//            
-//            stationData.addToTotalPaidThisTransaction(paymentAmount);
-//            stationData.addToTotalPaid(paymentAmount);
-//            stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
-////            paymentAmount.valueOf(0); // as we paid for the entire purchase
-//            
-////            return valuePurchase;
-//            return;
-//        }
-//    }
 }

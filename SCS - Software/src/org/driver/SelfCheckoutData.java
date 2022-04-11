@@ -1,6 +1,5 @@
 package org.driver;
 
-
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Currency;
@@ -12,7 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.databases.BarcodedProductDatabase;
@@ -52,9 +50,6 @@ import org.lsmr.selfcheckout.products.Product;
  *  
  *  Just attributes with getters/setters.
  *  
- *  **TO-DO
- *  Exception handling
- *  Input validation?
  *  
  */
 
@@ -75,7 +70,6 @@ public class SelfCheckoutData {
 	public Coin loonie = new Coin(CAD, new BigDecimal("1.00"));
 	public Coin toonie = new Coin(CAD, new BigDecimal("2.00"));
 
-//	private TouchScreenSoftware touchScreenSoftware;
 	//============================Hardware Devices============================ 
 	private SelfCheckoutStation stationHardware;
 
@@ -88,29 +82,17 @@ public class SelfCheckoutData {
 	private CardReader cardReader;
 	// ============================Hardware Devices============================
 
-	// Can't make attributes static, unfortunately, as multiple machines will all
-	// have their own data.
 	private BigDecimal totalDue = BigDecimal.ZERO;
 	private BigDecimal totalMoneyPaid = BigDecimal.ZERO;
 	private BigDecimal totalPaidThisTransaction = BigDecimal.ZERO;
 	private BigDecimal transactionPaymentAmount = BigDecimal.ZERO;
 	private int transactionPaymentMethod = -1;
-
-	//Unused
-//	private double expectedWeightNormalMode = 0;
-//	private double expectedWeightCheckout = 0;
-//	private double expectedWeightScanner = 0;
-	//unused
 	
 	private double expectedWeight = 0;
 
 	private String guiBuffer = null;
 	
-	private TouchScreenSoftware touchScreen;
-	
-	
 	//The amount a product's weight can differ +/- from the listed weight in the lookup
-
 	private double baggingAreaWeightVariability = 15;
 
 	private static double bagWeight = 40;
@@ -131,8 +113,6 @@ public class SelfCheckoutData {
 																										// changed
 
 	// Product Lookup
-	private ProductDatabases productDatabases;
-
 	private PLUCodedProduct lookedUpProduct;
 
 	// ============================Software Flags============================
@@ -155,8 +135,6 @@ public class SelfCheckoutData {
 	private AtomicBoolean isScannerWaitingForWeightChange = new AtomicBoolean(false);
 
 	private AtomicBoolean isCheckoutWaitingForCreditCard = new AtomicBoolean(false);
-	private AtomicBoolean isCheckoutWaitingForDebitCard = new AtomicBoolean(false);
-	private AtomicBoolean isCheckoutWaitingForGiftCard = new AtomicBoolean(false);
 	private AtomicBoolean isCheckoutWaitingForMembership = new AtomicBoolean(false);
 
 	private AtomicBoolean ATTENDANT_BLOCK = new AtomicBoolean(false);
@@ -191,12 +169,11 @@ public class SelfCheckoutData {
 		this.scanningAreaScale = this.stationHardware.scanningArea;
 		this.cardReader = this.stationHardware.cardReader;
 		
-		
 		//Initialize Card Issuers
 		creditCardIssuer = new CardIssuer("Credit"); 
 		debitCardIssuer = new CardIssuer("Debit"); 
 		
-		populateCardIssuers();
+		populateCardIssuers(); // Give each card issuer a test card
 		
 		//Initialize Databases
 		
@@ -275,12 +252,6 @@ public class SelfCheckoutData {
 		
 		// State for prompting user to choose how they would like to pay 
 		PAYMENT_MODE_PROMPT,
-		
-		// State for adding bags. Help scale observers differentiate reason for weight change.
-		// ADDING_BAGS,
-
-		// Interim checkout menu, can go back and scan more items or proceed to some
-		// payment option
 
 		// Scanning.
 		SCANNING,
@@ -309,9 +280,6 @@ public class SelfCheckoutData {
 		// After they have made a decision, check if there is still money to be paid. If so, move to NORMAL state, otherwise 
 		// go to WELCOME state
 		PRINT_RECEIPT_PROMPT,
-		
-		// Dedicated state for scanning membership card/typing number
-//		ADD_MEMBERSHIP,
 		
 		// General post-checkout state, check if more payment is needed, if so move to NORMAL state.
 		// Otherwise move to CLEANUP state
@@ -354,7 +322,10 @@ public class SelfCheckoutData {
 		BAD_PLU, 
 		
 		// State to inform user that their membership is invalid 
-		BAD_MEMBERSHIP
+		BAD_MEMBERSHIP, 
+		
+		// State to inform user that their card is invalid
+		BAD_CARD
 	}
 
 
@@ -375,20 +346,13 @@ public class SelfCheckoutData {
 		switch(targetState) {
 		
 		case INACTIVE:
-			stationHardware.mainScanner.disable();
-			stationHardware.handheldScanner.disable();
-			stationHardware.scanningArea.disable();
 			disableAllDevices();
 			wipeSessionData();
-			
 			//SIGNAL GUI TO CLOSE ALL WINDOWS
 			break;
 
 		case WELCOME:
-			stationHardware.mainScanner.disable();
-			stationHardware.handheldScanner.disable();
-			stationHardware.scanningArea.disable();
-			disablePaymentDevices();
+			disableAllDevices();
 			wipeSessionData(); 
 			
 			//SIGNAL GUI TO DISPLAY WELCOME SCREEN WINDOW
@@ -399,12 +363,9 @@ public class SelfCheckoutData {
 			stationHardware.mainScanner.enable();
 			stationHardware.handheldScanner.enable();
 			stationHardware.scanningArea.enable();
-			try {
-				setExpectedWeight(stationHardware.baggingArea.getCurrentWeight());
-			} catch (OverloadException e) {
-				System.out.println("Error! Scale overloaded during transition to NORMAL state!");
-				e.printStackTrace();
-			}
+			try { setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
+			catch (OverloadException e) 
+			{ System.out.println("Error! Scale overloaded during transition to NORMAL state!"); }
 			break;
 		
 		case PROCESSING_SCAN:
@@ -414,14 +375,12 @@ public class SelfCheckoutData {
 			break;
 			
 		case CHECKOUT:
-			stationHardware.mainScanner.disable();
-			stationHardware.handheldScanner.disable();
+			disableScannerDevices();
+			stationHardware.scanningArea.disable();
 			disablePaymentDevices();
-//			stationSoftware.getCheckoutHandler().startCheckout();
 			break;
 			
 		case CHECKOUT_CHECK:
-			
 			break;
 			
 		case BAD_PLU:
@@ -430,49 +389,38 @@ public class SelfCheckoutData {
 		case BAD_MEMBERSHIP:
 			break;
 			
+		case BAD_CARD:
+			break;
+			
 		case PARTIAL_PAYMENT_KEYPAD:
 			break;
-		
-		case CLEANUP:
-			stationHardware.mainScanner.disable();
-			stationHardware.handheldScanner.disable();
-			stationHardware.scanningArea.disable();
-			disablePaymentDevices();
-			break;
 
-		case BAGGING:
-			//Bagging Area should always be enabled
-//			station.baggingArea.enable(); 
+		case BAGGING: 
 			break;
 			
 		case WAITING_FOR_ITEM:
-//			System.out.println("WAITING FOR ITEM");
 			break;
 			
 		case WAITING_FOR_LOOKUP_ITEM:
+			stationHardware.scanningArea.enable();
 			break;
 			
 		case WEIGHT_ISSUE:
 			System.out.println("WEIGHT ISSUE DETECTED!!!");
-			//TODO GUI Window will have a skip bagging button that will force a state change to 
-			// the preblocked state
 			setPreBlockedState(this.getCurrentState());
 			break;
 			
 		case ADD_BAGS_PROMPT:
 			System.out.println("Do you have any bags?");
-//			stationSoftware.getTouchScreenSoftware().usingOwnBagsPrompt();
 			break;
 		
 		case PAYMENT_AMOUNT_PROMPT:
 			//Ask user if they would like to pay partial or full
-//			stationSoftware.getTouchScreenSoftware().choosePaymentAmount( getTotalDue(), getTotalMoneyPaid());
 			break;
 		
 			
 		case PAYMENT_MODE_PROMPT:
-			//Ask user how they would like to pay (Cash, Credit, Debt) TODO 
-//			stationSoftware.getTouchScreenSoftware().showPaymentMethods();
+			//Ask user how they would like to pay (Cash, Credit, Debt, giftcard)
 			break;
 
 		case ADDING_BAGS:
@@ -486,11 +434,6 @@ public class SelfCheckoutData {
 		case PLU_SEARCH:
 			break;
 			
-//		case PAID:
-//			//Intermediate state that will handle checking if change is needed to be given
-//			
-//			break;
-//			
 		case PRINT_RECEIPT_PROMPT:
 			// User has paid the current transaction amount, check for change
 			// dispense, and update receipt. Then inform GUI to display receipt prompt window 
@@ -501,9 +444,6 @@ public class SelfCheckoutData {
 			stationHardware.printer.enable();
 			setMidPaymentFlag(false);
 			stationSoftware.getCheckoutHandler().handleChange();
-			
-			// Prompt touch screen to ask user if they would like a receipt
-//			stationSoftware.getTouchScreenSoftware().askToPrintReceipt(stationSoftware.getReceiptHandler());
 			break;
 
 		case PAY_CASH:
@@ -519,32 +459,22 @@ public class SelfCheckoutData {
 			//state will change to the PRINT_RECEIPT_PROMPT state, which will determine if system 
 			//needs to give change, ask to print receipt, then go to the CLEANUP or NORMAL state
 			//depending on if there is still a total due to be paid off
-			
-//			stationSoftware.getCheckoutHandler().payWithCash(getTransactionPaymentAmount());
 			break;
 
 		case PAY_CREDIT:
-			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 
 		case PAY_DEBIT:
-			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 			
 		case PAY_GIFTCARD:
-			setMidPaymentFlag(true);
 			stationHardware.cardReader.enable();
 			break;
 			
 		case INSUFFICIENT_FUNDS:
 			break;
-			
-//		case ADD_MEMBERSHIP:
-//			stationSoftware.getReceiptHandler().setMembershipID(getMembershipID());
-//			break;
-
 			
 		case ASK_MEMBERSHIP:
 			try { setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
@@ -552,7 +482,6 @@ public class SelfCheckoutData {
 			{ System.out.println("Bagging area scale overload during ask membership state change!"); }
 			stationHardware.cardReader.enable();
 			setWaitingForMembership(true);
-//			stationSoftware.getTouchScreenSoftware().inputMembershipPrompt();
 		    //Method will change state to Checkout if user manually entered ID
 			//Otherwise system will change to checkout state after card is swiped
 			break;
@@ -574,10 +503,6 @@ public class SelfCheckoutData {
 			ATTENDANT_BLOCK.set(true);
 			setPreBlockedState(this.getCurrentState());
 			disableAllDevices();
-			//Add a method to inform the station GUI of the block
-			//Should show a window informing user of block (no inputs)
-			//All GUI listeners should check if Attendant_block is true.
-			//If so, just ignore the input/event
 			break;
 
 		case ERROR:
@@ -616,29 +541,16 @@ public class SelfCheckoutData {
 		case CHECKOUT:
 			break;
 			
-		case CLEANUP:
-			//Disable all payment/scanning devices
-			disablePaymentDevices();
-			disableScannerDevices();
-			// State will only be left once bagging area scale handler detects
-			// weight on scale is 0, at which point system returns to the WELCOME state
-			break;
-
 		case BAGGING:
-			//Should always be enabled
-//			station.baggingArea.disable();
 			break;
 			
 		case ADD_BAGS_PROMPT:
-			System.out.println("Exiting Add bags prompt");
 			break;
 			
 		case PAYMENT_AMOUNT_PROMPT:
-			System.out.println("Exiting Payment amount prompt, transaction payment amount should be updated!");
 			break;
 
 		case ADDING_BAGS:
-			System.out.println("Add bags state change");
 			break;
 
 		case PAY_CASH:
@@ -663,8 +575,6 @@ public class SelfCheckoutData {
 			
 		case BLOCKED:
 			ATTENDANT_BLOCK.set(false);
-			//Add a method to inform the station of the block removal
-			
 			break;
 
 		case ERROR:
@@ -744,8 +654,6 @@ public class SelfCheckoutData {
 		else {
 			productsAddedToCheckout.put(product.getDescription(), PI);
 		}
-		
-//		changeState(StationState.WAITING_FOR_ITEM);
 	}
 	
 	public void addProductToCheckout(BarcodedProduct product) {
@@ -794,7 +702,6 @@ public class SelfCheckoutData {
 		{
 			setTotalDue(getTotalDue().subtract(product.getProduct().getPrice()));
 			setExpectedWeight(getExpectedWeight() - product.getWeight());
-			//changeState(StationState.WAITING_FOR_ITEM);
 		}
 	}
 
@@ -806,18 +713,10 @@ public class SelfCheckoutData {
 		return guiBuffer;
 	}
 	
-	// public void addScannedProduct(Product product) {
-	// 	scannedProductList.add(product);
-	// }
-
 	
 	public void attachStationSoftware(SelfCheckoutSoftware stationSoftware) {
 		this.stationSoftware = stationSoftware;
 	}
-	
-//	public StationState getCurrentState() {
-//		return currentState;
-//	}
 	
 	private void notifyStateChanged() {
 		gui.stateChanged();
@@ -830,7 +729,7 @@ public class SelfCheckoutData {
 		transactionPaymentAmount = BigDecimal.ZERO;
 		totalPaidThisTransaction = BigDecimal.ZERO;
 		isFirstCheckout.set(true);
-		setAllExpectedWeights(0.0);
+		setExpectedWeight(0.0);
 		membershipID = "null\n"; //Default to null, change when membership card is scanned in
 		productsAddedToCheckout = new HashMap<String, ProductInfo>();
 	}
@@ -884,45 +783,7 @@ public class SelfCheckoutData {
 		return expectedWeight;
 		
 	}
-
-//	public void setExpectedWeightCheckout(double weight) {
-//		expectedWeightCheckout = weight;
-//
-//	}
-//
-//	public double getExpectedWeightCheckout() {
-//		return expectedWeightCheckout;
-//
-//	}
-//
-//	public void setExpectedWeightNormalMode(double weight) {
-//		expectedWeightNormalMode = weight;
-//
-//	}
-//
-//	public double getExpectedWeightNormalMode() {
-//		return expectedWeightNormalMode;
-//
-//	}
-//
-//	public void setExpectedWeightScanner(double weight) {
-//		expectedWeightScanner = weight;
-//
-//	}
-//
-//	public double getExpectedWeightScanner() {
-//		return expectedWeightScanner;
-//
-//	}
-//	
-	public void setAllExpectedWeights(double currentWeight) {
-//		setExpectedWeightCheckout(currentWeight);
-//		setExpectedWeightNormalMode(currentWeight);
-//		setExpectedWeightScanner(currentWeight);
-		setExpectedWeight(currentWeight);
 		
-	}
-	
 	//Hannah Ku
 	public boolean isWeightOverride() {
 		return isWeightOverride.get();
@@ -1113,17 +974,17 @@ public void disablePaymentDevices() {
 		this.stationHardware.cardReader.enable();
 	}
 
-	// Disable all devices - NOT FULLY IMPLEMENTED TODO
+	// Disable all devices
 	public void disableAllDevices() {
-		this.stationHardware.baggingArea.disable();
-		this.stationHardware.mainScanner.disable();
+		this.stationHardware.scanningArea.disable();
+		disableScannerDevices();
 		disablePaymentDevices();
 	}
 
-	// Enable all devices - NOT FULLY IMPLEMENTED
+	// Enable all devices
 	public void enableAllDevices() {
-		this.stationHardware.baggingArea.enable();
-		this.stationHardware.mainScanner.enable();
+		this.stationHardware.scanningArea.enable();
+		disableScannerDevices();
 		enablePaymentDevices();
 	}
 
@@ -1249,4 +1110,3 @@ public void disablePaymentDevices() {
 		return thisUnit;
 	}
 }
-

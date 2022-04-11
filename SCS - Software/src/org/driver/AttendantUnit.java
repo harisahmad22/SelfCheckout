@@ -7,6 +7,7 @@ import org.controlSoftware.GUI.SupervisorGUIMaster;
 import org.controlSoftware.attendant.AttendantSoftware;
 import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
+import org.driver.databases.AttendantDatabase;
 import org.driver.databases.PLUProductDatabase;
 import org.driver.databases.PLUTestProducts;
 import org.driver.databases.TestBarcodedProducts;
@@ -23,6 +24,7 @@ public class AttendantUnit {
 	private AttendantSoftware attendantSoftware;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	private AttendantData attendantData;
+	private AttendantDatabase database;
 	private SupervisorGUIMaster gui;
 	
 	public AttendantUnit()
@@ -30,6 +32,7 @@ public class AttendantUnit {
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantData.attachCheckoutStationUnits(checkoutStations);
+		this.database = new AttendantDatabase();
 		this.attendantStation = new SupervisionStation();
 		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
@@ -84,31 +87,6 @@ public class AttendantUnit {
 	}
 
 
-//	public void logInStation(String attendantIdEntered,  String passwordEntered)
-//	{
-//		//System.out.println("Starting station: " + station.getStationID());
-//        System.out.println("Logging in");
-//
-//        ArrayList<String> AttendantIdStored = station.getAttendantID();
-//        ArrayList<String> PasswordStored = station.getPassword();
-//        for(int i = 0 ; i < AttendantIdStored.size(); i++){
-//            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
-//                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
-//                unBlockStation(station);
-//                break;
-//            }
-//        }
-//        System.out.println("Error! Wrong ID or password. Fail to log in.");
-//	}
-//	
-//	
-//	public void logOutStation(SelfCheckoutStationUnit station)
-//	{
-//		System.out.println("Log out: " + station.getStationID());
-//		station.getSelfCheckoutSoftware().LogOutStation();
-//        blockStation(station);
-//	}
-
 	public void stationLogin(String AttendantID, String password) {
 		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION STARTUP
 		
@@ -158,6 +136,10 @@ public class AttendantUnit {
 	
 	public AttendantData getAttendantData() {
 		return attendantData;
+	}
+	
+	public AttendantDatabase getDatabase() {
+		return database;
 	}
 
 	public void setAttendantSoftware(AttendantSoftware attendantSoftware) {
