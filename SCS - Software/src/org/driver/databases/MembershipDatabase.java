@@ -21,13 +21,6 @@ public class MembershipDatabase {
 	{		
 		membershipDB.put(memberID, points);
 	}
-
-	// public void updateGiftCard(String giftCardID, Double value) // dont know when to update
-	// {		
-	// 	//update the database if gift card has been used
-	// 	GiftCardInfo giftCard = giftCardDB.get(giftCardID);
-	// 	giftCardDB.replace(giftCardID, value);
-	// }
 	
 	public Map<String, Integer> getDatabase()
 	{

@@ -222,7 +222,6 @@ public class SelfCheckoutSoftware {
 				stationData.changeState(StationState.WELCOME);
 				return;
 			}
-
 	}
 
 
@@ -245,20 +244,12 @@ public class SelfCheckoutSoftware {
 		return;
 	}
 
-
-//	public void performAttendantWeightOverride() {
-//		//TODO Set the Weight Override flag in SelfCheckoutData to true, will cause all loop tests in weight handlers to eval to true
-//		
-//	}
-
 	public void blockStation() {
 		if (stationData.getCurrentState() == StationState.NORMAL
 		 || stationData.getCurrentState() == StationState.WELCOME)
 		{
-			//In normal/welcome state, need to change to blocked state and immediately perform 
-			//an attendant block check
+			//In normal/welcome state, need to change to blocked state 
 			this.stationData.changeState(StationState.BLOCKED);
-//			attendantBlockCheck("Normal State");
 			return;
 		}
 		else if (stationData.getCurrentState() == StationState.INACTIVE)
@@ -277,7 +268,6 @@ public class SelfCheckoutSoftware {
 			//methods that wait for User input, and methods that block when an issue is detected
 			
 			this.stationData.changeState(StationState.BLOCKED);
-//			this.stationData.setATTENDANT_BLOCK(true); 
 		}		
 		else 
 		{ 
@@ -320,7 +310,6 @@ public class SelfCheckoutSoftware {
 	public void performAttendantWeightOverride() {
 		if (stationData.getCurrentState() == StationState.WEIGHT_ISSUE)
 		{
-//			stationData.setIsWeightOverride(true);
 			try { stationData.setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
 			catch (OverloadException e) { e.printStackTrace(); }
 			stationData.changeState(stationData.getPreBlockedState());
@@ -384,6 +373,4 @@ public class SelfCheckoutSoftware {
 			return null;
 		}
 	}
-	
-
 }

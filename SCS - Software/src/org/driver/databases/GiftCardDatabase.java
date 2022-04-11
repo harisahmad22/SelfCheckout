@@ -41,13 +41,6 @@ public class GiftCardDatabase {
 		giftCardDB.put(giftCardID, giftCard);
 	}
 
-	// public void updateGiftCard(String giftCardID, Double value) // dont know when to update
-	// {		
-	// 	//update the database if gift card has been used
-	// 	GiftCardInfo giftCard = giftCardDB.get(giftCardID);
-	// 	giftCardDB.replace(giftCardID, value);
-	// }
-	
 	public Map<String, GiftCardInfo> getDatabase()
 	{
 		return giftCardDB;
