@@ -12,7 +12,6 @@ import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
@@ -31,7 +30,6 @@ public class BaggingAreaHandlerTest {
 	private SelfCheckoutStation stationHardware;
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
-	private TouchScreenSoftware touchScreenSoftware;
 	private TestBarcodedProducts testProducts;
 	
 	private ScheduledExecutorService addItemsToScaleScheduler;
@@ -47,8 +45,6 @@ public class BaggingAreaHandlerTest {
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		this.stationData = stationUnit.getSelfCheckoutData();
 		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
-		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
-		
 		this.baggingAreaScaleHandler = new BaggingAreaScaleHandler(stationData, stationSoftware); 
 		
 		//Setup receipt printer

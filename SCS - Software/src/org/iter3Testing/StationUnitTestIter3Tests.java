@@ -19,16 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.controlSoftware.*;
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.data.BankClientInfo;
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
-import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
-import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.AttendantUnit;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
@@ -101,7 +97,6 @@ public class StationUnitTestIter3Tests {
 	private SelfCheckoutStation stationHardware;
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
-	private TouchScreenSoftware touchScreenSoftware;
 	private TestBarcodedProducts testProducts;
 	
 	private ArrayList<SelfCheckoutStationUnit> checkoutStationUnits = new ArrayList<SelfCheckoutStationUnit>();
@@ -120,7 +115,6 @@ public class StationUnitTestIter3Tests {
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		this.stationData = stationUnit.getSelfCheckoutData();
 		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
-		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
 		
 		checkoutStationUnits.add(stationUnit);
 		this.attendantUnit = new AttendantUnit();
@@ -946,7 +940,6 @@ public class StationUnitTestIter3Tests {
     	banknoteChangeValue = 0;
     	stationData.resetCheckoutTotals();
     	stationData.resetTotalPaidThisTransaction();
-    	this.touchScreenSoftware = new TouchScreenSoftware(customInputStream, this.stationUnit.getTouchScreen(), stationData);
     	scheduler.shutdownNow();
 
     }

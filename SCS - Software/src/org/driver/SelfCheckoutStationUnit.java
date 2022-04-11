@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Currency;
 
 import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Coin;
@@ -28,7 +27,6 @@ public class SelfCheckoutStationUnit {
 
 	private SelfCheckoutGUIMaster stationGUI;
 	private TouchScreen touchScreen;
-	private TouchScreenSoftware touchScreenSoftware;
 	
 	private int stationID; //The Number of this station
 
@@ -61,8 +59,6 @@ public class SelfCheckoutStationUnit {
 		this.stationGUI = new SelfCheckoutGUIMaster(station, stationData);
 		this.stationData.registerGUI(stationGUI);
 
-		//TouchScreenSoftware will attach itself to the touch screen
-		this.touchScreenSoftware = new TouchScreenSoftware(System.in, touchScreen, stationData);
 		//SelfCheckoutSoftware will attach the handlers to the hardware
 		this.stationSoftware = new SelfCheckoutSoftware(this, stationData);
 		this.stationData.attachStationSoftware(this.stationSoftware);
@@ -118,11 +114,6 @@ public class SelfCheckoutStationUnit {
 	public TouchScreen getTouchScreen()
 	{
 		return touchScreen;
-	}
-	
-	public TouchScreenSoftware getTouchScreenSoftware()
-	{
-		return touchScreenSoftware;
 	}
 	
 	public static Currency getCurrency()

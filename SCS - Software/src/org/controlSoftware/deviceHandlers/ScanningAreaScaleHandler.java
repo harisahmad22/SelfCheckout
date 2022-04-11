@@ -3,7 +3,6 @@
 package org.controlSoftware.deviceHandlers;
 
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutData.StationState;
@@ -14,22 +13,6 @@ import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 
 public class ScanningAreaScaleHandler implements ElectronicScaleObserver {
-
-	/*
-	 * (Shufan) DONT HAVE TO WORRY ABOUT: - 
-	 * 
-	 * 1) weightChanged is called by ProcessScannedItem observer
-	 * 
-	 * 2) Check if observers are calling weightChanged() - if not then disable
-	 * scanning and touchscreen input until signal received or employee override
-	 * 
-	 * 3) Check if expected weight from the observer is similar to weight obtained
-	 * from scale - within a specific weightVariability - set weightValid to true if
-	 * conditionals met - otherwise set weightvalid to false
-	 * 
-	 * 4) Done
-	 */
-
 
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
@@ -57,7 +40,7 @@ public class ScanningAreaScaleHandler implements ElectronicScaleObserver {
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
 		double weightOnScale = weightInGrams;
-
+		
 		if (!isOverloaded()) {
 			if (stationData.getCurrentState() == StationState.WAITING_FOR_LOOKUP_ITEM) {
 				stationData.addProductToCheckout(stationData.getLookedUpProduct(), weightOnScale);
@@ -69,12 +52,10 @@ public class ScanningAreaScaleHandler implements ElectronicScaleObserver {
 	@Override
 	public void overload(ElectronicScale scale) {
 		stationData.setIsBaggingAreaOverloaded(true);
-		stationSoftware.getTouchScreenSoftware().scaleOverloaded();
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
 		stationData.setIsBaggingAreaOverloaded(false);
-		stationSoftware.getTouchScreenSoftware().overloadFixed();
 	}
 }

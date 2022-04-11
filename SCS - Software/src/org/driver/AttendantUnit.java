@@ -87,31 +87,6 @@ public class AttendantUnit {
 	}
 
 
-//	public void logInStation(String attendantIdEntered,  String passwordEntered)
-//	{
-//		//System.out.println("Starting station: " + station.getStationID());
-//        System.out.println("Logging in");
-//
-//        ArrayList<String> AttendantIdStored = station.getAttendantID();
-//        ArrayList<String> PasswordStored = station.getPassword();
-//        for(int i = 0 ; i < AttendantIdStored.size(); i++){
-//            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
-//                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
-//                unBlockStation(station);
-//                break;
-//            }
-//        }
-//        System.out.println("Error! Wrong ID or password. Fail to log in.");
-//	}
-//	
-//	
-//	public void logOutStation(SelfCheckoutStationUnit station)
-//	{
-//		System.out.println("Log out: " + station.getStationID());
-//		station.getSelfCheckoutSoftware().LogOutStation();
-//        blockStation(station);
-//	}
-
 	public void stationLogin(String AttendantID, String password) {
 		//INFORM GUI TO DISPLAY NOTIFICATION OF STATION STARTUP
 		

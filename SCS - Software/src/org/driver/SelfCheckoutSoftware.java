@@ -16,7 +16,6 @@ import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
 import org.controlSoftware.deviceHandlers.payment.GiftCardScannerHandler;
 import org.controlSoftware.deviceHandlers.payment.PayWithCard;
 import org.controlSoftware.deviceHandlers.payment.CardPaymentSoftware;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
@@ -47,7 +46,6 @@ public class SelfCheckoutSoftware {
 	public BaggingAreaScaleHandler baggingAreaScaleHandler;
 	public ReceiptHandler receiptHandler;
 	
-	private TouchScreenSoftware touchScreenSoftware;
 	private ScansMembershipCard membershipCardHandler;
 	 
 	
@@ -72,7 +70,6 @@ public class SelfCheckoutSoftware {
 		
 		this.stationData = newStationData;
 		
-		this.touchScreenSoftware = new TouchScreenSoftware(System.in, stationUnit.getTouchScreen(), this.stationData);
 		
 		this.receiptHandler = new ReceiptHandler(this.stationUnit, this.stationHardware.printer);
 		
@@ -127,15 +124,6 @@ public class SelfCheckoutSoftware {
 
 	public ReceiptHandler getReceiptHandler() {
 		return receiptHandler;
-	}
-	
-	public TouchScreenSoftware getTouchScreenSoftware() {
-		return touchScreenSoftware;
-	}
-	
-	public void updateTouchScreenSoftware(TouchScreenSoftware tss)
-	{//Used for when we have to change the touchScreen's input stream during testing
-		this.touchScreenSoftware = tss;		
 	}
 
 	public CheckoutHandler getCheckoutHandler() {
@@ -326,31 +314,6 @@ public class SelfCheckoutSoftware {
 	public void handleAttendantBlock(String tag) throws InterruptedException {
 		System.out.println("Method called from: " + tag);
 		this.stationData.changeState(StationState.BLOCKED);
-//		System.out.println("(TESTING) SIMULATING GUI BLOCK");
-////		while(stationData.getATTENDANT_BLOCK())
-////		{
-//			TimeUnit.MILLISECONDS.sleep(1000);
-////		}
-//			System.out.println("(TESTING) SIMULATING GUI UNBLOCK");
-//		System.out.println("Unblocked!");
-	}
-
-	public void handleInvalidWeightNormalMode() {
-		weightIssueHandlerRunning.set(true);
-		stationData.disableAllDevices();
-		getTouchScreenSoftware().invalidWeightInNormalMode();
-		// Loop until scale observer reports a valid weight
-		while (!stationData.getWeightValidNormalMode()) {
-//			TimeUnit.SECONDS.sleep(1); //Check every second
-		}
-
-		//Attendant Block check
-		attendantBlockCheck("SCSoftware");
-		
-		// Weight is now valid, unblock and remove touchscreen message
-		stationData.enableAllDevices();
-		getTouchScreenSoftware().validWeightInNormalMode();
-		weightIssueHandlerRunning.set(false);
 	}
 	
 	//Hannah Ku

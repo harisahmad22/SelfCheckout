@@ -3,7 +3,6 @@
 package org.controlSoftware.deviceHandlers;
 
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutData.StationState;
@@ -92,6 +91,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 		{
 			//Weight is OK
 			//Return to NORMAL state
+			System.out.println(stationData.getMidPaymentFlag());
 			if (stationData.getMidPaymentFlag()) { stationData.changeState(StationState.PAY_CASH); }
 			else { stationData.changeState(StationState.NORMAL); }
 		} 
@@ -135,12 +135,10 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	@Override
 	public void overload(ElectronicScale scale) {
 		stationData.setIsBaggingAreaOverloaded(true);
-		stationSoftware.getTouchScreenSoftware().scaleOverloaded();
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
 		stationData.setIsBaggingAreaOverloaded(false);
-		stationSoftware.getTouchScreenSoftware().overloadFixed();
 	}
 }

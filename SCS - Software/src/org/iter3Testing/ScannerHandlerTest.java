@@ -17,7 +17,6 @@ import org.controlSoftware.deviceHandlers.BaggingAreaScaleHandler;
 import org.controlSoftware.deviceHandlers.ScannerHandler;
 import org.controlSoftware.deviceHandlers.membership.ScansMembershipCard;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
@@ -53,7 +52,6 @@ public class ScannerHandlerTest {
 	private SelfCheckoutStation stationHardware;
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
-	private TouchScreenSoftware touchScreenSoftware;
 	private TestBarcodedProducts testProducts;
 	
 	private ScheduledExecutorService addItemsToScaleScheduler;
@@ -67,9 +65,7 @@ public class ScannerHandlerTest {
 		
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		this.stationData = stationUnit.getSelfCheckoutData();
-		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
-		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
-		
+		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();		
 		
 		//Create some test products/items
 		this.testProducts = new TestBarcodedProducts();
@@ -273,7 +269,6 @@ public class ScannerHandlerTest {
  
     @After
     public void resetState() {
-    	this.touchScreenSoftware = new TouchScreenSoftware(System.in, this.stationUnit.getTouchScreen(), stationData);
     	stationData.resetCheckoutTotals();
 	}
 }

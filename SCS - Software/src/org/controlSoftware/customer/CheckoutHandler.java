@@ -12,9 +12,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.payment.GiveChange;
-import org.controlSoftware.deviceHandlers.payment.PayWithCreditCard;
-import org.controlSoftware.deviceHandlers.payment.PayWithDebitCard;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.SelfCheckoutSoftware;
@@ -268,7 +265,6 @@ public class CheckoutHandler {
 		stationData.setInCleanup(true); // Notify Scale that we are waiting for all items on the scale to be removed
 								// (weight == 0)
 		stationData.resetCheckoutTotals();
-		stationSoftware.getTouchScreenSoftware().takeItemsNotification();
 //		System.out.println("(TESTING) Current Scale weight at cleanup time: " + this.scale.getCurrentWeight());
 		if (stationData.getBaggingAreaScale().getCurrentWeight() > 0.1) { stationData.setWeightValidCheckout(false); } // 0.1 to account for floating point issues
 		else { stationData.setWeightValidCheckout(true); }
@@ -293,8 +289,6 @@ public class CheckoutHandler {
 //		waitingForWeightChangeEvent.compareAndSet(false, true);
 
 		stationData.disablePaymentDevices();
-		stationSoftware.getTouchScreenSoftware().invalidWeightInCheckout();
-		
 		
 		// Loop until scale observer reports a valid weight
 		//Hannah Ku
@@ -309,7 +303,6 @@ public class CheckoutHandler {
 		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enablePaymentDevices();
-		stationSoftware.getTouchScreenSoftware().validWeightInCheckout();
 	}
 
 	private void handleWaitingForBagWeight() throws InterruptedException {
@@ -317,7 +310,6 @@ public class CheckoutHandler {
 //		waitingForWeightChangeEvent.compareAndSet(false, true);
 
 		stationData.disablePaymentDevices();
-		stationSoftware.getTouchScreenSoftware().addBagsToBaggingArea();
 		
 		// Loop until scale observer reports a valid weight
 		//Hannah Ku
@@ -332,6 +324,5 @@ public class CheckoutHandler {
 		
 		// Weight is now valid, unblock and remove touchscreen message
 		stationData.enablePaymentDevices();
-		stationSoftware.getTouchScreenSoftware().bagsPutInBaggingArea();
 	}	
 }

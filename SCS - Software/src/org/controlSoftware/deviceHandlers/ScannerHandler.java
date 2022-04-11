@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.controlSoftware.customer.CheckoutHandler;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutData.StationState;
@@ -68,12 +67,10 @@ public class ScannerHandler implements BarcodeScannerObserver
 			double scannedItemWeight = scannedProduct.getExpectedWeight();
 			double scannedItemWeightInKG = scannedItemWeight/1000; // Convert grams to KG
 			
-			
 			if (scannedProduct.isPerUnit()) 
 			{
 				//Item is priced per unit, since only one item can be scanned at once, just 
-				//add the price of this item to the customer's total
-				
+				//add the price of this item to the customer's total				
 				stationData.addToTotalCost(scannedItemPrice);
 			}
 
@@ -92,9 +89,7 @@ public class ScannerHandler implements BarcodeScannerObserver
 		else
 		{
 			//Item not found in lookup
-			//Report Error to touchscreen
 			System.out.println("Informing Touch Screen of invalid barcode.");
-			stationSoftware.getTouchScreenSoftware().invalidBarcodeScanned();
 			stationData.changeState(StationState.NORMAL); 
 			return;
 		}

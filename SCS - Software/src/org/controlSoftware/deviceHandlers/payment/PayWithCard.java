@@ -36,10 +36,7 @@ public class PayWithCard implements CardReaderObserver {
 	protected boolean useAllGiftCard = false;
 	protected boolean checkGiftCardBalance = true;
 	
-	
-	//put Div's giftcard class into same branch, import and remember to set up!!!
 	private GiftCardDatabase giftCards;
-//	private CardPaymentSoftware paymentSoftware;
 	
 	
 	//card issuers have unique card types that correspond with them (ex. "xxx company debit" or "a company visa credit")
@@ -50,11 +47,7 @@ public class PayWithCard implements CardReaderObserver {
 	public PayWithCard(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
 		this.stationData = stationData;
 		this.stationSoftware = stationSoftware;
-		this.station = stationData.getStationHardware();
-//		station.cardReader.attach(this);
-		
-//		this.paymentSoftware = this.stationSoftware.getCardPaymentSoftware();
-		
+		this.station = stationData.getStationHardware();		
 	}
 	
 	//map card type to specific card issuer
@@ -116,50 +109,6 @@ public class PayWithCard implements CardReaderObserver {
 		return paymentSuccessful;		
 	}
 	
-	/*
-	public boolean payWithGiftCard(CardData data) {
-		boolean paymentSuccessful = false;
-		String cardNum = data.getNumber();
-	
-			
-		BigDecimal amountOnGiftCard = BigDecimal.valueOf(giftCards.get(cardNum));
-		
-		//customer chooses to use entire giftcard
-		//does not matter if giftcard has 0 or not, will process it as successful
-		//(customer chooses to use entire giftcard, if $0, then customer chooses to use all of that :D
-		//there should be something before hand that informs customer of amount left on card!!
-		if(useAllGiftCard == true) {
-			if(paymentTotal.compareTo(amountOnGiftCard) >= 0) {
-				giftCards.updateGiftCard(cardNum, 0.00);
-				payment.paid(amountOnGiftCard);
-				paymentSuccessful = true;
-			}
-			else {
-				BigDecimal amountLeft =  amountOnGiftCard.subtract(paymentTotal);
-				giftCards.updateGiftCard(cardNum, amountLeft.doubleValue());
-				paymentSuccessful = true;
-			}
-				
-		}
-		
-		//customer chooses certain amount of the giftcard to use
-		//paymentAmount is the amount inputed by customer to use
-		else {
-			if(amountOnGiftCard.compareTo(paymentAmount) >= 0) {
-				amountOnGiftCard = amountOnGiftCard.subtract(paymentAmount);
-				giftCards.updateGiftCard(cardNum, amountOnGiftCard.doubleValue());
-				payment.paid(amountOnGiftCard);
-				paymentSuccessful = true;
-			}
-			else {
-				return paymentSuccessful;
-			}
-		}
-		
-		return paymentSuccessful;
-		
-	}
-	*/
 	/**
 	    * Check if the customer has removed their card
 	    */
@@ -171,7 +120,6 @@ public class PayWithCard implements CardReaderObserver {
 		}
 		
 		public void reset() {
-//			cardIssuer = null;
 			cardData = null;
 			success = false;
 			paymentAmount = new BigDecimal("0");
@@ -224,11 +172,9 @@ public class PayWithCard implements CardReaderObserver {
 			case "Debit":
 				success = payWithDebit(cardData);
 				if(success == true) {
-//					paymentSoftware.debitPaymentSuccessful();
 					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
 				}
 				else {
-//					paymentSoftware.debitPaymentUnsuccessful();
 					stationData.changeState(StationState.BAD_CARD);
 				}
 				break;
@@ -236,11 +182,9 @@ public class PayWithCard implements CardReaderObserver {
 			case "Credit":
 				success = payWithCredit(cardData);
 				if(success == true) {
-//					paymentSoftware.creditPaymentSuccessful();
 					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
 				}
 				else {
-//					paymentSoftware.creditPaymentUnsuccessful();
 					stationData.changeState(StationState.BAD_CARD);
 				}
 				break;

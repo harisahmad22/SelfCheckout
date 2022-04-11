@@ -11,7 +11,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.controlSoftware.customer.CheckoutHandler;
 import org.controlSoftware.deviceHandlers.ReceiptHandler;
 import org.controlSoftware.deviceHandlers.payment.CashPaymentHandler;
-import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
@@ -36,7 +35,6 @@ public class CashPaymentHandlerTest {
 	private SelfCheckoutStation stationHardware;
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
-	private TouchScreenSoftware touchScreenSoftware;
 	private CashPaymentHandler cashPaymentHandler;
 	private ReceiptHandler receiptHandler;
 	private static Banknote fiveDollarBanknote = new Banknote(SelfCheckoutStationUnit.getCurrency(), 5);
@@ -50,7 +48,6 @@ public class CashPaymentHandlerTest {
 		this.stationHardware = stationUnit.getSelfCheckoutStationHardware();
 		this.stationData = stationUnit.getSelfCheckoutData();
 		this.stationSoftware = stationUnit.getSelfCheckoutSoftware();
-		this.touchScreenSoftware = stationUnit.getTouchScreenSoftware();
 		
 		this.cashPaymentHandler = new CashPaymentHandler(stationData);
 		

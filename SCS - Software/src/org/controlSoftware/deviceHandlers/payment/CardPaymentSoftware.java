@@ -12,7 +12,6 @@ public class CardPaymentSoftware {
 
 	private SelfCheckoutData stationData;
 	private SelfCheckoutStation station;
-//	private CheckoutHandler checkoutHandler;
 	
 	private BigDecimal amountOwed = new BigDecimal(0);
 	private BigDecimal amountPaid = new BigDecimal(0);
