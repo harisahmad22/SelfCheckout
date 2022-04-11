@@ -99,6 +99,8 @@ public class SelfCheckoutSoftware {
 	
 	public void attachObservers()
 	{
+		this.stationHardware.printer.attach(receiptHandler);
+		
 		this.stationHardware.mainScanner.attach((BarcodeScannerObserver) scannerHandler);
 		this.stationHardware.handheldScanner.attach((BarcodeScannerObserver) scannerHandler);
 		
