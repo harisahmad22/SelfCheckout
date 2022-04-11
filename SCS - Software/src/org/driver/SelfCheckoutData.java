@@ -96,6 +96,7 @@ public class SelfCheckoutData {
 	private double baggingAreaWeightVariability = 15;
 
 	private static double bagWeight = 40;
+	private static BigDecimal bagPrice = new BigDecimal(0.05);
 	private String membershipID = "null"; // Default to null, change when membership card is scanned in
 	private String giftCardNo = "null";
 	// No implementation yet
@@ -325,7 +326,9 @@ public class SelfCheckoutData {
 		BAD_MEMBERSHIP, 
 		
 		// State to inform user that their card is invalid
-		BAD_CARD
+		BAD_CARD,
+		
+		ASK_STORE_BAGS,
 	}
 
 
@@ -494,6 +497,9 @@ public class SelfCheckoutData {
 			break;
 		
 		case ASK_BAGS:
+			break;
+			
+		case ASK_STORE_BAGS:
 			break;
 
 		case FINISHED:
@@ -795,6 +801,10 @@ public class SelfCheckoutData {
 	
 	public double getBagWeight() {
 		return bagWeight;
+	}
+	
+	public BigDecimal getBagPrice() {
+		return bagPrice;
 	}
 
 	public boolean getWeightValidCheckout() {
