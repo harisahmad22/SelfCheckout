@@ -1,5 +1,6 @@
 //Brody Long - 30022870 
 //Kamrul Ahsan Noor- 30078754
+// Divyansh Rana - 30117089
 
 package org.iter3Testing;
 
@@ -924,17 +925,8 @@ public class StationUnitTestIter3Tests {
 	@Test
     public void clearingAfterCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException
 	{
-		    	//Change will not be given out
-    	//Weight does not change during payment
-    	//Cleanup will be tested in here also
-    	BigDecimal total = new BigDecimal("5");
-    	stationData.setTotalDue(total); //Add $5 to total cost
-    	//Bypass startCheckout method
-    	stationData.setInCheckout(true);
     	//$4 in coins to pay before adding another item
     	Coin[] coins = { toonie, toonie};
-    	//$5 in coins to pay remaining balance
-    	Coin[] coins2 = { toonie, toonie, loonie }; 
     
     	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
     	//There is a 1 second delay between each coin insertion.
@@ -946,18 +938,19 @@ public class StationUnitTestIter3Tests {
     	//Put item on scale after 5.5 seconds    	
     	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 5500, TimeUnit.MILLISECONDS);
     	
-    	//Pay remaining balance after 9.5 seconds
-    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
-
+		//Bypass startCheckout method
+		stationData.setInCheckout(true); 
+		stationSoftware.getCheckoutHandler().payWithCash(new BigDecimal("4"));
+		stationData.changeState(StationState.CLEANUP);
 		//remove item from scale after 5.5 seconds    	
 		scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 10500, TimeUnit.MILLISECONDS);
     	
     	
 //    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
+    	Thread.sleep(11000);
     	
-    	stationSoftware.getCheckoutHandler().payWithCash(total);
-    	
-    	assertTrue(stationData.getTotalMoneyPaid().equals(new BigDecimal("9.00"))); 
+		// the state changes to welcome from clean up when all the items on the scale have been removed
+    	assertTrue(stationData.getCurrentState() == StationState.WELCOME); 
 	}
 //	@Test(expected = NegativeNumberException.class)
 //	public void testInvalidBagWeight()
