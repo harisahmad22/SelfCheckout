@@ -51,27 +51,31 @@ public class StoreInventoryTest {
 		storeInventory.addBarcodeProductsToInventory(barcodeProduct, 1);
 		assertTrue(storeInventory.getDatabase().get(barcodeProduct) == 1);
 	}
-
+	
 	@Test
 	public void testUpdatePLUProductQuantity() {
-		storeInventory.updatePLUProductQuantity(PLUproduct, 3);
-		assertTrue(storeInventory.getDatabase().get(PLUproduct) == 3);
+		storeInventory.addPLUProductsToInventory(PLUproduct, 3);
+		storeInventory.updatePLUProductQuantity(PLUproduct, 2);
+		assertTrue(storeInventory.getDatabase().get(PLUproduct) == 1);
 	}
 
 	@Test(expected = NegativeNumberException.class)
 	public void testUpdatePLUProductQuantityNegative() {
-		storeInventory.updatePLUProductQuantity(PLUproduct, -1);
+		storeInventory.addPLUProductsToInventory(PLUproduct, 1);
+		storeInventory.updatePLUProductQuantity(PLUproduct, 2);
 	}
 
 	@Test
 	public void testUpdateBarcodeProductsQuantity() {
-		storeInventory.updateBarcodeProductsQuantity(barcodeProduct, 3);
-		assertTrue(storeInventory.getDatabase().get(barcodeProduct) == 3);
+		storeInventory.addBarcodeProductsToInventory(barcodeProduct, 3);
+		storeInventory.updateBarcodeProductsQuantity(barcodeProduct, 2);
+		assertTrue(storeInventory.getDatabase().get(barcodeProduct) == 1);
 	}
 
 	@Test(expected = NegativeNumberException.class)
 	public void testUpdateBarcodeProductsQuantityNegative() {
-		storeInventory.addBarcodeProductsToInventory(barcodeProduct, -1);
+		storeInventory.addPLUProductsToInventory(PLUproduct, 1);
+		storeInventory.updatePLUProductQuantity(PLUproduct, 2);
 	}
 
 }

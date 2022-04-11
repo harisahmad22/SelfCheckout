@@ -516,7 +516,7 @@ public class StationUnitTestIter3Tests {
     	stationData.setTotalDue(total); //Add $50 to total cost
     	stationData.setTransactionPaymentAmount(total);
 
-    	stationData.setExpectedWeight(4000);
+    	stationData.setExpectedWeight(milkJugItem.getWeight());
     	
     	//Put 2 $20 bills in before removing milk jug
     	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote };
