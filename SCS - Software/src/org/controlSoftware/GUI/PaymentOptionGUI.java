@@ -165,28 +165,7 @@ public class PaymentOptionGUI {
 	public void hidePaymentOptionGUI() {
 		frame.setVisible(false);
 	}
-	
-	/**
-	 * Creates a Membership Card Button
-	 */
-	private void membershipCardButton() {
-		Color color = new Color(255, 128, 255);
-		JButton membership = new JButton();
-		membership.setBounds(275,450,225,100);
-		membership.setText("Scan Membership");
-		membership.setFont(new Font("Tahoma", Font.BOLD,25));
-		membership.setBackground(color);
 		
-		membership.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  
-				data.changeState(StationState.ASK_MEMBERSHIP);
-			}  
-		});
-		
-		frame.add(membership);
-		membership.setVisible(true);
-	}
-	
 	/**
 	 * Creates a Gift Card Button
 	 */
@@ -272,50 +251,6 @@ public class PaymentOptionGUI {
 		
 		frame.add(cash);
 		cash.setVisible(true);
-		
-	}
-	
-	/**
-	 * Creates a Back Button
-	 */
-	private void backButton() {
-		Color color = new Color(255, 128, 128);
-		JButton back = new JButton();
-		back.setBounds(50,450,225,100);
-		back.setText("Go Back");
-		back.setFont(new Font("Tahoma", Font.BOLD,48));
-		back.setBackground(color);
-		
-		back.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  
-				data.changeState(StationState.NORMAL);
-			}  
-		});
-		
-		frame.add(back);
-		back.setVisible(true);
-		
-	}
-	
-	/**
-	 * Creates a Assistance Button
-	 */
-	private void assistanceButton() {
-		Color color = new Color(255, 64, 64);
-		JButton assistance = new JButton();
-		assistance.setBounds(725,450,225,100);
-		assistance.setText("Call Attendant");
-		assistance.setFont(new Font("Tahoma", Font.BOLD,32));
-		assistance.setBackground(color);
-		
-		assistance.addActionListener(new ActionListener(){  
-			public void actionPerformed(ActionEvent e){  
-				//change state to attendant state
-			}  
-		});
-		
-		frame.add(assistance);
-		assistance.setVisible(true);
 		
 	}
 	

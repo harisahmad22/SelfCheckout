@@ -138,17 +138,55 @@ public class CustomerGUITesting {
         bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK); 
         try{Thread.sleep(250);}catch(InterruptedException e){}
         		
+        // Back
+		
+        data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+     	bot.mouseMove(290,440);
+     	try{Thread.sleep(250);}catch(InterruptedException e){}
+     	bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+     	try{Thread.sleep(250);}catch(InterruptedException e){}
+     	bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+     	
+     	//Checkout
+     	bot.mouseMove(800,500);
+     	bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+     	try{Thread.sleep(250);}catch(InterruptedException e){}
+     	bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+     	
+     	// Checkout final
+     	bot.mouseMove(500,250);
+     	bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+     	try{Thread.sleep(250);}catch(InterruptedException e){}
+     	bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+     	
+     	// No bags
+     	
+     	bot.mouseMove(550, 350);
+     	bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+     	try{Thread.sleep(250);}catch(InterruptedException e){}
+     	bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+     	    
+     	// Not a member
+     	   
+     	bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+     	try{Thread.sleep(250);}catch(InterruptedException e){}
+     	bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK); 
+     	try{Thread.sleep(250);}catch(InterruptedException e){}     	        		    	
+        
 		// Full Payment
 		
-		bot.mouseMove(380,190);
+        try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(280,180);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);		
 		
 		// Debit Payment
 		
-		bot.mouseMove(80,190);
+		data.changeState(StationState.PAYMENT_MODE_PROMPT);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(555,205);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
@@ -159,7 +197,7 @@ public class CustomerGUITesting {
 		
 		data.changeState(StationState.PAYMENT_MODE_PROMPT);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(380,190);
+		bot.mouseMove(105,205);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -169,7 +207,7 @@ public class CustomerGUITesting {
 		
 		data.changeState(StationState.PAYMENT_MODE_PROMPT);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(680,190);
+		bot.mouseMove(105,355);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -189,7 +227,7 @@ public class CustomerGUITesting {
 		
 		data.changeState(StationState.PAYMENT_MODE_PROMPT);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(550,500);
+		bot.mouseMove(555,355);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -198,7 +236,7 @@ public class CustomerGUITesting {
 		// Return
 		
 		data.changeState(StationState.PAYMENT_MODE_PROMPT);
-		bot.mouseMove(80,490);
+		bot.mouseMove(280,430);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
@@ -239,7 +277,7 @@ public class CustomerGUITesting {
 		
 		data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(80,190);
+		bot.mouseMove(280,305);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -280,9 +318,27 @@ public class CustomerGUITesting {
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(555, 480);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		// Confirm Proper Payment
+		
 		data.changeState(StationState.PARTIAL_PAYMENT_KEYPAD);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(555, 490);
+		bot.mouseMove(305,140);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(555, 480);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
