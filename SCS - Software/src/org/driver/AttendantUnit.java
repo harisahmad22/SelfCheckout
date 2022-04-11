@@ -129,13 +129,15 @@ public class AttendantUnit {
 	public void handleNoPaper(int stationID) {
 		// SIGNAL GUI TO DISPLAY LOW INK ALERT
 		// For now, print to console
-		System.out.println("Station " + stationID + " is out of paper in its receipt printer!");
+		attendantData.setGuiBuffer("Station " + stationID + " is out of paper in its receipt printer!");
+		attendantData.changeState(AttendantState.NOTIFIED_BY_STATION);
 	}
 	
 	public void handleNoInk(int stationID) {
 		// SIGNAL GUI TO DISPLAY LOW INK ALERT
 		// For now, print to console
-		System.out.println("Station " + stationID + " is out of ink in its receipt printer!");
+		attendantData.setGuiBuffer("Station " + stationID + " is out of ink in its receipt printer!");
+		attendantData.changeState(AttendantState.NOTIFIED_BY_STATION);
 	}
 	
 	public SupervisionStation getAttendantStation() {
