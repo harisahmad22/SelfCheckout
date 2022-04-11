@@ -921,7 +921,23 @@ public class StationUnitTestIter3Tests {
 	  	
 		assertTrue(stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT);
   }
-  	
+  
+  @Test
+  public void testStartCheckoutFullPaymentWithGiftCardInsufficientFunds() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		BigDecimal total = new BigDecimal("50");
+	  	stationData.setTotalDue(total); //Add $50 to total cost
+	  	stationData.setTransactionPaymentAmount(total);
+	  	
+	  	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+	  	//There is a 1 second delay between each banknote insertion.
+	  	scheduler.schedule(new TestCardRunnable(this.stationHardware.cardReader, "swipe", "GiftCard", "4", "Gift Card Holder", null, null, false, false), 100, TimeUnit.MILLISECONDS);
+	  	
+	  	stationData.changeState(StationState.PAY_GIFTCARD);
+			
+	  	TimeUnit.SECONDS.sleep(1);
+	  	
+		assertTrue(stationData.getCurrentState() == StationState.INSUFFICIENT_FUNDS);
+  }
   
 	@After
     public void reset()
