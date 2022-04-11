@@ -4,9 +4,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
-
 import org.controlSoftware.GUI.SelfCheckoutGUIMaster;
-import org.iter2Testing.DummySelfCheckoutStation;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.devices.Keyboard;
