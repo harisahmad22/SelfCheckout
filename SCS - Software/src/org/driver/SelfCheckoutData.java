@@ -438,13 +438,13 @@ public class SelfCheckoutData {
 			
 		case PARTIAL_PAYMENT_KEYPAD:
 			break;
-		
-		case CLEANUP:
-			stationHardware.mainScanner.disable();
-			stationHardware.handheldScanner.disable();
-			stationHardware.scanningArea.disable();
-			disablePaymentDevices();
-			break;
+//		
+//		case CLEANUP:
+//			stationHardware.mainScanner.disable();
+//			stationHardware.handheldScanner.disable();
+//			stationHardware.scanningArea.disable();
+//			disablePaymentDevices();
+//			break;
 
 		case BAGGING:
 			//Bagging Area should always be enabled

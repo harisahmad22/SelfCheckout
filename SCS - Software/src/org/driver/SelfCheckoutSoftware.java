@@ -84,8 +84,6 @@ public class SelfCheckoutSoftware {
 		
 		this.scanningAreaScaleHandler = new ScanningAreaScaleHandler(this.stationData, this);
 		
-		this.cardPaymentSoftware = new CardPaymentSoftware(this.stationData, this.cardPaymentHandler, this.membershipCardHandler);
-		
 		this.cardPaymentHandler = new PayWithCard(this.stationData, this);
 		
 		this.membershipCardHandler = new ScansMembershipCard(this.stationData, this);
@@ -174,7 +172,7 @@ public class SelfCheckoutSoftware {
 			
 			//Inform Attendant of startup
 			stationUnit.informAttendantOfStartup();
-			
+			attachObservers();
 			//Switch to WELCOME state, which will inform GUI to display the welcome screen
 			//and wait for user interaction
 			stationData.changeState(StationState.WELCOME);
@@ -204,7 +202,7 @@ public class SelfCheckoutSoftware {
 
 		//Inform Attendant of shutdown
 		stationUnit.informAttendantOfShutdown();
-
+		detachObservers();
 		//Switch to INACTIVE state, which will inform GUI to close all active windows
 		//Will wipe session data
 		stationData.changeState(StationState.INACTIVE);

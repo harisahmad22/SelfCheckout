@@ -224,14 +224,14 @@ public class StationUnitTestIter3Tests {
     {
     	stationData.changeState(StationState.NORMAL);
     	
-    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 2000, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 5500, TimeUnit.MILLISECONDS);
-    	scheduler.schedule(new ChangeStateRunnable(stationData, StationState.INACTIVE), 7500, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, milkJugItem), 1000, TimeUnit.MILLISECONDS);
     	
-    	scheduler.schedule(new ApproveWeightDiscrepancyRunnable(attendantUnit, 0), 9000, TimeUnit.MILLISECONDS);
+    	scheduler.schedule(new ApproveWeightDiscrepancyRunnable(attendantUnit, 0), 2500, TimeUnit.MILLISECONDS);
+    	
+    	TimeUnit.SECONDS.sleep(3);
     	
     	assertTrue(stationData.getCurrentState() == StationState.NORMAL);
-    	assertTrue(stationData.getExpectedWeight() == milkJug.getExpectedWeight());
+    	assertTrue(Math.floor(stationData.getExpectedWeight()) == milkJug.getExpectedWeight());
     }
     
     @Test
@@ -252,15 +252,8 @@ public class StationUnitTestIter3Tests {
     
     @Test
     public void testCorrectInitialState() throws InterruptedException, OverloadException, EmptyException, DisabledException {
-    	stationData.changeState(StationState.SWIPE_MEMBERSHIP);
-    	
-    	    	
-    	stationHardware.mainScanner.scan(cornFlakesItem);
-    	assertTrue(stationData.getProductsAddedToCheckoutHashMap().containsKey(cornFlakes.getDescription()));
-    	
-    	stationData.changeState(StationState.WELCOME);
-    	
-    	assertTrue(stationData.getProductsAddedToCheckoutHashMap().isEmpty());
+   	    	
+    	assertTrue(stationData.getCurrentState() == StationState.INACTIVE);
     }    
     
     
@@ -889,6 +882,46 @@ public class StationUnitTestIter3Tests {
 	  	
 	  }
   
+  @Test
+  public void testStartCheckoutPartialPaymentWithGiftCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		BigDecimal total = new BigDecimal("50");
+	  	stationData.setTotalDue(total); //Add $50 to total cost
+	  	stationData.setTransactionPaymentAmount(new BigDecimal("25"));
+	  	//Create a list of banknotes exceeding the total cost of all items
+	  	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
+	  	Coin[] coins = { quarter, toonie, toonie, toonie};
+	  	
+	  	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+	  	//There is a 1 second delay between each banknote insertion.
+	  	scheduler.schedule(new TestCardRunnable(this.stationHardware.cardReader, "swipe", "GiftCard", "1", "Gift Card Holder", null, null, false, false), 100, TimeUnit.MILLISECONDS);
+	  	
+	  	stationData.changeState(StationState.PAY_GIFTCARD);
+			
+	  	TimeUnit.SECONDS.sleep(1);
+	  	
+		assertTrue(stationData.getCurrentState() == StationState.NORMAL);
+  }
+  
+  @Test
+  public void testStartCheckoutFullPaymentWithGiftCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+		BigDecimal total = new BigDecimal("50");
+	  	stationData.setTotalDue(total); //Add $50 to total cost
+	  	stationData.setTransactionPaymentAmount(total);
+	  	//Create a list of banknotes exceeding the total cost of all items
+	  	Banknote[] banknotes1 = { twentyDollarBanknote, twentyDollarBanknote, fiveDollarBanknote };
+	  	Coin[] coins = { quarter, toonie, toonie, toonie};
+	  	
+	  	//Schedule the list of banknotes to be inserted starting 1.5 seconds after starting payment.
+	  	//There is a 1 second delay between each banknote insertion.
+	  	scheduler.schedule(new TestCardRunnable(this.stationHardware.cardReader, "swipe", "GiftCard", "1", "Gift Card Holder", null, null, false, false), 100, TimeUnit.MILLISECONDS);
+	  	
+	  	stationData.changeState(StationState.PAY_GIFTCARD);
+			
+	  	TimeUnit.SECONDS.sleep(1);
+	  	
+		assertTrue(stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT);
+  }
+  	
   
 	@After
     public void reset()

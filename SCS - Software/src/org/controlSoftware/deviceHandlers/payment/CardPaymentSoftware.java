@@ -39,7 +39,7 @@ public class CardPaymentSoftware {
 	
 	
 	public CardPaymentSoftware(SelfCheckoutData stationData, 
-			PayWithCard cardPaymentHandler, 
+//			PayWithCard cardPaymentHandler, 
 			ScansMembershipCard memberCardHandler) 
 	{
 		this.stationData = stationData;
@@ -98,10 +98,10 @@ public class CardPaymentSoftware {
 			
 	
 	
-	public void paid(BigDecimal paid) {
-//		amountPaid.add(paid);
-		stationData.addToTotalPaid(paid);
-	}
+//	public void paid(BigDecimal paid) {
+////		amountPaid.add(paid);
+//		stationData.addToTotalPaid(paid);
+//	}
 	
 
 	/**
