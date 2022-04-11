@@ -11,6 +11,7 @@ import org.controlSoftware.data.NegativeNumberException;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.BarcodedProductDatabase;
+import org.driver.databases.GiftCardDatabase;
 import org.driver.databases.TestBarcodedProducts;
 import org.driver.databases.BarcodedProductDatabase;
 import org.driver.databases.ProductInfo;
@@ -134,6 +135,7 @@ public class SelfCheckoutData {
 	private PLUProductDatabase PLU_Product_Database;
 	private BarcodedProductDatabase Barcoded_Product_Database;
 	private StoreInventory Store_Inventory;
+	private GiftCardDatabase giftDB;
 
 	public SelfCheckoutData(SelfCheckoutStation station) {
 		//This class will give the software access to 
@@ -163,6 +165,14 @@ public class SelfCheckoutData {
 		// Quantity of products set to same arbitrary amount for all PLU or barcoded
 		// products. NEED FIX
 		Store_Inventory = new StoreInventory(PLUTestProducts, 3, testProducts, 4);
+
+		giftDB = new GiftCardDatabase();
+		BigDecimal fifty = new BigDecimal(50);
+		BigDecimal twenty = new BigDecimal(20);
+		BigDecimal ten = new BigDecimal(10);
+		giftDB.AddGiftCard("01", fifty);
+		giftDB.AddGiftCard("02", twenty);
+		giftDB.AddGiftCard("03", ten);
 	}
 
 	/*
@@ -408,6 +418,11 @@ public class SelfCheckoutData {
 			stationHardware.cardReader.enable();
 			break;
 
+		case PAY_GIFTCARD:
+		setMidPaymentFlag(true);
+		stationHardware.cardReader.enable();
+		break;
+
 		case ADD_MEMBERSHIP:
 			stationHardware.cardReader.enable();
 			setWaitingForMembership(true);
@@ -502,6 +517,10 @@ public class SelfCheckoutData {
 			stationHardware.cardReader.disable();
 			break;
 
+		case PAY_GIFTCARD:
+		stationHardware.cardReader.disable();
+		break;
+
 		case ADD_MEMBERSHIP:
 			stationSoftware.getReceiptHandler().setMembershipID(getMembershipID());
 			break;
@@ -556,6 +575,14 @@ public class SelfCheckoutData {
 
 	public String getMembershipID() {
 		return membershipID;
+	}
+
+	public void setGiftCardDb(GiftCardDatabase newGiftDB) {
+		giftDB= newGiftDB;
+	}
+
+	public GiftCardDatabase getGiftCardDb() {
+		return giftDB;
 	}
 
 	public void addProductToCheckout(BarcodedProduct product) {
@@ -741,13 +768,13 @@ public class SelfCheckoutData {
 		return transactionPaymentAmount;
 	}
 	
-	public int getTransactionPaymentMethod(int i) {
+	public int getTransactionPaymentMethod() {
 		return transactionPaymentMethod;
 		
 	}
 	
 	public void setTransactionPaymentMethod(int method) {
-		//0 = Cash, 1 = credit, 2 = debt
+		//0 = Cash, 1 = credit, 2 = debt, 3  = giftCard
 		transactionPaymentMethod = method;
 		
 	}
