@@ -331,7 +331,7 @@ public class PaymentOptionGUI {
 		b2.setBounds(525, 450, 200, 100);
 		frame.getContentPane().add(b2);
 		
-		final JLabel l1 = new JLabel("");
+		final JLabel l1 = new JLabel("$0.00");
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 100);
@@ -373,19 +373,57 @@ public class PaymentOptionGUI {
 		
 		// Keypad
 		
-		final String numString = "";
-		
 		ActionListener keyList = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JButton src = (JButton) e.getSource();
 				String val = src.getText();
+				String dis = l1.getText();
 				if (val == "DEL") {
-					l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+					dis = dis.substring(1).replace(".", "");
+					char[] c1 = dis.toCharArray();
+					char[] c2;
+					if (c1.length == 3) {
+						c2 = new char[4];
+						c2[3] = c1[1];
+						c2[2] = c1[0];
+						c2[1] = '.';
+						c2[0] = '0';
+					}
+					else {
+						c2 = new char[c1.length];
+						for (int i = 0; i < c1.length - 1; i++) {
+							c2[i] = c1[i+1];
+						}
+						c2[c2.length - 1] = c2[c2.length - 2];
+						c2[c2.length - 2] = c1[c1.length - 3];
+						c2[c2.length - 3] = '.';
+					}
+					dis = "$" + String.valueOf(c2);
+					l1.setText(dis);
 				}
 				else {
-					if (l1.getText().length() < 12) {
-						l1.setText(l1.getText() + val);
+					if (dis.length() < 8) {
+						dis = dis.substring(1).replace(".", "");
+						char[] c1 = dis.toCharArray();
+						char[] c2;
+						if (c1[0] == '0') {
+							c2 = new char[c1.length + 1];
+							for (int i = 0; i < c1.length - 1; i++) {
+								c2[i] = c1[i + 1];
+							}
+						}
+						else {
+							c2 = new char[c1.length + 2];
+							for (int i = 0; i < c1.length - 1; i++) {
+								c2[i] = c1[i];
+							}
+						}
+						c2[c2.length - 1] = val.charAt(0);
+						c2[c2.length - 2] = c1[c1.length - 1];
+						c2[c2.length - 3] = '.';
+						dis = "$" + String.valueOf(c2);
+						l1.setText(dis);
 					}
 				}
 				
