@@ -59,47 +59,49 @@ public class PaymentOptionGUI {
 	}
 	
 	private void paymentModesScreen() {
-		frame.setLayout(null);  
-		panel = new JPanel();
-		panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 10));
-		panel.setBackground(Color.CYAN);
-		panel.setBounds(10, 100, 980, 490);
+		frame.setLayout(null);
 		
-		membershipCardButton();
+		//membershipCardButton();
 		giftCardButton();
 		debitCardButton();
 		creditCardButton();
 		cashButton();
-		backButton();
-		assistanceButton();
-		frame.add(panel);
-		JLabel title = new JLabel("Select Payment Type");  
-	    title.setBounds(10,10,750,100);  
-	    title.setFont(new Font("Calibri", Font.BOLD,65));
+		//backButton();
+		//assistanceButton();
+
+		JLabel title = new JLabel("Amount Owing: $" + data.getTransactionPaymentAmount());  
+	    title.setBounds(0,0,1000,150);
+	    title.setHorizontalAlignment(SwingConstants.CENTER);
+	    title.setFont(new Font("Tahoma", Font.BOLD, 40));
 	    frame.add(title);
-	    
-	    JLabel amountToPay = new JLabel("Amount owed: $" + data.getTransactionPaymentAmount());  
-	    amountToPay.setBounds(600,10,500,100);  
-	    amountToPay.setFont(new Font("Calibri", Font.BOLD, 38));
-	    frame.add(amountToPay);
 	}
 	
 	//(BRODY)
 	private void paymentAmountScreen() {
 		frame.setLayout(null);  
-		panel = new JPanel();
-		panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 10));
-		panel.setBackground(Color.CYAN);
-		panel.setBounds(10, 100, 980, 490);
+		//panel = new JPanel();
+		//panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 10));
+		//panel.setBackground(Color.CYAN);
+		//panel.setBounds(10, 100, 980, 490);
 		
+		JLabel title = new JLabel("Amount Owing: $" + data.getTotalDue().subtract(data.getTotalMoneyPaid()));  
+	    title.setBounds(0,0,1000,150);
+	    title.setHorizontalAlignment(SwingConstants.CENTER);
+	    title.setFont(new Font("Tahoma", Font.BOLD,40));
+	    frame.add(title);
+	    
 		fullPaymentButton();
 		partialPaymentButton();
-		
-		frame.add(panel);
-		JLabel title = new JLabel("Select Payment Amount");  
-	    title.setBounds(10,10,750,100);  
-	    title.setFont(new Font("Calibri", Font.BOLD,75));
-	    frame.add(title);
+		JButton back = new JButton();
+		back.setBounds(250,400,500,100);
+		back.setText("SCAN MORE ITEMS");
+		back.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		back.addActionListener(new ActionListener(){  
+			public void actionPerformed(ActionEvent e){  				
+				data.changeState(StationState.NORMAL);
+			}  
+		});
+		frame.getContentPane().add(back);
 	}
 	
 	/**
@@ -108,9 +110,9 @@ public class PaymentOptionGUI {
 	private void partialPaymentButton() {
 		Color color = new Color(255, 255, 128);
 		JButton debit = new JButton();
-		debit.setBounds(50,150,300,200);
-		debit.setText("Partial Payment");
-		debit.setFont(new Font("Calibri", Font.BOLD, 24));
+		debit.setBounds(250,275,500,100);
+		debit.setText("MAKE PARTIAL PAYMENT");
+		debit.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		debit.setBackground(color);
 		
 		debit.addActionListener(new ActionListener(){  
@@ -130,9 +132,9 @@ public class PaymentOptionGUI {
 	private void fullPaymentButton() {
 		Color color = new Color(128, 128, 255);
 		JButton credit = new JButton();
-		credit.setBounds(350,150,300,200);
-		credit.setText("Full Payment");
-		credit.setFont(new Font("Calibri", Font.BOLD, 24));
+		credit.setBounds(250,150,500,100);
+		credit.setText("PAY IN FULL");
+		credit.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		credit.setBackground(color);
 		
 		credit.addActionListener(new ActionListener(){  
@@ -171,7 +173,7 @@ public class PaymentOptionGUI {
 		JButton membership = new JButton();
 		membership.setBounds(275,450,225,100);
 		membership.setText("Scan Membership");
-		membership.setFont(new Font("Calibri", Font.BOLD,25));
+		membership.setFont(new Font("Tahoma", Font.BOLD,25));
 		membership.setBackground(color);
 		
 		membership.addActionListener(new ActionListener(){  
@@ -190,9 +192,9 @@ public class PaymentOptionGUI {
 	private void giftCardButton() {
 		Color color = new Color(255, 255, 255);
 		JButton gift = new JButton();
-		gift.setBounds(500,450,225,100);
-		gift.setText("Gift Card");
-		gift.setFont(new Font("Calibri", Font.BOLD,48));
+		gift.setBounds(525,325,400,100);
+		gift.setText("PAY WITH GIFT CARD");
+		gift.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		gift.setBackground(color);
 		
 		gift.addActionListener(new ActionListener(){  
@@ -212,9 +214,9 @@ public class PaymentOptionGUI {
 	private void debitCardButton() {
 		Color color = new Color(255, 255, 128);
 		JButton debit = new JButton();
-		debit.setBounds(50,150,300,200);
-		debit.setText("Debit Card");
-		debit.setFont(new Font("Calibri", Font.BOLD,48));
+		debit.setBounds(525,175,400,100);
+		debit.setText("PAY WITH DEBIT");
+		debit.setFont(new Font("Tahoma", Font.PLAIN,36));
 		debit.setBackground(color);
 		
 		debit.addActionListener(new ActionListener(){  
@@ -234,9 +236,9 @@ public class PaymentOptionGUI {
 	private void creditCardButton() {
 		Color color = new Color(128, 128, 255);
 		JButton credit = new JButton();
-		credit.setBounds(350,150,300,200);
-		credit.setText("Credit Card");
-		credit.setFont(new Font("Calibri", Font.BOLD,48));
+		credit.setBounds(75,175,400,100);
+		credit.setText("PAY WITH CREDIT");
+		credit.setFont(new Font("Tahoma", Font.PLAIN,36));
 		credit.setBackground(color);
 		
 		credit.addActionListener(new ActionListener(){  
@@ -256,9 +258,9 @@ public class PaymentOptionGUI {
 	private void cashButton() {
 		Color color = new Color(128, 255, 128);
 		JButton cash = new JButton();
-		cash.setBounds(650,150,300,200);
-		cash.setText("Cash");
-		cash.setFont(new Font("Calibri", Font.BOLD,48));
+		cash.setBounds(75,325,400,100);
+		cash.setText("PAY WITH CASH");
+		cash.setFont(new Font("Tahoma", Font.PLAIN,36));
 		cash.setBackground(color);
 		
 		cash.addActionListener(new ActionListener(){  
@@ -280,7 +282,7 @@ public class PaymentOptionGUI {
 		JButton back = new JButton();
 		back.setBounds(50,450,225,100);
 		back.setText("Go Back");
-		back.setFont(new Font("Calibri", Font.BOLD,48));
+		back.setFont(new Font("Tahoma", Font.BOLD,48));
 		back.setBackground(color);
 		
 		back.addActionListener(new ActionListener(){  
@@ -302,7 +304,7 @@ public class PaymentOptionGUI {
 		JButton assistance = new JButton();
 		assistance.setBounds(725,450,225,100);
 		assistance.setText("Call Attendant");
-		assistance.setFont(new Font("Calibri", Font.BOLD,32));
+		assistance.setFont(new Font("Tahoma", Font.BOLD,32));
 		assistance.setBackground(color);
 		
 		assistance.addActionListener(new ActionListener(){  
@@ -347,7 +349,7 @@ public class PaymentOptionGUI {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				BigDecimal partialPaymentAmount = new BigDecimal(l1.getText());
+				BigDecimal partialPaymentAmount = new BigDecimal(l1.getText().substring(1));
 				BigDecimal remainingDue = data.getTotalDue().subtract(data.getTotalMoneyPaid());
 				
 				if (partialPaymentAmount.compareTo(BigDecimal.ZERO) <= 0)
@@ -458,7 +460,7 @@ public class PaymentOptionGUI {
 		
 		JLabel l1 = new JLabel("Insufficient funds available to complete purchase.");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 150);
 		frame.getContentPane().add(l1);
@@ -466,18 +468,18 @@ public class PaymentOptionGUI {
 		JLabel l2 = new JLabel("Remaining card funds have been applied to remaining balance");
 		l2.setVerticalAlignment(SwingConstants.TOP);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
-		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 		
-		final JButton b1 = new JButton("Return");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(100,300,300,100);
+		final JButton b1 = new JButton("RETURN");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		b1.setBounds(75,300,400,100);
 		frame.getContentPane().add(b1);
 		
-		final JButton b2 = new JButton("Make another payment");
-		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b2.setBounds(400,300,300,100);
+		final JButton b2 = new JButton("MAKE ANOTHER PAYMENT");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		b2.setBounds(525,300,400,100);
 		frame.getContentPane().add(b2);
 		
 		b1.addActionListener(new ActionListener() {

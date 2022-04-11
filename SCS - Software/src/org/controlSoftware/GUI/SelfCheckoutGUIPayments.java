@@ -88,9 +88,9 @@ public class SelfCheckoutGUIPayments {
 	private void debugCoinButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(350,150,300,200);
+		payCoin.setBounds(1000,0,300,200);
 		payCoin.setText("[DEBUG] Pay $2 Coin");
-		payCoin.setFont(new Font("Calibri", Font.BOLD,32));
+		payCoin.setFont(new Font("Tahoma", Font.BOLD,32));
 		payCoin.setBackground(color);
 		
 		payCoin.addActionListener(new ActionListener(){  
@@ -113,9 +113,9 @@ public class SelfCheckoutGUIPayments {
 	private void debugBanknoteButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payBanknote = new JButton();
-		payBanknote.setBounds(50,150,300,200);
+		payBanknote.setBounds(1000,200,300,200);
 		payBanknote.setText("[DEBUG] Pay $5 Banknote");
-		payBanknote.setFont(new Font("Calibri", Font.BOLD,32));
+		payBanknote.setFont(new Font("Tahoma", Font.BOLD,32));
 		payBanknote.setBackground(color);
 		
 		payBanknote.addActionListener(new ActionListener(){  
@@ -155,9 +155,9 @@ public class SelfCheckoutGUIPayments {
 	private void debugInsertCreditCardButton() {
 		Color color = new Color(128, 128, 255);
 		JButton insertCreditCard = new JButton();
-		insertCreditCard.setBounds(50,300,300,200);
+		insertCreditCard.setBounds(1000,300,300,200);
 		insertCreditCard.setText("[DEBUG] Insert Credit Card to Pay");
-		insertCreditCard.setFont(new Font("Calibri", Font.BOLD, 18));
+		insertCreditCard.setFont(new Font("Tahoma", Font.BOLD, 18));
 		insertCreditCard.setBackground(color);
 		
 		insertCreditCard.addActionListener(new ActionListener(){  
@@ -201,9 +201,9 @@ public class SelfCheckoutGUIPayments {
 	private void debugInsertDebitCardButton() {
 		Color color = new Color(128, 128, 255);
 		JButton insertDebitCard = new JButton();
-		insertDebitCard.setBounds(50,300,300,200);
+		insertDebitCard.setBounds(1000,300,300,200);
 		insertDebitCard.setText("[DEBUG] Insert Credit Card to Pay");
-		insertDebitCard.setFont(new Font("Calibri", Font.BOLD, 18));
+		insertDebitCard.setFont(new Font("Tahoma", Font.BOLD, 18));
 		insertDebitCard.setBackground(color);
 		
 		insertDebitCard.addActionListener(new ActionListener(){  
@@ -249,9 +249,9 @@ public class SelfCheckoutGUIPayments {
 	private void debugGiftCardButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payBanknote = new JButton();
-		payBanknote.setBounds(50,300,300,200);
+		payBanknote.setBounds(1000,0,300,200);
 		payBanknote.setText("[DEBUG] Pay with $150 Giftcard");
-		payBanknote.setFont(new Font("Calibri", Font.BOLD, 18));
+		payBanknote.setFont(new Font("Tahoma", Font.BOLD, 18));
 		payBanknote.setBackground(color);
 		
 		payBanknote.addActionListener(new ActionListener(){  
@@ -271,9 +271,9 @@ public class SelfCheckoutGUIPayments {
 	private void debugGiftCardButton2() {
 		Color color = new Color(128, 128, 255);
 		JButton payBanknote = new JButton();
-		payBanknote.setBounds(350,300,300,200);
+		payBanknote.setBounds(1000,200,300,200);
 		payBanknote.setText("[DEBUG] Pay with $5 Giftcard");
-		payBanknote.setFont(new Font("Calibri", Font.BOLD, 18));
+		payBanknote.setFont(new Font("Tahoma", Font.BOLD, 18));
 		payBanknote.setBackground(color);
 		
 		payBanknote.addActionListener(new ActionListener(){  

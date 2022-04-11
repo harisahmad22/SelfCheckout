@@ -1469,13 +1469,14 @@ public class SupervisorGUIMaster {
 		optionButtons.add(b3);	// ENABLE/DISABLE	
 		// Appear on condition that station isn't shut down.
 		if (targetStation.getSelfCheckoutData().getCurrentState() != StationState.INACTIVE) {
-			// Appears when no weight issue
-			if (targetStation.getSelfCheckoutData().getCurrentState() != StationState.WEIGHT_ISSUE) {
-				optionButtons.add(b4);	// BLOCK/UNBLOCK
-			}
 			// Appears when weight issue
-			else {
+			if (targetStation.getSelfCheckoutData().getCurrentState() == StationState.WEIGHT_ISSUE
+					|| targetStation.getSelfCheckoutData().getCurrentState() == StationState.WAITING_FOR_ITEM) {
 				optionButtons.add(b8);	// FIX WEIGHT ERROR
+			}
+			// Appears when no weight issue
+			else {
+				optionButtons.add(b4);	// BLOCK/UNBLOCK
 			}
 		}
 		// Appear on condition that station is shut down

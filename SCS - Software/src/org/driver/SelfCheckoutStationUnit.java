@@ -85,13 +85,13 @@ public class SelfCheckoutStationUnit {
 			};
 		}
 		try {
-			station.printer.addPaper(1);
+			station.printer.addPaper(1 << 9); //Half full?
 		} catch (OverloadException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
-			station.printer.addInk(1);
+			station.printer.addInk(1 << 19); //Half full?
 		} catch (OverloadException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

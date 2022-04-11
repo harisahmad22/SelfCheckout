@@ -7,10 +7,12 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,13 +21,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 
 import org.driver.SelfCheckoutData;
+import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
 import org.driver.databases.ProductInfo;
 import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -94,9 +99,9 @@ public class ScanningScreenGUI {
 		String quantityString = "<html><br>";
 		String priceString = "<html><br>";
 		
+		// Build description, quantity, and price strings
 		ArrayList<String> items = new ArrayList<String>(currentAddedProducts.keySet());
-		for (int i = itemListIndex; i < itemListIndex + 5; i++)
-		//for (String prodDescription : currentAddedProducts.keySet())
+		for (int i = itemListIndex; i < itemListIndex + 10; i++)
 		{
 			if (i >= items.size()) {
 				break;
@@ -118,11 +123,13 @@ public class ScanningScreenGUI {
 				BigDecimal quant = new BigDecimal(info.getQuantity());
 				price = info.getProduct().getPrice();
 				price = price.multiply(quant);
+				price = price.setScale(2, RoundingMode.HALF_EVEN);
 			}
 			else {
 				price = info.getProduct().getPrice();
 				BigDecimal weight = new BigDecimal(info.getWeight() / 1000);
 				price = price.multiply(weight);
+				price = price.setScale(2, RoundingMode.HALF_EVEN);
 			}
 			priceString += "$" + price + "<br>";					  
 		}
@@ -132,33 +139,68 @@ public class ScanningScreenGUI {
 		priceString += "</html>";
 		
 		JLabel itemList = new JLabel(descriptionString);
-		itemList.setBounds(20,20,450,420);
+		itemList.setBounds(20,20,400,420);
+		itemList.setBackground(Color.WHITE);
 		itemList.setVerticalAlignment(JLabel.TOP);
 		itemList.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		itemList.setOpaque(true);
 		frame.getContentPane().add(itemList);
 		JLabel quantList = new JLabel(quantityString);
 		quantList.setVerticalAlignment(JLabel.TOP);
-		quantList.setBounds(470,20,125,420);
+		quantList.setBounds(420,20,150,420);
+		quantList.setBackground(Color.WHITE);
 		quantList.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		quantList.setOpaque(true);
 		frame.getContentPane().add(quantList);
 		JLabel priceList = new JLabel(priceString);
 		priceList.setVerticalAlignment(JLabel.TOP);
-		priceList.setBounds(595,20,125,420);
+		priceList.setBackground(Color.WHITE);
+		priceList.setBounds(570,20,150,420);
 		priceList.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		priceList.setOpaque(true);
 		frame.getContentPane().add(priceList);
-
+		
+		// Buttons for changing page
+		final JButton b2 = new JButton(">");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		b2.setBounds(640, 460, 80, 80);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemListIndex += 10;
+				stationData.changeState(StationState.NORMAL);
+			}
+		});
+		
+		final JButton b3 = new JButton("<");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		b3.setBounds(560, 460, 80, 80);
+		b3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemListIndex += -10;
+				stationData.changeState(StationState.NORMAL);
+			}
+		});
+		
+		if (itemListIndex + 10 < items.size()) {
+			frame.getContentPane().add(b2);
+		}
+		if (itemListIndex - 10 >= 0) {
+			frame.getContentPane().add(b3);
+		}
+		
 		debugScanTestItemButton();
 		debugBlockStationButton();
 		debugForceWeightIssueButton();
 
 		// Display of the total price
-		JLabel totalPrice = new JLabel("$" + stationData.getTotalDue().toString());
-		totalPrice.setBounds(20, 460, 700, 80);
-		totalPrice.setBackground(Color.gray);
-		totalPrice.setFont(new Font("Tahoma", Font.BOLD, 48));
+		JLabel totalPrice = new JLabel("SUBTOTAL: $" + stationData.getTotalDue().setScale(2, RoundingMode.HALF_EVEN));
+		totalPrice.setBounds(20, 460, 540, 80);
+		totalPrice.setBackground(Color.WHITE);
+		totalPrice.setBorder(BorderFactory.createLineBorder(Color.black));
+		totalPrice.setForeground(Color.BLACK);
+		totalPrice.setFont(new Font("Tahoma", Font.PLAIN, 48));
 		totalPrice.setOpaque(true);
 		frame.getContentPane().add(totalPrice);
 
@@ -257,18 +299,21 @@ public class ScanningScreenGUI {
 		frame.setLayout(null);
 
 		// Display of searched items
-		JLabel inventoryPLU = new JLabel("Placeholder for inventory");
+		final JLabel inventoryPLU = new JLabel("");
 		frame.add(inventoryPLU);
-		inventoryPLU.setBounds(20, 20, 700, 520);
-		inventoryPLU.setBackground(Color.blue);
+		inventoryPLU.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		inventoryPLU.setBounds(20, 20, 600, 520);
+		inventoryPLU.setBackground(Color.white);
+		inventoryPLU.setHorizontalAlignment(SwingConstants.CENTER);
 		inventoryPLU.setOpaque(true);
 
 		// Shows current input
 		final JLabel codePLU = new JLabel("");
 		frame.add(codePLU);
 		codePLU.setFont(new Font("Tahoma", Font.PLAIN, 40));
-		codePLU.setBounds(740, 100, 220, 100);
-		codePLU.setBackground(Color.gray);
+		codePLU.setBounds(640, 100, 340, 100);
+		codePLU.setBackground(Color.LIGHT_GRAY);
+		codePLU.setHorizontalAlignment(SwingConstants.CENTER);
 		codePLU.setOpaque(true);
 
 		// Code for recording numbers (From Jonah & Shufan)
@@ -277,12 +322,35 @@ public class ScanningScreenGUI {
 			public void actionPerformed(ActionEvent e) {
 				JButton src = (JButton) e.getSource();
 				String val = src.getText();
+				String search = codePLU.getText();
+				PriceLookupCode PLUCode;
 				if (val == "DEL") {
-					codePLU.setText(codePLU.getText().substring(0, codePLU.getText().length() - 1));
+					if (search.length() > 0) {
+						search = codePLU.getText().substring(0, codePLU.getText().length() - 1);
+						codePLU.setText(search);
+						try {
+							PLUCode = new PriceLookupCode(search);
+						}
+						catch (SimulationException E) {
+							PLUCode = null;
+						}
+						PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+						if (PLUProduct == null) {
+							inventoryPLU.setText("Invalid PLU");
+							return;
+						} else {
+							inventoryPLU.setText("<html><center>" + PLUProduct.getDescription() + "</center><br><center>$" + PLUProduct.getPrice() + "/kg</center></html>");
+							return;
+						}
+					}
 				} else if (val == "GO") {
-					double weight = 0;
-					String search = codePLU.getText();
-					PriceLookupCode PLUCode = new PriceLookupCode(search);
+					codePLU.setText(search);
+					try {
+						PLUCode = new PriceLookupCode(search);
+					}
+					catch (SimulationException E) {
+						PLUCode = null;
+					}
 					PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
 					if (PLUProduct == null) {
 						System.out.println("Error! PLU Code is invalid!");
@@ -296,7 +364,22 @@ public class ScanningScreenGUI {
 					}
 				} else {
 					if (codePLU.getText().length() < 5) {
-						codePLU.setText(codePLU.getText() + val);
+						search = codePLU.getText() + val;
+						codePLU.setText(search);
+						try {
+							PLUCode = new PriceLookupCode(search);
+						}
+						catch (SimulationException E) {
+							PLUCode = null;
+						}
+						PLUCodedProduct PLUProduct = stationData.getPLUDatabaseObject().getPLUProductFromDatabase(PLUCode);
+						if (PLUProduct == null) {
+							inventoryPLU.setText("Invalid PLU");
+							return;
+						} else {
+							inventoryPLU.setText("<html><center>" + PLUProduct.getDescription() + "</center><br><center>$" + PLUProduct.getPrice() + "/kg</center></html>");
+							return;
+						}
 					}
 				}
 
@@ -307,58 +390,70 @@ public class ScanningScreenGUI {
 		JPanel numpad = new JPanel();
 		numpad.setLayout(new GridLayout(0, 3));
 		JButton numpad1 = new JButton("1");
+		numpad1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad1.addActionListener(Numpad);
 		numpad.add(numpad1);
 		JButton numpad2 = new JButton("2");
+		numpad2.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad2.addActionListener(Numpad);
 		numpad.add(numpad2);
 		JButton numpad3 = new JButton("3");
+		numpad3.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad3.addActionListener(Numpad);
 		numpad.add(numpad3);
 		JButton numpad4 = new JButton("4");
+		numpad4.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad4.addActionListener(Numpad);
 		numpad.add(numpad4);
 		JButton numpad5 = new JButton("5");
+		numpad5.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad5.addActionListener(Numpad);
 		numpad.add(numpad5);
 		JButton numpad6 = new JButton("6");
+		numpad6.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad6.addActionListener(Numpad);
 		numpad.add(numpad6);
 		JButton numpad7 = new JButton("7");
+		numpad7.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad7.addActionListener(Numpad);
 		numpad.add(numpad7);
 		JButton numpad8 = new JButton("8");
+		numpad8.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad8.addActionListener(Numpad);
 		numpad.add(numpad8);
 		JButton numpad9 = new JButton("9");
+		numpad9.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad9.addActionListener(Numpad);
 		numpad.add(numpad9);
 		JButton numpad0 = new JButton("0");
+		numpad0.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpad0.addActionListener(Numpad);
 		numpad.add(numpad0);
 		JButton numpadDel = new JButton("DEL");
+		numpadDel.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpadDel.addActionListener(Numpad);
 		numpad.add(numpadDel);
 		JButton numpadGo = new JButton("GO");
+		numpadGo.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		numpadGo.addActionListener(Numpad);
 		numpad.add(numpadGo);
 		frame.add(numpad);
-		numpad.setBounds(740, 220, 220, 320);
+		numpad.setBounds(640, 220, 340, 320);
 	
 		// Return to main scanning screen
-		JButton pluReturn = new JButton("Return");
+		JButton pluReturn = new JButton("BACK");
+		pluReturn.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		frame.add(pluReturn);
 		pluReturn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.NORMAL);
 			}
 		});
-		pluReturn.setBounds(740, 20, 220, 60);
+		pluReturn.setBounds(640, 20, 340, 60);
 
 		frame.setVisible(true);
 	}
 	
-
 	// Screen for searching by letter
 	private void LetterSearch() 
 	{
@@ -370,9 +465,9 @@ public class ScanningScreenGUI {
 		final JList inventoryLetter = new JList();
 		final JScrollPane searchContainer = new JScrollPane();
 		searchContainer.setViewportView(inventoryLetter);
-		inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 80));
 		inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		searchContainer.setBounds(20, 20, 700, 520);
+		searchContainer.setBounds(20, 20, 600, 520);
 		frame.add(searchContainer);
 		
 		// List of letters to select
@@ -382,10 +477,11 @@ public class ScanningScreenGUI {
 	    alphabetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		frame.add(alphabetContainer);
 		alphabetList.setFont(new Font("Tahoma", Font.PLAIN, 80));
-		alphabetContainer.setBounds(740,100,220,360);
+		alphabetContainer.setBounds(640,100,320,360);
 		
 		// Button that gets the letter from the list
-		JButton alphabetSearch = new JButton("Search");
+		JButton alphabetSearch = new JButton("SEARCH");
+		alphabetSearch.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		alphabetSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.remove(searchContainer);
@@ -406,9 +502,9 @@ public class ScanningScreenGUI {
 					frame.add(searchContainer);
 					searchContainer.setName("inventoryLetter");
 					searchContainer.setViewportView(inventoryLetter);
-					inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 30));
+					inventoryLetter.setFont(new Font("Tahoma", Font.PLAIN, 50));
 					inventoryLetter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-					searchContainer.setBounds(20, 20, 700, 520);
+					searchContainer.setBounds(20, 20, 600, 520);
 					JList invisibleProduct = new JList(PLUList.toArray());
 					invisibleProduct.setName("invisibleProduct");
 					frame.add(invisibleProduct);
@@ -416,9 +512,10 @@ public class ScanningScreenGUI {
 			}
 		});
 		frame.add(alphabetSearch);
-		alphabetSearch.setBounds(740, 480, 100, 60);
+		alphabetSearch.setBounds(640, 480, 150, 60);
 		
-		JButton productGet = new JButton("Get Item");
+		JButton productGet = new JButton("ADD");
+		productGet.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		productGet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int index = -1;
@@ -447,18 +544,19 @@ public class ScanningScreenGUI {
 			}
 		});
 		frame.add(productGet);
-		productGet.setBounds(860, 480, 100, 60);
+		productGet.setBounds(810, 480, 150, 60);
 
 
 		// Return to main scanning screen
-		JButton alphabetReturn = new JButton("Return to Scanning");
+		JButton alphabetReturn = new JButton("BACK");
+		alphabetReturn.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		frame.add(alphabetReturn);
 		alphabetReturn.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	        	stationData.changeState(StationState.NORMAL);
 	        }
 	    });
-		alphabetReturn.setBounds(740,20,220,60);
+		alphabetReturn.setBounds(640,20,320,60);
 		
 		frame.setVisible(true);
 	}
@@ -469,14 +567,15 @@ public class ScanningScreenGUI {
 
 		// Label for text
 		JLabel confirmCheckout = new JLabel("Are you sure you want to proceed to checkout?", SwingConstants.CENTER);
-		confirmCheckout.setFont(new Font("Tahoma", Font.PLAIN, 35));
+		confirmCheckout.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		frame.add(confirmCheckout);
-		confirmCheckout.setBounds(100, 20, 800, 100);
+		confirmCheckout.setBounds(0, 0, 1000, 300);
 
 		// Proceeds to checkout
 		JButton outYesButton = new JButton("Yes");
 		frame.add(outYesButton);
-		outYesButton.setBounds(200, 200, 200, 100);
+		outYesButton.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		outYesButton.setBounds(275, 300, 200, 100);
 		outYesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.CHECKOUT);
@@ -487,12 +586,13 @@ public class ScanningScreenGUI {
 		// Brings user back
 		JButton outNoButton = new JButton("No");
 		frame.add(outNoButton);
+		outNoButton.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		outNoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.NORMAL);
 			}
 		});
-		outNoButton.setBounds(600, 200, 200, 100);
+		outNoButton.setBounds(525, 300, 200, 100);
 
 		frame.setVisible(true);
 	}
@@ -501,27 +601,35 @@ public class ScanningScreenGUI {
 	private void scanPopup() {
 		frame.setLayout(null);
 
-		JLabel askBag = new JLabel("Do you want to bag this item?", SwingConstants.CENTER);
-		askBag.setFont(new Font("Tahoma", Font.PLAIN, 40));
-		frame.add(askBag);
-		askBag.setBounds(100, 20, 800, 100);
+		JLabel l1 = new JLabel("Please bag you item now, or notify attendant");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+
+		JLabel l2 = new JLabel("that item will not be bagged.");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
 
 //	    JButton scanYesButton = new JButton("Yes");
 //	    frame.add(scanYesButton);
 //	    scanYesButton.setBounds(200,200,200,100);
 
-		JButton scanNoButton = new JButton("No");
-		frame.add(scanNoButton);
-		scanNoButton.setBounds(600, 200, 200, 100);
-
-		scanNoButton.addActionListener(new ActionListener() {
+		JButton b2 = new JButton("NOTIFY ATTENDANT");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(300,300,400,100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					stationData.setExpectedWeight(stationData.getStationHardware().baggingArea.getCurrentWeight());
-				} catch (OverloadException e1) {
-					System.out.println("Error! Scale overloaded when choosing not to bag item!");
-				}
-				stationData.changeState(StationState.NORMAL);
+				int stationNum = stationData.getAttendantUnit().getAttendantData().getUnitIndex(stationData.getThisUnit()) + 1;
+				stationData.getAttendantUnit().getAttendantData().setGuiBuffer("Request to skip bagging at Station " + stationNum + ".");
+				stationData.setPreBlockedState(stationData.getCurrentState());
+				stationData.getAttendantUnit().getAttendantData().changeState(AttendantState.NOTIFIED_BY_STATION);
 			}
 		});
 
@@ -543,7 +651,7 @@ public class ScanningScreenGUI {
 				.getItem(testProducts.getBarcodedProductList().get(0));
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(250, 150, 300, 200);
+		payCoin.setBounds(1000, 150, 300, 200);
 		payCoin.setText("[DEBUG] Put Milk Jug in Bagging Area");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
 		payCoin.setBackground(color);
@@ -561,28 +669,28 @@ public class ScanningScreenGUI {
 	private void badPLUScreen() {
 		frame.setLayout(null);
 
-		JLabel l1 = new JLabel("PLU Code is Invalid");
+		JLabel l1 = new JLabel("Entered code is invalid. Would you like to");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 150);
 		frame.getContentPane().add(l1);
 
-		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
+		JLabel l2 = new JLabel("try again or return to the main screen?");
 		l2.setVerticalAlignment(SwingConstants.TOP);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
-		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 
-		final JButton b1 = new JButton("Return to Main Screen");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(100,300,300,100);
+		final JButton b1 = new JButton("RETURN");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(225,300,250,100);
 		frame.getContentPane().add(b1);
 
-		final JButton b2 = new JButton("Try Again");
-		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b2.setBounds(400,300,300,100);
+		final JButton b2 = new JButton("TRY AGAIN");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525,300,250,100);
 		frame.getContentPane().add(b2);
 
 		b1.addActionListener(new ActionListener() {
@@ -603,11 +711,11 @@ public class ScanningScreenGUI {
 	private void scannerScalePopup() {
 		frame.setLayout(null);
 		
-		JLabel l1 = new JLabel("Please place Item on the scanning area scale.");
+		JLabel l1 = new JLabel("Place item on the scanning area scale.");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
-		l1.setBounds(0, 0, 1000, 150);
+		l1.setBounds(0, 0, 1000, 300);
 		frame.getContentPane().add(l1);
 			
 		debugPlaceTestItemScannerScaleButton();
@@ -620,7 +728,7 @@ public class ScanningScreenGUI {
 				.getItem(testProducts.getBarcodedProductList().get(0));
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(250, 150, 300, 200);
+		payCoin.setBounds(1000, 150, 300, 200);
 		payCoin.setText("[DEBUG] Put Milk Jug in Scanning Area");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
 		payCoin.setBackground(color);
@@ -640,3 +748,18 @@ public class ScanningScreenGUI {
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

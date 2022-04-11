@@ -318,7 +318,8 @@ public class SelfCheckoutSoftware {
 	
 	//Hannah Ku
 	public void performAttendantWeightOverride() {
-		if (stationData.getCurrentState() == StationState.WEIGHT_ISSUE)
+		if (stationData.getCurrentState() == StationState.WEIGHT_ISSUE
+				|| stationData.getCurrentState() == StationState.WAITING_FOR_ITEM)
 		{
 //			stationData.setIsWeightOverride(true);
 			try { stationData.setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
@@ -331,7 +332,7 @@ public class SelfCheckoutSoftware {
 		}
 		else 
 		{
-			System.out.println("Error! Cannot override station that is not in the WEIGHT_ISSUE state!");
+			System.out.println("Error! Cannot override station that is not in the WEIGHT_ISSUE or WAITING_FOR_ITEM state!");
 		}
 		
 		

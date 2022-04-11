@@ -26,7 +26,7 @@ public class TestingTEMP2 {
 		sUnit1.getSelfCheckoutData().setAttendantUnit(aUnit);
 		sUnit1.getSelfCheckoutData().setThisUnit(sUnit1);
 		aUnit.attachCheckoutStationUnit(sUnit1);
-		sUnit1.getSelfCheckoutData().changeState(StationState.WELCOME);
+		sUnit1.getSelfCheckoutData().changeState(StationState.INACTIVE);
 		
 		//SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(1);
 		//sUnit2.getSelfCheckoutData().changeState(StationState.INACTIVE);
@@ -42,13 +42,12 @@ public class TestingTEMP2 {
 		
 		
 		
-		//aUnit.attachCheckoutStationUnit(sUnit2);
-		
+		//aUnit.attachCheckoutStationUnit(sUnit2);		
 		
 		AttendantData data = aUnit.getAttendantData();
 		
 		//aUnit.getAttendantGUI().setTargetStation(sUnit1);
-		data.changeState(AttendantState.STATIONS);
+		data.changeState(AttendantState.START);
 		
 		Thread.sleep(5000);
 		

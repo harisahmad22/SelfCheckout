@@ -432,14 +432,14 @@ public class SelfCheckoutGUIWelcome {
 	private void finishedScreen(){
 		frame.setLayout(null);
 		
-		JLabel l1 = new JLabel("Thank you for shopping with us today");
+		JLabel l1 = new JLabel("Thank you for shopping with us today.");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
 		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 150);
 		frame.getContentPane().add(l1);
 		
-		JLabel l2 = new JLabel("Please take your bag(s) and your receipt");
+		JLabel l2 = new JLabel("Please take your bag(s) and your receipt.");
 		l2.setVerticalAlignment(SwingConstants.TOP);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
 		l2.setFont(new Font("Tahoma", Font.PLAIN, 40));
@@ -475,7 +475,7 @@ public class SelfCheckoutGUIWelcome {
 	private void debugRemoveItemsFromBaggingAreaButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(200,300,300,200);
+		payCoin.setBounds(1000,300,300,200);
 		payCoin.setText("[DEBUG] Remove All Items");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 16));
 		payCoin.setBackground(color);
@@ -500,7 +500,7 @@ public class SelfCheckoutGUIWelcome {
 	private void takeReceiptButton() {
 		Color color = new Color(128, 128, 255);
 		JButton payCoin = new JButton();
-		payCoin.setBounds(500,300,300,200);
+		payCoin.setBounds(1000,0,300,200);
 		payCoin.setText("Take Receipt (Will print it to console)");
 		payCoin.setFont(new Font("Calibri", Font.BOLD, 14));
 		payCoin.setBackground(color);
@@ -527,28 +527,28 @@ public class SelfCheckoutGUIWelcome {
 	private void badMembershipScreen() {
 		frame.setLayout(null);
 
-		JLabel l1 = new JLabel("Membership is Invalid");
+		JLabel l1 = new JLabel("Membership is invalid. Would you like to");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 150);
 		frame.getContentPane().add(l1);
 
-		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
+		JLabel l2 = new JLabel("try again or return to the main screen?");
 		l2.setVerticalAlignment(SwingConstants.TOP);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
-		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 
-		final JButton b1 = new JButton("Return to Main Screen");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(100,300,300,100);
+		final JButton b1 = new JButton("RETURN");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(225,300,250,100);
 		frame.getContentPane().add(b1);
 
-		final JButton b2 = new JButton("Try Again");
-		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b2.setBounds(400,300,300,100);
+		final JButton b2 = new JButton("TRY AGAIN");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525,300,250,100);
 		frame.getContentPane().add(b2);
 
 		b1.addActionListener(new ActionListener() {
@@ -570,28 +570,28 @@ public class SelfCheckoutGUIWelcome {
 	private void badCardScreen() {
 		frame.setLayout(null);
 
-		JLabel l1 = new JLabel("Card is Invalid");
+		JLabel l1 = new JLabel("Card is Invalid. Would you like to");
 		l1.setVerticalAlignment(SwingConstants.BOTTOM);
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 150);
 		frame.getContentPane().add(l1);
 
-		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
+		JLabel l2 = new JLabel("try again or return to the main screen?");
 		l2.setVerticalAlignment(SwingConstants.TOP);
 		l2.setHorizontalAlignment(SwingConstants.CENTER);
-		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 
-		final JButton b1 = new JButton("Return to Main Screen");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(100,300,300,100);
+		final JButton b1 = new JButton("RETURN");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(225,300,250,100);
 		frame.getContentPane().add(b1);
 
-		final JButton b2 = new JButton("Try Again");
-		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b2.setBounds(400,300,300,100);
+		final JButton b2 = new JButton("TRY AGAIN");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(525,300,250,100);
 		frame.getContentPane().add(b2);
 
 		b1.addActionListener(new ActionListener() {

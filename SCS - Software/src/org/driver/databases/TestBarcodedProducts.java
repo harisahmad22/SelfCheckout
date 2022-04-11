@@ -27,7 +27,7 @@ public class TestBarcodedProducts {
 				barcode1,
 				"Milk 4L",
 				new BigDecimal("4.89"),
-				4000.0);
+				3579.0);
 		BarcodeList.add(barcode1);
 		BPList.add(P1);
 		ItemList.add(getItem(P1));
