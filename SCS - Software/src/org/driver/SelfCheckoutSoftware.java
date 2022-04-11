@@ -18,11 +18,19 @@ import org.controlSoftware.deviceHandlers.payment.PayWithCard;
 import org.controlSoftware.deviceHandlers.payment.CardPaymentSoftware;
 import org.controlSoftware.general.TouchScreenSoftware;
 import org.driver.SelfCheckoutData.StationState;
+import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
+import org.lsmr.selfcheckout.NullPointerSimulationException;
+import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
+import org.lsmr.selfcheckout.external.ProductDatabases;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 public class SelfCheckoutSoftware {
 
@@ -30,14 +38,14 @@ public class SelfCheckoutSoftware {
 	private SelfCheckoutStation stationHardware;
 	private SelfCheckoutData stationData;
 	
-	private CheckoutHandler checkoutHandler;
-	private CardPaymentSoftware cardPaymentSoftware;
-	private CashPaymentHandler cashPaymentHandler;
-	private GiftCardScannerHandler giftCardHandler;
-	private ScannerHandler scannerHandler;
-	private BaggingAreaScaleHandler baggingAreaScaleHandler;
-	private ScanningAreaScaleHandler scanningAreaScaleHandler;
-	private ReceiptHandler receiptHandler;
+	public CheckoutHandler checkoutHandler;
+	public CardPaymentSoftware cardPaymentSoftware;
+	public CashPaymentHandler cashPaymentHandler;
+	public GiftCardScannerHandler giftCardHandler;
+	public ScannerHandler scannerHandler;
+	public ScanningAreaScaleHandler scanningAreaScaleHandler;
+	public BaggingAreaScaleHandler baggingAreaScaleHandler;
+	public ReceiptHandler receiptHandler;
 	
 	private TouchScreenSoftware touchScreenSoftware;
 	private ScansMembershipCard membershipCardHandler;
@@ -75,8 +83,6 @@ public class SelfCheckoutSoftware {
 		this.baggingAreaScaleHandler = new BaggingAreaScaleHandler(this.stationData, this);
 		
 		this.scanningAreaScaleHandler = new ScanningAreaScaleHandler(this.stationData, this);
-		
-		this.cardPaymentSoftware = new CardPaymentSoftware(this.stationData, this.cardPaymentHandler, this.membershipCardHandler);
 		
 		this.cardPaymentHandler = new PayWithCard(this.stationData, this);
 		
@@ -166,7 +172,7 @@ public class SelfCheckoutSoftware {
 			
 			//Inform Attendant of startup
 			stationUnit.informAttendantOfStartup();
-			
+			attachObservers();
 			//Switch to WELCOME state, which will inform GUI to display the welcome screen
 			//and wait for user interaction
 			stationData.changeState(StationState.WELCOME);
@@ -196,7 +202,7 @@ public class SelfCheckoutSoftware {
 
 		//Inform Attendant of shutdown
 		stationUnit.informAttendantOfShutdown();
-
+		detachObservers();
 		//Switch to INACTIVE state, which will inform GUI to close all active windows
 		//Will wipe session data
 		stationData.changeState(StationState.INACTIVE);
@@ -395,7 +401,26 @@ public class SelfCheckoutSoftware {
 			stationData.changeState(StationState.BAD_MEMBERSHIP);
 		}
 	}
+	public BarcodedProduct getBarcodedItem(Barcode barcode) {
+		try {
+			BarcodedProduct product = ProductDatabases.BARCODED_PRODUCT_DATABASE.get(barcode);
+			return product;
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
 	
+	public PLUCodedProduct getPLUCodedItem(PriceLookupCode pluCode) {
+		try {
+			System.out.println("CHECK");
+			PLUCodedProduct product = ProductDatabases.PLU_PRODUCT_DATABASE.get(pluCode);
+			return product;
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
 	
 
 }

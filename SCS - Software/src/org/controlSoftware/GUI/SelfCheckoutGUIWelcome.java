@@ -23,6 +23,7 @@ import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.driver.AttendantData.AttendantState;
 
 public class SelfCheckoutGUIWelcome {
 	private SelfCheckoutStation station;
@@ -61,7 +62,9 @@ public class SelfCheckoutGUIWelcome {
 		case BAD_MEMBERSHIP:
 			badMembershipScreen();
 			break;
-			
+		case BAD_CARD:
+			badCardScreen();
+			break;
 		case ADD_BAGS_PROMPT:
 			askBagsScreen();
 			break;
@@ -107,15 +110,16 @@ public class SelfCheckoutGUIWelcome {
 	private void weightIssueScreen() {
 		frame.setLayout(null);
 		
-		final JLabel l1 = new JLabel("<html>WEIGHT ISSUE DETECTED!<br>PLEASE CORRECT ISSUE BEFORE CONTINUING!</html>");
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		final JLabel l1 = new JLabel("<html><center>WEIGHT ISSUE DETECTED!<br>PLEASE CORRECT ISSUE OR NOTIFY ATTENDANT<center></html>");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 300);
 		frame.getContentPane().add(l1);	
 		
+		
 		final JButton b1 = new JButton("[DEBUG] Unblock Station (via attendant override)");
-		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(400,300,300,100);
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b1.setBounds(1000,300,300,100);
 		frame.getContentPane().add(b1);
 		
 		b1.addActionListener(new ActionListener() {
@@ -124,21 +128,35 @@ public class SelfCheckoutGUIWelcome {
 				stationData.getStationSoftware().performAttendantWeightOverride();
 			}
 		});
+		
+		
+		final JButton b2 = new JButton("NOTIFY ATTENDANT");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(300,300,400,100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int stationNum = stationData.getAttendantUnit().getAttendantData().getUnitIndex(stationData.getThisUnit()) + 1;
+				stationData.getAttendantUnit().getAttendantData().setGuiBuffer("Station " + stationNum + " has weight issue.");
+				stationData.getAttendantUnit().getAttendantData().changeState(AttendantState.NOTIFIED_BY_STATION);
+			}
+		});
 	}
 
 
 	private void blockedScreen() {
 		frame.setLayout(null);
 		
-		final JLabel l1 = new JLabel("<html>THIS STATION IS BLOCKED<br>PLEASE ASK ATTENDANT FOR ASSISTANCE</html>");
-		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		final JLabel l1 = new JLabel("<html><center>THIS STATION IS BLOCKED<br>PLEASE ASK ATTENDANT FOR ASSISTANCE<center></html>");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 36));
 		l1.setHorizontalAlignment(SwingConstants.CENTER);
 		l1.setBounds(0, 0, 1000, 300);
 		frame.getContentPane().add(l1);	
 		
 		final JButton b1 = new JButton("[DEBUG] Unblock Station");
 		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		b1.setBounds(400,300,300,100);
+		b1.setBounds(1000,300,300,100);
 		frame.getContentPane().add(b1);
 		
 		b1.addActionListener(new ActionListener() {
@@ -548,5 +566,49 @@ public class SelfCheckoutGUIWelcome {
 			}
 		});
 	}
+	
+	private void badCardScreen() {
+		frame.setLayout(null);
+
+		JLabel l1 = new JLabel("Card is Invalid");
+		l1.setVerticalAlignment(SwingConstants.BOTTOM);
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 0, 1000, 150);
+		frame.getContentPane().add(l1);
+
+		JLabel l2 = new JLabel("Would you like to try again? Or return to the main screen?");
+		l2.setVerticalAlignment(SwingConstants.TOP);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		l2.setBounds(0, 150, 1000, 150);
+		frame.getContentPane().add(l2);
+
+		final JButton b1 = new JButton("Return to Main Screen");
+		b1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b1.setBounds(100,300,300,100);
+		frame.getContentPane().add(b1);
+
+		final JButton b2 = new JButton("Try Again");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		b2.setBounds(400,300,300,100);
+		frame.getContentPane().add(b2);
+
+		b1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.setIsFirstCheckout(true);
+				stationData.changeState(StationState.NORMAL);
+			}
+		});
+
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stationData.changeState(StationState.PAYMENT_MODE_PROMPT);
+			}
+		});
+	}
+
 
 }

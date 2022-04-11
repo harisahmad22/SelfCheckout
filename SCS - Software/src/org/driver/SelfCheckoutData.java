@@ -59,7 +59,8 @@ import org.lsmr.selfcheckout.products.Product;
  */
 
 public class SelfCheckoutData {
-	
+	private AttendantUnit attendantUnit;
+	private SelfCheckoutStationUnit thisUnit;
 	
 	//Test Coins/Banknotes
 	public Currency CAD = Currency.getInstance("CAD");
@@ -353,7 +354,10 @@ public class SelfCheckoutData {
 		BAD_PLU, 
 		
 		// State to inform user that their membership is invalid 
-		BAD_MEMBERSHIP
+		BAD_MEMBERSHIP, 
+		
+		// State to inform user that their card is invalid
+		BAD_CARD
 	}
 
 
@@ -429,15 +433,18 @@ public class SelfCheckoutData {
 		case BAD_MEMBERSHIP:
 			break;
 			
+		case BAD_CARD:
+			break;
+			
 		case PARTIAL_PAYMENT_KEYPAD:
 			break;
-		
-		case CLEANUP:
-			stationHardware.mainScanner.disable();
-			stationHardware.handheldScanner.disable();
-			stationHardware.scanningArea.disable();
-			disablePaymentDevices();
-			break;
+//		
+//		case CLEANUP:
+//			stationHardware.mainScanner.disable();
+//			stationHardware.handheldScanner.disable();
+//			stationHardware.scanningArea.disable();
+//			disablePaymentDevices();
+//			break;
 
 		case BAGGING:
 			//Bagging Area should always be enabled
@@ -1230,6 +1237,22 @@ public void disablePaymentDevices() {
 	}	
 	public PLUCodedProduct getLookedUpProduct() {
 		return lookedUpProduct;
-	}	
+	}
+	
+	public void setAttendantUnit (AttendantUnit newUnit) {
+		attendantUnit = newUnit;
+	}
+	
+	public AttendantUnit getAttendantUnit () {
+		return attendantUnit;
+	}
+	
+	public void setThisUnit (SelfCheckoutStationUnit newUnit) {
+		thisUnit = newUnit;
+	}
+	
+	public SelfCheckoutStationUnit getThisUnit () {
+		return thisUnit;
+	}
 }
 
