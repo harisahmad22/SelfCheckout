@@ -935,10 +935,6 @@ public class SelfCheckoutData {
 		cardSwipedCheckout.set(bool);
 	}
 
-//	public void setCreditNumber(String num) {
-//		creditNum = num;
-//	}
-
 	public boolean isWaitingForCreditCard() {
 		return isCheckoutWaitingForCreditCard.get();
 	}
@@ -1006,9 +1002,8 @@ public void disablePaymentDevices() {
 		isFirstCheckout.set(bool);
 
 	}
-	// ===========================Imported From CheckoutHandler===========================
 
-	// ===========================For ScaleHandler===========================
+	// ===========================For ScaleHandler===========================V
 
 	public boolean getIsBaggingAreaOverloaded() {
 		return isBaggingAreaScaleOverloaded.get();
@@ -1018,9 +1013,9 @@ public void disablePaymentDevices() {
 		isBaggingAreaScaleOverloaded.set(bool);
 	}
 
-	// ===========================For ScaleHandler===========================
+	// ===========================For ScaleHandler===========================^
 
-	// ===========================For ScannerHandler===========================
+	// ===========================For ScannerHandler===========================V
 	public boolean getIsScannerWaitingForWeightChange() {
 		return isScannerWaitingForWeightChange.get();
 	}
@@ -1056,7 +1051,7 @@ public void disablePaymentDevices() {
 
 	}
 
-	//===========================For ScannerHandler===========================
+	//===========================For ScannerHandler===========================^
 	
 	public StationState getCurrentState() {
 		return currentState;
