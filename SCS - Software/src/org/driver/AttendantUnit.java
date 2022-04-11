@@ -7,6 +7,7 @@ import org.controlSoftware.GUI.SupervisorGUIMaster;
 import org.controlSoftware.attendant.AttendantSoftware;
 import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
+import org.driver.databases.AttendantDatabase;
 import org.driver.databases.PLUProductDatabase;
 import org.driver.databases.PLUTestProducts;
 import org.driver.databases.TestBarcodedProducts;
@@ -23,6 +24,7 @@ public class AttendantUnit {
 	private AttendantSoftware attendantSoftware;
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	private AttendantData attendantData;
+	private AttendantDatabase database;
 	private SupervisorGUIMaster gui;
 	
 	public AttendantUnit()
@@ -30,6 +32,7 @@ public class AttendantUnit {
 		checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		this.attendantData = new AttendantData();
 		this.attendantData.attachCheckoutStationUnits(checkoutStations);
+		this.database = new AttendantDatabase();
 		this.attendantStation = new SupervisionStation();
 		
 		ArrayList<PLUCodedProduct> testProducts = new PLUTestProducts().getPLUProductList();
@@ -156,6 +159,10 @@ public class AttendantUnit {
 	
 	public AttendantData getAttendantData() {
 		return attendantData;
+	}
+	
+	public AttendantDatabase getDatabase() {
+		return database;
 	}
 
 	public void setAttendantSoftware(AttendantSoftware attendantSoftware) {
