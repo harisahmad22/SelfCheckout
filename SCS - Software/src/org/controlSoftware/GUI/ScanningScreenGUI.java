@@ -572,7 +572,7 @@ public class ScanningScreenGUI {
 		confirmCheckout.setBounds(0, 0, 1000, 300);
 
 		// Proceeds to checkout
-		JButton outYesButton = new JButton("Yes");
+		JButton outYesButton = new JButton("YES");
 		frame.add(outYesButton);
 		outYesButton.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		outYesButton.setBounds(275, 300, 200, 100);
@@ -584,7 +584,7 @@ public class ScanningScreenGUI {
 		});
 
 		// Brings user back
-		JButton outNoButton = new JButton("No");
+		JButton outNoButton = new JButton("NO");
 		frame.add(outNoButton);
 		outNoButton.setFont(new Font("Tahoma", Font.PLAIN, 40));
 		outNoButton.addActionListener(new ActionListener() {
@@ -599,6 +599,7 @@ public class ScanningScreenGUI {
 
 	// Not sure if this is good yet
 	private void scanPopup() {
+		stationData.setPreBlockedState(stationData.getCurrentState());
 		frame.setLayout(null);
 
 		JLabel l1 = new JLabel("Please bag you item now, or notify attendant");
@@ -628,7 +629,6 @@ public class ScanningScreenGUI {
 			public void actionPerformed(ActionEvent e) {
 				int stationNum = stationData.getAttendantUnit().getAttendantData().getUnitIndex(stationData.getThisUnit()) + 1;
 				stationData.getAttendantUnit().getAttendantData().setGuiBuffer("Request to skip bagging at Station " + stationNum + ".");
-				stationData.setPreBlockedState(stationData.getCurrentState());
 				stationData.getAttendantUnit().getAttendantData().changeState(AttendantState.NOTIFIED_BY_STATION);
 			}
 		});

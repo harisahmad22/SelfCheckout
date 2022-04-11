@@ -3,6 +3,7 @@ package org.controlSoftware.GUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import javax.swing.*;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -69,7 +70,7 @@ public class PaymentOptionGUI {
 		//backButton();
 		//assistanceButton();
 
-		JLabel title = new JLabel("Amount Owing: $" + data.getTransactionPaymentAmount());  
+		JLabel title = new JLabel("Amount Owing: $" + data.getTransactionPaymentAmount().setScale(2, RoundingMode.HALF_EVEN));  
 	    title.setBounds(0,0,1000,150);
 	    title.setHorizontalAlignment(SwingConstants.CENTER);
 	    title.setFont(new Font("Tahoma", Font.BOLD, 40));
@@ -84,7 +85,7 @@ public class PaymentOptionGUI {
 		//panel.setBackground(Color.CYAN);
 		//panel.setBounds(10, 100, 980, 490);
 		
-		JLabel title = new JLabel("Amount Owing: $" + data.getTotalDue().subtract(data.getTotalMoneyPaid()));  
+		JLabel title = new JLabel("Amount Owing: $" + data.getTotalDue().subtract(data.getTotalMoneyPaid()).setScale(2, RoundingMode.HALF_EVEN));  
 	    title.setBounds(0,0,1000,150);
 	    title.setHorizontalAlignment(SwingConstants.CENTER);
 	    title.setFont(new Font("Tahoma", Font.BOLD,40));

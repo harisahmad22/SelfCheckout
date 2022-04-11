@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,6 +22,7 @@ import org.driver.databases.ProductInfo;
 import org.driver.databases.TestBarcodedProducts;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.InvalidArgumentSimulationException;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.driver.AttendantData.AttendantState;
@@ -83,7 +85,10 @@ public class SelfCheckoutGUIWelcome {
 		case BLOCKED:
 			blockedScreen();
 			break;
-			
+		
+		case ASK_STORE_BAGS:
+			askStoreBagsScreen();
+			break;
 //		case CLEANUP:
 //			finishedScreen();
 //			break;
@@ -105,7 +110,89 @@ public class SelfCheckoutGUIWelcome {
 		frame.getContentPane().add(l1);
 	}*/
 	
-	
+	private void askStoreBagsScreen() {
+		frame.setLayout(null);
+		
+		JLabel l2 = new JLabel("How many store provided bags did you use?");
+		l2.setBounds(0,0,1000,75);
+		l2.setHorizontalAlignment(SwingConstants.CENTER);
+		l2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		frame.getContentPane().add(l2);
+		
+		final JLabel l1 = new JLabel("");
+		l1.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		l1.setHorizontalAlignment(SwingConstants.CENTER);
+		l1.setBounds(0, 75, 1000, 75);
+		frame.getContentPane().add(l1);
+		
+		ActionListener keyList = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton src = (JButton) e.getSource();
+				String val = src.getText();
+				if (val == "DEL") {
+					l1.setText(l1.getText().substring(0, l1.getText().length()-1));
+				}
+				else {
+					if (l1.getText().length() < 12) {
+						l1.setText(l1.getText() + val);
+					}
+				}
+				
+			}
+		};
+		
+		JButton[] keypad = new JButton[9];
+		for(Integer i = 0; i < keypad.length; i++) {
+			keypad[i]  = new JButton(String.valueOf((i+1) % 10));
+			keypad[i].setFont(new Font("Tahoma", Font.PLAIN, 36));
+			keypad[i].setBounds(275 + (i % 3) * 150, 150 + (int) Math.floor(i.floatValue() / 3.0) * 75, 150, 75);
+			keypad[i].addActionListener(keyList);
+			
+			frame.getContentPane().add(keypad[i]);
+		}
+		
+		JButton b3 = new JButton("DEL");
+		b3.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b3.setBounds(275, 375, 150, 75);
+		b3.addActionListener(keyList);
+		frame.getContentPane().add(b3);
+		
+		JButton b4 = new JButton("0");
+		b4.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b4.setBounds(425, 375, 150, 75);
+		b4.addActionListener(keyList);
+		frame.getContentPane().add(b4);
+		
+		
+		JButton b2 = new JButton("CONFIRM");
+		b2.setFont(new Font("Tahoma", Font.PLAIN, 36));
+		b2.setBounds(400, 475, 200, 100);
+		frame.getContentPane().add(b2);
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int num = 100;
+				try {
+					num = Integer.parseInt(l1.getText());
+				}
+				catch (Exception E) {
+					num = 0;
+				}
+				
+				System.out.println(num);
+				
+				BigDecimal currentPrice = stationData.getTotalDue();
+
+				BigDecimal bagPrice = stationData.getBagPrice();
+				BigDecimal bagNum = new BigDecimal(num);
+				bagPrice = bagPrice.multiply(bagNum);
+				currentPrice = currentPrice.add(bagPrice);
+				stationData.setTotalDue(currentPrice);
+				stationData.changeState(StationState.ASK_MEMBERSHIP);
+			}
+		});
+	}
 
 	private void weightIssueScreen() {
 		frame.setLayout(null);
@@ -381,7 +468,7 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ASK_MEMBERSHIP);
+				stationData.changeState(StationState.ASK_STORE_BAGS);
 			}
 		});
 
@@ -424,7 +511,7 @@ public class SelfCheckoutGUIWelcome {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				stationData.changeState(StationState.ASK_MEMBERSHIP);
+				stationData.changeState(StationState.ASK_STORE_BAGS);
 			}
 		});
 	}
