@@ -69,14 +69,6 @@ public class AttendantSoftware {
 		this.pluProductData = pluDatabase; // attendant can now access the plu data base
 	}
 	
-//	public void overrideWeightIssue(int stationIndex) {
-//		// Idea: Set the weight_valid flag for the corresponding station to true
-//		// maybe check if station is in checkout or just scanned something also
-//		SelfCheckoutStationUnit stationToOverride = checkoutStationUnits.get(stationIndex);
-//		stationToOverride.getSelfCheckoutSoftware().performAttendantWeightOverride();
-//		
-//	}
-	
 	public void startupStation(SelfCheckoutStationUnit station)
 	{
 		System.out.println("Starting station: " + station.getStationID());

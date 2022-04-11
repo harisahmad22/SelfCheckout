@@ -16,7 +16,6 @@ import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
 
 public class ReceiptHandler implements ReceiptPrinterObserver {
 	
-//	private ArrayList<String> scannedProductList = new ArrayList<String>();
 	private String membershipID = "null\n"; //Default to null, change when membership card is scanned in
 	private String membershipPoints = "0\n";
 	private String finalTotal = "$0.0\n";
@@ -53,10 +52,7 @@ public class ReceiptHandler implements ReceiptPrinterObserver {
 		if (!membershipID.equals("null\n"))
 		{
 			char[] id = ("Membership ID: " + membershipID).toCharArray();
-//			char[] points = ("Available Membership Points: " + membershipPoints).toCharArray();
-			
 			printChars(id);
-//			printChars(points);
 		}
 		
 		//Now print the total cost of all items, and if any change was given back
@@ -67,7 +63,7 @@ public class ReceiptHandler implements ReceiptPrinterObserver {
 		printChars(paid);
 		printChars(change);
 		
-//		resetReceipt();
+		resetReceipt();
 		//Done printing receipt, cut paper so user can take
 		printer.cutPaper(); 
 	}
@@ -95,16 +91,6 @@ public class ReceiptHandler implements ReceiptPrinterObserver {
 		}
 	}
 
-//	public ArrayList<String> getScannedProductList() {
-//		return scannedProductList;
-//	}
-//	
-//	//Pass in string values for the product we just scanned
-//	//Formated as: Description --- Price
-//	public void addProductToReceipt(String productDescription, String productPrice) {
-//		String receiptEntry = productDescription + " --- $" + productPrice + "\n";
-//		this.scannedProductList.add(receiptEntry);
-//	}
 	public String getMembershipID() {
 		return this.membershipID;
 	}

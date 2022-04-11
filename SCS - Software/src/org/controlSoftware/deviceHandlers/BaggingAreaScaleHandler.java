@@ -29,8 +29,7 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	 * 
 	 * 4) Done
 	 */
-
-
+	
 	private SelfCheckoutData stationData;
 	private SelfCheckoutSoftware stationSoftware;
 	
@@ -40,25 +39,16 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 		this.stationSoftware = stationSoftware;
 	}
 
-	public boolean isOverloaded() {
-		return stationData.getIsBaggingAreaOverloaded();
-	}
+	public boolean isOverloaded() { return stationData.getIsBaggingAreaOverloaded(); }
 
 	@Override
-	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-
-	}
+	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) { }
 
 	@Override
-	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-
-	}
+	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) { }
 
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-//		double scannerExpectedWeight = stationData.getExpectedWeightScanner(); // set to weight in observer
-//		double checkoutExpectedWeight = stationData.getExpectedWeightCheckout();
-//		double normalModeExpectedWeight = stationData.getExpectedWeightNormalMode();
 		double thisExpectedWeight = stationData.getExpectedWeight();
 		double weightOnScale = weightInGrams;
 
@@ -76,73 +66,44 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 			{
 				handleAddingBagsEvent(weightOnScale, thisExpectedWeight);
 			}
-//			else if (stationData.getIsScannerWaitingForWeightChange()) {
-//				handleScannerWeightEvent(weightOnScale, scannerExpectedWeight);
-//			}
-//			else if (stationData.isInCheckout()) {
 			else if (stationData.getCurrentState() == StationState.CHECKOUT 
 				|| stationData.getCurrentState() == StationState.PAY_CASH
 				|| stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT) {
-				//For now If user is paying, ignore weight events
+				//If user is paying with card, ignore weight events
 					handleCheckoutWeightEvent(weightOnScale, thisExpectedWeight);
 			}
 		}
-//		weightAtLastEvent = weightInGrams; // Done handling weight change, store scale weight for next event
 		System.out.println("Scale Weight: " + weightInGrams);
 	}
 	
 	private void handleAddingBagsEvent(double weightOnScale, double thisExpectedWeight) {
 		
-		if (weightOnScale > thisExpectedWeight) 
-		{ 
-			stationData.changeState(StationState.ASK_MEMBERSHIP);
-		}
+		if (weightOnScale > thisExpectedWeight) { stationData.changeState(StationState.ASK_MEMBERSHIP); return; }
 		else { stationData.changeState(StationState.WEIGHT_ISSUE); return; }
-		
-		
-		return;
-		
 	}
 
 	private void handleNormalModeWeightEvent(double weightOnScale, double expectedWeight) {
-		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
-//			stationData.setWeightValidNormalMode(true);
-		} else {
-			stationData.changeState(StationState.WEIGHT_ISSUE);
-//			stationData.setWeightValidNormalMode(false);
-//			if(!stationSoftware.getWeightIssueHandlerRunning()) //Only call software handler if not already running
-//			{
-//				stationSoftware.handleInvalidWeightNormalMode();		
-//			}
-		}
+		if (Math.abs(expectedWeight - weightOnScale) > stationData.getBaggingAreaWeightVariablity()) 
+		{ stationData.changeState(StationState.WEIGHT_ISSUE); } 
 	}
 	
 	private void handleWaitingForWeightEvent(double weightOnScale, double expectedWeight) {
-		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
+		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) 
+		{
 			//Weight is OK
-//			stationData.setWeightValidScanner(true);
-//			stationData.setIsScannerWaitingForWeightChange(false);
 			//Return to NORMAL state
-			if (stationData.getMidPaymentFlag())
-			{
-				stationData.changeState(StationState.PAY_CASH);
-			}
-			else
-			{
-				stationData.changeState(StationState.NORMAL);
-			}
-		} else {
-			//Weight is Bad, go to Weight_Issue state
-			stationData.changeState(StationState.WEIGHT_ISSUE);
-//			stationData.setWeightValidScanner(false);
-//			stationData.setIsScannerWaitingForWeightChange(false);
-		}
+			if (stationData.getMidPaymentFlag()) { stationData.changeState(StationState.PAY_CASH); }
+			else { stationData.changeState(StationState.NORMAL); }
+		} 
+		else { stationData.changeState(StationState.WEIGHT_ISSUE); } //Weight is Bad, go to Weight_Issue state
 	}
 	
 	private void handleWeightIssueEvent(double weightOnScale, double expectedWeight) {
-		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) {
+		if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) 
+		{
 			//Weight is OK
 			//Return to previous state, if previous state was waiting for item, just go to Normal state
+			//If we are mid payment, return to pay_cash
 			System.out.println("WEIGHT ISSUE CORRECTED");
 			if (stationData.getPreBlockedState() == StationState.WAITING_FOR_ITEM) 
 			{ 
@@ -151,9 +112,8 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 			}
 			else if (stationData.getPreBlockedState() == StationState.ADDING_BAGS) { stationData.changeState(StationState.ASK_MEMBERSHIP); }
 			else { stationData.changeState(stationData.getPreBlockedState()); }
-		} else {
-			//Weight is Bad, do nothing
-		}
+		} 
+		else { return; } //Weight is Bad, do nothing 
 	}
 	
 	private void handleCheckoutWeightEvent(double weightOnScale, double expectedWeight) {
@@ -161,32 +121,15 @@ public class BaggingAreaScaleHandler implements ElectronicScaleObserver {
 	  // where all items on the scale need to be removed
 		if (stationData.getCurrentState() == StationState.PRINT_RECEIPT_PROMPT)
 		{ 
-			if (weightOnScale > 0.1) 
-			{
-//				stationData.setWeightValidCheckout(false);
-				//Remain in cleanup state
-			}
-			else 
-			{
-//				stationData.setWeightValidCheckout(true);
-				//Weight is 0, can reset to welcome screen
-				stationData.changeState(StationState.WELCOME);
-			}
+			if (weightOnScale > 0.1) { return; } //Remain in cleanup state
+			else { stationData.changeState(StationState.WELCOME); } //Weight is 0, can reset to welcome screen
 		}
 		else
 		{	
 			if (Math.abs(expectedWeight - weightOnScale) <= stationData.getBaggingAreaWeightVariablity()) // Weight cannot change more than defined tolerance 
-			{
-//				stationData.setWeightValidCheckout(true);
-				//Don't change state
-			}
-			else 
-			{ 
-//				stationData.setWeightValidCheckout(false);
-				stationData.changeState(StationState.WEIGHT_ISSUE);
-			}
+			{ return; } //Don't change state
+			else { stationData.changeState(StationState.WEIGHT_ISSUE); }
 		}
-		
 	}
 	
 	@Override
