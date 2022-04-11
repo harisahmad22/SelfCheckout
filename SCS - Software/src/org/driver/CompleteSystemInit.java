@@ -28,23 +28,18 @@ public class CompleteSystemInit {
 		aUnit.attachCheckoutStationUnit(sUnit1);
 		sUnit1.getSelfCheckoutData().changeState(StationState.INACTIVE);
 		
-		//SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(1);
-		//sUnit2.getSelfCheckoutData().changeState(StationState.INACTIVE);
+		SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(1);
+		sUnit2.getSelfCheckoutData().changeState(StationState.INACTIVE);
 		
-		/*ArrayList<SelfCheckoutStationUnit> checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
+		ArrayList<SelfCheckoutStationUnit> checkoutStations = new ArrayList<SelfCheckoutStationUnit>();
 		checkoutStations.add(sUnit1);
 		checkoutStations.add(sUnit2);
 		
-		aUnit.attachCheckoutStationUnits(checkoutStations);
+		aUnit.attachCheckoutStationUnit(sUnit2);
 		
-		sUnit1.getSelfCheckoutData().changeState(StationState.WELCOME);
-		sUnit2.getSelfCheckoutData().changeState(StationState.WELCOME);*/
-		
-		
-		
-		//aUnit.attachCheckoutStationUnit(sUnit2);
-		
-		
+//		sUnit1.getSelfCheckoutData().changeState(StationState.WELCOME);
+//		sUnit2.getSelfCheckoutData().changeState(StationState.WELCOME);
+
 		AttendantData data = aUnit.getAttendantData();
 		
 		//aUnit.getAttendantGUI().setTargetStation(sUnit1);

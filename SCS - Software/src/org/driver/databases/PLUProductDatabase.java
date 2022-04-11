@@ -15,7 +15,6 @@ public class PLUProductDatabase {
 		this.database = ProductDatabases.PLU_PRODUCT_DATABASE;
 
 		// Populate the database with some products and their PLU codes
-//		database.put(null, null)
 	}
 
 	public PLUProductDatabase(ArrayList<PLUCodedProduct> objects) {

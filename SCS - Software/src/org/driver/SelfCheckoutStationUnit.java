@@ -172,7 +172,6 @@ public class SelfCheckoutStationUnit {
 		getAttendantUnit().displayMessage(id + message);
 		
 	}
-	//==============================ATTENDANT RELATED METHODS===================================
 
 	public void informAttendantLogin(String AttendantID, String password) {
 		this.attendantUnit.stationLogin(AttendantID, password);
@@ -183,6 +182,7 @@ public class SelfCheckoutStationUnit {
 		this.attendantUnit.stationLogout();
 		
 	}
+	//==============================ATTENDANT RELATED METHODS===================================
 
 	public SelfCheckoutStation getSelfCheckoutStation() {
 		return station;
