@@ -33,6 +33,7 @@ import org.driver.SelfCheckoutData;
 import org.driver.SelfCheckoutSoftware;
 import org.driver.SelfCheckoutStationUnit;
 import org.driver.SelfCheckoutData.StationState;
+import org.driver.databases.GiftCardDatabase;
 import org.driver.databases.TestBarcodedProducts;
 import org.iter2Testing.PayWithBanknotesRunnable;
 import org.iter2Testing.PayWithCoinsRunnable;
@@ -141,7 +142,6 @@ public class StationUnitTestIter3Tests {
 				.get(testProducts.getBarcodeList().get(2));
 		cornFlakesItem = testProducts.getItem(cornFlakes);
 		
-		
 		//Setup receipt printer
 		try {
 			this.stationHardware.printer.addInk(2500);
@@ -187,7 +187,7 @@ public class StationUnitTestIter3Tests {
     @Test
     public void newAddBagsTestYesBags() throws InterruptedException, OverloadException, EmptyException, DisabledException {
     	//Setup simulated input
-    	//User will select 0 bags
+    	//User will select multiple bags
     	//Choose to swipe their membership card
     	//They will pay in full ($0)
     	//They will pay with cash
@@ -214,7 +214,7 @@ public class StationUnitTestIter3Tests {
         // verify device is disabled or not
         assertTrue(stationSoftware.getTouchScreenSoftware().askedForBagsPrompt.get());
         
-//    	assertTrue(stationData.getExpectedWeightCheckout() == (testBag.getWeight() * 2));
+    	//assertTrue(stationData.getExpectedWeightCheckout() == (testBag.getWeight()));
     	
         assertTrue(stationData.getCurrentState() == StationState.WELCOME);
     }
@@ -903,6 +903,62 @@ public class StationUnitTestIter3Tests {
     	
     }
 
+	@Test
+    public void testPayingWithGiftCard() throws InterruptedException, OverloadException, EmptyException, DisabledException {
+
+		BigDecimal total = new BigDecimal("50");
+    	// stationData.setTotalDue(total); //Add $50 to total cost
+    	//Bypass startCheckout method
+		stationData.setTransactionPaymentAmount(total);
+    	stationData.setInCheckout(true);
+		
+    	//Pay using gift card one
+    	scheduler.schedule(new PayWithTestGiftCardRunnable(this.stationHardware.cardReader, "GiftCard", stationData, stationData.getGiftCardDb(),"01"), 2500, TimeUnit.MILLISECONDS);    	
+    	
+		Thread.sleep(3000);
+//    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
+    	System.out.println(stationData.getTotalMoneyPaid());
+    	assertTrue(stationData.getTotalMoneyPaid().equals(new BigDecimal("50")));
+    }
+
+	@Test
+    public void clearingAfterCheckout() throws InterruptedException, OverloadException, EmptyException, DisabledException
+	{
+		    	//Change will not be given out
+    	//Weight does not change during payment
+    	//Cleanup will be tested in here also
+    	BigDecimal total = new BigDecimal("5");
+    	stationData.setTotalDue(total); //Add $5 to total cost
+    	//Bypass startCheckout method
+    	stationData.setInCheckout(true);
+    	//$4 in coins to pay before adding another item
+    	Coin[] coins = { toonie, toonie};
+    	//$5 in coins to pay remaining balance
+    	Coin[] coins2 = { toonie, toonie, loonie }; 
+    
+    	//Schedule the list of coins to be inserted starting 1.5 seconds after starting payment.
+    	//There is a 1 second delay between each coin insertion.
+    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins), 1500, TimeUnit.MILLISECONDS);
+    	
+    	//Scan an item after 4.5 seconds
+    	scheduler.schedule(new ScanItemRunnable(this.stationHardware.mainScanner, cornFlakesItem), 4500, TimeUnit.MILLISECONDS);
+    	
+    	//Put item on scale after 5.5 seconds    	
+    	scheduler.schedule(new PlaceItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 5500, TimeUnit.MILLISECONDS);
+    	
+    	//Pay remaining balance after 9.5 seconds
+    	scheduler.schedule(new PayWithCoinsRunnable(this.stationHardware.coinSlot, coins2), 9500, TimeUnit.MILLISECONDS);
+
+		//remove item from scale after 5.5 seconds    	
+		scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakesItem), 10500, TimeUnit.MILLISECONDS);
+    	
+    	
+//    	scheduler.schedule(new RemoveItemOnScaleRunnable(this.stationHardware.baggingArea, cornFlakes), 12500, TimeUnit.MILLISECONDS);
+    	
+    	stationSoftware.getCheckoutHandler().payWithCash(total);
+    	
+    	assertTrue(stationData.getTotalMoneyPaid().equals(new BigDecimal("9.00"))); 
+	}
 //	@Test(expected = NegativeNumberException.class)
 //	public void testInvalidBagWeight()
 //			throws InterruptedException, OverloadException, EmptyException, DisabledException {
