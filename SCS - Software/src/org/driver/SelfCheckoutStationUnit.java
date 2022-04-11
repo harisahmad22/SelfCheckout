@@ -88,6 +88,18 @@ public class SelfCheckoutStationUnit {
 				e.printStackTrace();
 			};
 		}
+		try {
+			station.printer.addPaper(1);
+		} catch (OverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			station.printer.addInk(1);
+		} catch (OverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public SelfCheckoutStationUnit getSelfCheckoutStationUnit()

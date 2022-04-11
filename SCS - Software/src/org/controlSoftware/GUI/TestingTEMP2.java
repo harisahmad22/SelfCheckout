@@ -26,7 +26,7 @@ public class TestingTEMP2 {
 		sUnit1.getSelfCheckoutData().setAttendantUnit(aUnit);
 		sUnit1.getSelfCheckoutData().setThisUnit(sUnit1);
 		aUnit.attachCheckoutStationUnit(sUnit1);
-		sUnit1.getSelfCheckoutData().changeState(StationState.INACTIVE);
+		sUnit1.getSelfCheckoutData().changeState(StationState.WELCOME);
 		
 		//SelfCheckoutStationUnit sUnit2 = new SelfCheckoutStationUnit(1);
 		//sUnit2.getSelfCheckoutData().changeState(StationState.INACTIVE);
@@ -48,7 +48,9 @@ public class TestingTEMP2 {
 		AttendantData data = aUnit.getAttendantData();
 		
 		//aUnit.getAttendantGUI().setTargetStation(sUnit1);
-		data.changeState(AttendantState.START);
+		data.changeState(AttendantState.STATIONS);
+		
+		Thread.sleep(5000);
 		
 		/*ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
 		sUnit1.getSelfCheckoutData().debugAddProductToCheckout(testProducts.get(0));

@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +36,10 @@ public class ScanningScreenGUI {
 	private SelfCheckoutData stationData;
 
 	private JFrame frame;
-
+	
+	// Index for cycling through list of items.
+	private int itemListIndex = 0;
+	
 	public ScanningScreenGUI(SelfCheckoutStation newStation, SelfCheckoutData newData) {
 		station = newStation;
 		stationData = newData;
@@ -79,30 +83,76 @@ public class ScanningScreenGUI {
 		// Display of scanned items
 
 		// TESTING
-		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
+//		ArrayList<BarcodedProduct> testProducts = new TestBarcodedProducts().getBarcodedProductList();
 //		stationData.debugAddProductToCheckout(testProducts.get(0));
 //		stationData.debugAddProductToCheckout(testProducts.get(1));
 //		stationData.debugAddProductToCheckout(testProducts.get(2));
 		// TESTING
 		HashMap<String, ProductInfo> currentAddedProducts = stationData.getProductsAddedToCheckoutHashMap();
-		String productListString = "<html>";
-		for (String prodDescription : currentAddedProducts.keySet()) {
-			productListString += prodDescription + " --- " + "$"
-					+ currentAddedProducts.get(prodDescription).getProduct().getPrice() + " --- " + "Quantity: "
-					+ currentAddedProducts.get(prodDescription).getQuantity() + "<br>";
+		
+		String descriptionString = "<html><br>";
+		String quantityString = "<html><br>";
+		String priceString = "<html><br>";
+		
+		ArrayList<String> items = new ArrayList<String>(currentAddedProducts.keySet());
+		for (int i = itemListIndex; i < itemListIndex + 5; i++)
+		//for (String prodDescription : currentAddedProducts.keySet())
+		{
+			if (i >= items.size()) {
+				break;
+			}
+			String prodDescription = items.get(i);
+			ProductInfo info = currentAddedProducts.get(prodDescription);
+			
+			descriptionString += prodDescription + "<br>";
+			
+			if (info.getProduct().isPerUnit() == true) {
+				quantityString += "x " + info.getQuantity() + "<br>";
+			}
+			else {
+				quantityString += info.getWeight() / 1000 + " kg<br>";
+			}
+			
+			BigDecimal price;
+			if (info.getProduct().isPerUnit() == true) {
+				BigDecimal quant = new BigDecimal(info.getQuantity());
+				price = info.getProduct().getPrice();
+				price = price.multiply(quant);
+			}
+			else {
+				price = info.getProduct().getPrice();
+				BigDecimal weight = new BigDecimal(info.getWeight() / 1000);
+				price = price.multiply(weight);
+			}
+			priceString += "$" + price + "<br>";					  
 		}
-		productListString += "</html>";
+		
+		descriptionString += "</html>";
+		quantityString += "</html>";
+		priceString += "</html>";
+		
+		JLabel itemList = new JLabel(descriptionString);
+		itemList.setBounds(20,20,450,420);
+		itemList.setVerticalAlignment(JLabel.TOP);
+		itemList.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		itemList.setOpaque(true);
+		frame.getContentPane().add(itemList);
+		JLabel quantList = new JLabel(quantityString);
+		quantList.setVerticalAlignment(JLabel.TOP);
+		quantList.setBounds(470,20,125,420);
+		quantList.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		quantList.setOpaque(true);
+		frame.getContentPane().add(quantList);
+		JLabel priceList = new JLabel(priceString);
+		priceList.setVerticalAlignment(JLabel.TOP);
+		priceList.setBounds(595,20,125,420);
+		priceList.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		priceList.setOpaque(true);
+		frame.getContentPane().add(priceList);
 
 		debugScanTestItemButton();
 		debugBlockStationButton();
 		debugForceWeightIssueButton();
-
-		JLabel itemList = new JLabel(productListString);
-		itemList.setBounds(20, 20, 700, 420);
-		itemList.setBackground(Color.gray);
-		itemList.setFont(new Font("Tahoma", Font.BOLD, 48));
-		itemList.setOpaque(true);
-		frame.getContentPane().add(itemList);
 
 		// Display of the total price
 		JLabel totalPrice = new JLabel("$" + stationData.getTotalDue().toString());
@@ -115,14 +165,16 @@ public class ScanningScreenGUI {
 		// All of the option buttons
 		JPanel options = new JPanel();
 		options.setLayout(new GridLayout(0, 1));
-		JButton itemButton = new JButton("Item Lookup");
+		JButton itemButton = new JButton("<html><center>ITEM<br>LOOKUP</center></html>");
+		itemButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		options.add(itemButton);
 		itemButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.LETTER_SEARCH);
 			}
 		});
-		JButton pluButton = new JButton("PLU Lookup");
+		JButton pluButton = new JButton("<html><center>ENTER<br>PLU CODE</center></html>");
+		pluButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		options.add(pluButton);
 		pluButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -136,14 +188,15 @@ public class ScanningScreenGUI {
 //	        	//Ask for assistance
 //	        }
 //	    });
-		JButton checkoutButton = new JButton("Proceed to checkout");
+		JButton checkoutButton = new JButton("<html><center>PROCEED TO<br>CHECKOUT</center></html>");
+		checkoutButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		options.add(checkoutButton);
 		checkoutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stationData.changeState(StationState.CHECKOUT_CHECK);
 			}
 		});
-		options.setBounds(740, 20, 200, 520);
+		options.setBounds(740, 20, 240, 520);
 		frame.getContentPane().add(options);
 
 		frame.setVisible(true);

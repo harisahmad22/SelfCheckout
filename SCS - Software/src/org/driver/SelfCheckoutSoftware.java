@@ -363,6 +363,9 @@ public class SelfCheckoutSoftware {
 			try { stationData.setExpectedWeight(stationHardware.baggingArea.getCurrentWeight()); } 
 			catch (OverloadException e) { e.printStackTrace(); }
 			stationData.changeState(stationData.getPreBlockedState());
+			if (stationData.getCurrentState() == StationState.WAITING_FOR_ITEM) {
+				stationData.changeState(StationState.NORMAL);
+			}
 			return;
 		}
 		else 

@@ -84,6 +84,10 @@ public class ProductInfo {
 		this.quantity += 1;
 		
 	}
+	
+	public void increaseWeight(double weight) {
+		this.weight += weight;	
+	}
 
 	public int getQuantity() {
 		return this.quantity;

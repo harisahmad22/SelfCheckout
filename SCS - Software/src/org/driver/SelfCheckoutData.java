@@ -769,7 +769,7 @@ public class SelfCheckoutData {
 		
 		if (productsAddedToCheckout.containsKey(product.getDescription()))
 		{
-			productsAddedToCheckout.get(product.getDescription()).increaseQuantity();
+			productsAddedToCheckout.get(product.getDescription()).increaseWeight(weightInGrams);
 		}
 		else {
 			productsAddedToCheckout.put(product.getDescription(), PI);
