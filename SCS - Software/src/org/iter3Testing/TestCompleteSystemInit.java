@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.controlSoftware.attendant.AttendantSoftware;
 import org.driver.AttendantUnit;
 import org.driver.SelfCheckoutStationUnit;
+import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,15 +103,31 @@ public class TestCompleteSystemInit {
 
 	//========================================Attendant Use Case Tests========================================
 	@Test
-	public void testAttendantLogsIn()
+	public void testAttendantLogsInSuccessfully()
 	{
-		// do some stuff
+		attendantUnit.getAttendantData().changeState(AttendantState.LOG_IN);
+		
+		attendantUnit.getAttendantSoftware().LogInStation("1");
+		
+		assertTrue(attendantUnit.getAttendantData().getCurrentState()==AttendantState.STATIONS);
+	}
+	
+	@Test
+	public void testAttendantLogsInPinWrong()
+	{
+		attendantUnit.getAttendantData().changeState(AttendantState.LOG_IN);
+		
+		attendantUnit.getAttendantSoftware().LogInStation("6");
+		
+		assertTrue(attendantUnit.getAttendantData().getCurrentState()==AttendantState.LOG_IN);
 	}
 	
 	@Test
 	public void testAttendantLogsOut()
 	{
-		// do more stuff
+		attendantUnit.getAttendantSoftware().logOutStation();
+		
+		assertTrue(attendantUnit.getAttendantData().getCurrentState()==AttendantState.START);
 	}
 	
 	@Test
