@@ -2,6 +2,7 @@ package org.driver;
 
 import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutData.StationState;
+import org.driver.databases.AttendantDatabase;
 import org.lsmr.selfcheckout.devices.OverloadException;
 
 import java.util.ArrayList;
@@ -18,7 +19,9 @@ public class AttendantData {
 	private String guiBuffer = null;
 	
 	private SupervisorGUIMaster gui;
+	
 	private AttendantSoftware software;
+	private AttendantDatabase attendantDatabase = new AttendantDatabase();
 	
 	private ArrayList<SelfCheckoutStationUnit> checkoutStations;
 	
@@ -106,6 +109,7 @@ public class AttendantData {
 	
 	public void registerSoftware(AttendantSoftware newSoftware) {
 		software = newSoftware;
+		software.registerAttendantData(this);
 	}
 	
 	public void setGuiBuffer(String text) {
@@ -114,6 +118,10 @@ public class AttendantData {
 	}
 	public String getGuiBuffer() {
 		return guiBuffer;
+	}
+	
+	public AttendantDatabase getAttendantDatabase() {
+		return attendantDatabase;
 	}
 	
 	// Changes to new state while properly exiting old one (enabling/disabling relevant hardware)

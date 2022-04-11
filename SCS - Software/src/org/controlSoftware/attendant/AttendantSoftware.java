@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 
+import org.driver.AttendantData;
+import org.driver.AttendantData.AttendantState;
 import org.driver.SelfCheckoutStationUnit;
 import org.driver.databases.PLUProductDatabase;
 import org.lsmr.selfcheckout.Banknote;
@@ -47,6 +49,8 @@ public class AttendantSoftware {
 	//(BRODY): I am trying out using the selfCheckoutStaionUnit as a wrapper for each station, instead of relying on 
 	// the list of SelfCheckoutStations stored in the SupervisionStation class
 
+	private AttendantData attendantData;
+	
 	private TouchScreen touchScreenDevice;
 //	private JFrame guiFrame;
 	private SupervisionStation supervisionStation;
@@ -67,6 +71,10 @@ public class AttendantSoftware {
 		this.checkoutStationUnits = checkoutStationUnits;
 		
 		this.pluProductData = pluDatabase; // attendant can now access the plu data base
+	}
+	
+	public void registerAttendantData(AttendantData newData){
+		attendantData = newData;
 	}
 	
 	public void startupStation(SelfCheckoutStationUnit station)
@@ -142,28 +150,19 @@ public class AttendantSoftware {
 		checkoutStationUnits.get(Integer.parseInt(stationID)).getSelfCheckoutSoftware().unBlockStation();
 	}
 
-	public void LogInStation(SelfCheckoutStationUnit station, String attendantIdEntered,  String passwordEntered)
+	public void LogInStation(String pin)
 	{
-		//System.out.println("Starting station: " + station.getStationID());
-        System.out.println("Log in: " + station.getStationID());
-
-        ArrayList<String> AttendantIdStored = station.getAttendantID();
-        ArrayList<String> PasswordStored = station.getPassword();
-        for(int i = 0 ; i < AttendantIdStored.size(); i++){
-            if((AttendantIdStored.get(i) == attendantIdEntered) && (PasswordStored.get(i) == passwordEntered)){
-                station.getSelfCheckoutSoftware().LogInStation(attendantIdEntered, passwordEntered);
-                unBlockStation(station);
-                break;
-            }
-        }
-        System.out.println("Error! Wrong ID or password. Fail to log in.");
+		if (attendantData.getAttendantDatabase().pinGood(pin)) {
+			attendantData.changeState(AttendantState.STATIONS);
+		}
+		else {
+			attendantData.changeState(AttendantState.LOG_IN);
+		}
 	}
 	
-	public void logOutStation(SelfCheckoutStationUnit station)
+	public void logOutStation()
 	{
-		System.out.println("Log out: " + station.getStationID());
-		station.getSelfCheckoutSoftware().LogOutStation();
-        blockStation(station);
+		attendantData.changeState(AttendantState.START);
 	}
 	
 	public void setCheckoutStationUnits(ArrayList<SelfCheckoutStationUnit> newCheckoutStationUnits) {

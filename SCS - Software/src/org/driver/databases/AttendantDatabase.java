@@ -19,8 +19,8 @@ public class AttendantDatabase {
 		database.add("4");
 	}
 
-	public ArrayList<String> getDatabase() {
-		return database;
+	public boolean pinGood(String attendantID) {
+		return database.contains(attendantID);
 	}
 	
 	public void addAttendantToDatabase(String attendantID) {

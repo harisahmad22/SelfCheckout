@@ -540,7 +540,7 @@ public class SupervisorGUIMaster {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				attendantData.changeState(AttendantState.START);
+				attendantData.getSoftware().logOutStation();
 			}
 		});
 		
@@ -1240,15 +1240,14 @@ public class SupervisorGUIMaster {
 		b1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				attendantData.changeState(AttendantState.INACTIVE);//PLACEHOLDER
+				attendantData.changeState(AttendantState.START);//PLACEHOLDER
 			}
 		});
 		
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				attendantData.changeState(AttendantState.STATIONS);//PLACEHOLDER
-				attendantData.setGuiBuffer(l1.getText());
+				attendantData.getSoftware().LogInStation(l1.getText());
 			}
 		});
 		
@@ -1303,7 +1302,7 @@ public class SupervisorGUIMaster {
 		b13.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				attendantData.changeState(AttendantState.START);
+				attendantData.getSoftware().logOutStation();
 			}
 		});
 		
@@ -1358,7 +1357,7 @@ public class SupervisorGUIMaster {
 		b2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				attendantData.changeState(AttendantState.START);
+				attendantData.getSoftware().logOutStation();
 			}
 		});
 		
