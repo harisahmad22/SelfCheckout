@@ -7,6 +7,7 @@ import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.math.BigDecimal;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import org.controlSoftware.GUI.PaymentOptionGUI;
@@ -36,6 +37,7 @@ public class CustomerGUITesting {
 	BarcodedProduct milkJug;
 	BarcodedItem milkJugItem;
 	PaymentOptionGUI gui;
+	BigDecimal total;
 	
 	@Before
 	public void setUp() {
@@ -55,7 +57,9 @@ public class CustomerGUITesting {
 					.get(testProducts.getBarcodeList().get(0));
 		milkJugItem = testProducts.getItem(milkJug);
 		
+		total = new BigDecimal(1.00);
 		gui = new PaymentOptionGUI(station, data);
+		data.setTotalDue(total);
 		
 		try {
 			bot = new Robot();
@@ -211,6 +215,26 @@ public class CustomerGUITesting {
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
+		// Insufficient Funds		
+		
+		data.changeState(StationState.INSUFFICIENT_FUNDS);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(140,340);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+				
+		data.changeState(StationState.INSUFFICIENT_FUNDS);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(440,340);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
 		// Partial Payment
 		
 		data.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
@@ -220,6 +244,52 @@ public class CustomerGUITesting {
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		// Cancel Button
+		
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(305, 490);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+			
+		// Confirm Proper Payment
+		
+		data.changeState(StationState.PARTIAL_PAYMENT_KEYPAD);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(305,140);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		bot.mouseMove(305, 365);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		bot.mouseMove(305,140);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		data.changeState(StationState.PARTIAL_PAYMENT_KEYPAD);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(555, 490);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);	
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		
 		
 	}
 	
