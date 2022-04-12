@@ -3,6 +3,7 @@ package org.iter3Testing;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 
@@ -14,6 +15,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -102,7 +104,7 @@ public class ScanWelcomeGUITests {
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		//Return
-		bot.mouseMove(650, 250);
+		bot.mouseMove(550, 350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -114,7 +116,7 @@ public class ScanWelcomeGUITests {
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		// Checkout final
-		bot.mouseMove(300,250);
+		bot.mouseMove(350, 350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -125,38 +127,25 @@ public class ScanWelcomeGUITests {
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		// Not a member
+		// 8 bags
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
-	}
-	
-	/*
-	 * !!! ISSUES !!!
-	 * Tests going through scanning states
-	 */
-	@Test
-	public void ScanItemStates() {
-		//Welcome screen
-		bot.mouseMove(450,350);
+		// confirm
+		bot.mouseMove(550, 550);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		// Scan and bag
-		data.getStationHardware().mainScanner.scan(milkJugItem1);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		data.getStationHardware().baggingArea.add(milkJugItem1);
-		
-		//Scan and not bag
-		data.getStationHardware().mainScanner.scan(milkJugItem2);
-		bot.mouseMove(650,250);
+		// Not member
+		bot.mouseMove(550, 350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
 	}
 	
 	/*
@@ -175,13 +164,45 @@ public class ScanWelcomeGUITests {
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				
+		//Press keypad
+		bot.mouseMove(760, 260);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		bot.mouseMove(760, 260);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		bot.mouseMove(760, 260);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		bot.mouseMove(760, 260);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		//Search
+		bot.mouseMove(940, 550);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		
+		//Return
+		bot.mouseMove(550, 350);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 		//Press keypad
 		bot.mouseMove(760, 260);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(880, 260);
+		bot.mouseMove(860, 260);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -208,52 +229,6 @@ public class ScanWelcomeGUITests {
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
-		
-		//Adds item
-		data.getStationHardware().scanningArea.add(bananaItem);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		data.getStationHardware().scanningArea.remove(bananaItem);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(700,250);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		
-		//PLU search
-		bot.mouseMove(850,300);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-				
-		//Press keypad
-		bot.mouseMove(760, 260);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(760, 260);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);bot.mouseMove(760, 260);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);bot.mouseMove(760, 260);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		
-		//Search
-		bot.mouseMove(940, 550);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		
-		//Return
-		bot.mouseMove(550, 350);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
 	}
 
 	/*
@@ -267,8 +242,39 @@ public class ScanWelcomeGUITests {
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		// gets the item
-		GetBanana();
+		//Letter search
+		bot.mouseMove(800,100);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		//List select
+		bot.mouseMove(800,300);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		//Search
+		bot.mouseMove(750,550);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		// Click on Banana
+		bot.mouseMove(100,80);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		// Get item
+		bot.mouseMove(900,550);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
 		
 	}
 
@@ -286,11 +292,19 @@ public class ScanWelcomeGUITests {
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(300,250);
+		bot.mouseMove(350, 350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		bot.mouseMove(550, 350);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseMove(550, 550);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -387,49 +401,48 @@ public class ScanWelcomeGUITests {
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(300,250);
+		bot.mouseMove(350, 350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		//Yes
-		bot.mouseMove(300,350);
+		bot.mouseMove(350, 350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		//Cancel
+		bot.mouseMove(300,350);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+		//No
+		bot.mouseMove(650,350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		//Yes
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		
-		//Add bags
+		//Add bag
 		bot.mouseMove(600,350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-	}
-	
-	/*
-	 * !!! ISSUES !!!
-	 * Goes through weightIssueScreen
-	 */
-	@Test
-	public void WeightState() {
-		//Welcome screen
-		bot.mouseMove(450,350);
+		//Add 0
+		bot.mouseMove(500,450);
+		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		try{Thread.sleep(250);}catch(InterruptedException e){}
+		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		//Del
+		bot.mouseMove(350,450);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		data.getStationHardware().baggingArea.add(milkJugItem1);
 	}
+
 	
 	/*
 	 * Tests inactive state
@@ -446,90 +459,35 @@ public class ScanWelcomeGUITests {
 	public void BlockedState() {
 		data.changeState(StationState.BLOCKED);	
 	}
-
-	/*
-	 * Tests finished state
-	 */
+	
 	@Test
-	public void FinishState() {
-		//Moves to the end of checkout
+	public void itemTest() {
 		bot.mouseMove(450,350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(800,500);
+		data.addProductToCheckout(banana, 500.0);
+		bot.mouseMove(450,350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(300,250);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(550, 350);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(550, 200);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mouseMove(350, 400);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
+		data.getStationHardware().baggingArea.add(bananaItem);
 	}
 	
-	public void GetBanana() {
-		//Letter search
-		bot.mouseMove(800,100);
+	@Test
+	public void weightTest() {
+		bot.mouseMove(450,350);
 		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		try{Thread.sleep(250);}catch(InterruptedException e){}
 		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		data.addProductToCheckout(banana, 500.0);
+		data.getStationHardware().baggingArea.add(bananaItem);
+	}
+
+	@Test
+	public void finalScreen() {
+		data.changeState(StationState.BAD_CARD);
+		data.changeState(StationState.PRINT_RECEIPT_PROMPT);
 		
-		//List select
-		bot.mouseMove(800,300);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		
-		//Search
-		bot.mouseMove(800,550);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		
-		// Click on Banana
-		bot.mouseMove(100,80);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		
-		// Get item
-		bot.mouseMove(900,550);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		
-		//adds item
-		data.getStationHardware().scanningArea.add(bananaItem);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		data.getStationHardware().scanningArea.remove(bananaItem);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseMove(700,250);
-		bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
-		bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		try{Thread.sleep(250);}catch(InterruptedException e){}
 	}
 }
