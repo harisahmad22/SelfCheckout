@@ -538,7 +538,6 @@ public class SelfCheckoutGUIWelcome {
 		{
 			stationData.resetTotalPaidThisTransaction();
 			stationData.changeState(StationState.NORMAL);
-			stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 		}
 		else
 		{
