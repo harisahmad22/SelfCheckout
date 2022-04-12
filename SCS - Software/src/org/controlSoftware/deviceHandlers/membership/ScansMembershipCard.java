@@ -1,13 +1,18 @@
 package org.controlSoftware.deviceHandlers.membership;
 
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.controlSoftware.customer.CheckoutSoftware;
-import org.controlSoftware.deviceHandlers.payment.PaymentHandler;
+import org.controlSoftware.customer.CheckoutHandler;
+import org.controlSoftware.deviceHandlers.payment.CardPaymentSoftware;
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
+import org.driver.SelfCheckoutSoftware;
+import org.driver.databases.MembershipDatabase;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
@@ -16,15 +21,29 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
-public class UseMembershipCard implements CardReaderObserver{
+public class ScansMembershipCard implements CardReaderObserver{
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
 	private SelfCheckoutStation station;
-	private PaymentHandler payment;
+	private CardPaymentSoftware paymentHandler;
 	
-	private String memberNumber;
-	private Map<String, Integer> membershipCards = new HashMap<>();
+	private MembershipDatabase memberData;
 	
-	int discountPercentage = 0;
-	int pointsPerDollar = 0;
+	
+	private boolean tap = false;
+	
+	private int pointsPerDollar = 0;
+	private double discountPercentage = 0;
+
+	
+	String memberNumber;
+	
+	
+
+	
+	public MembershipDatabase getMemberData() {
+		return memberData;
+	}
 	
 	//if customer is currently trying to scan their membership card, this will be set to true
 	protected AtomicBoolean scanMembershipCard = new AtomicBoolean(false);
@@ -32,49 +51,53 @@ public class UseMembershipCard implements CardReaderObserver{
 	//whether scan was successful or not
 	private AtomicBoolean scanSuccessful = new AtomicBoolean(false);
 	
-
 	
 	
-	public UseMembershipCard(SelfCheckoutStation station, PaymentHandler pay) {
-		this.station = station;
-		station.cardReader.attach(this);
+	public ScansMembershipCard(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
+		this.stationData = stationData;
+		this.stationSoftware = stationSoftware;
+		this.station = stationData.getStationHardware();
+		this.memberData = new MembershipDatabase();
+		this.paymentHandler = this.stationSoftware.getCardPaymentSoftware();
 		
-		this.payment = pay;
+		
 	}
 	
-	
+
 	//called at the end of an entire transaction to apply points to member's account
 	public void applyMembershipBenefits(String number, BigDecimal totalPayment) {
 		int newPointsPerDollar = (int)(totalPayment.doubleValue() * pointsPerDollar);
-		int previousPoints = membershipCards.get(number);
-		membershipCards.put(number, Integer.valueOf(previousPoints + newPointsPerDollar));
+		int previousPoints = memberData.getDatabase().get(number);
+		memberData.addMember(number, Integer.valueOf(previousPoints + newPointsPerDollar));
 		
 		
 	}
-	
+	/* already implemented??
 	//same as cardRead but for manual input
-	public void membershipCardInput(String cardNum) {
-		
-			if(membershipCards.containsKey(cardNum) == true) {
-				scanSuccessful = new AtomicBoolean(true);
-				payment.membershipCardScanSuccessful();
-			}
-			else {
-				//membership number does not exist
-				payment.membershipScanUnsuccessful();
-			}
-		
-	}
+		public void membershipCardInput(String cardNum) {
+			
+				if(memberData.getDatabase().containsKey(cardNum) == true) {
+					scanSuccessful = new AtomicBoolean(true);
+					stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);				}
+				else {
+					//membership number does not exist
+					stationData.changeState(StationState.BAD_MEMBERSHIP);				
+					//paymentHandler.membershipScanUnsuccessful();	
+				}
+				reset();
+
+		}
+	*/
 	
 	public int getLoyaltyPoints(String cardNumber) {
-		return membershipCards.get(cardNumber);
+		return memberData.getDatabase().get(cardNumber);
 	}
 	
-	public void setPercentDiscount(int discount) {
+	public void setPercentDiscount(double discount) {
 		discountPercentage = discount;
 	}
 	
-	public int getPercentDiscount() {
+	public double getPercentDiscount() {
 		return discountPercentage;
 	}
 	
@@ -82,18 +105,13 @@ public class UseMembershipCard implements CardReaderObserver{
 		pointsPerDollar = points;
 	}
 	
-	public void wantToScan() {
-		scanMembershipCard = new AtomicBoolean(true);
-	}
-	public void disableMemberScan() {
-		scanMembershipCard = new AtomicBoolean(false);
-	}
+	
 	
 	public void reset() {
 		memberNumber = null;
 		scanMembershipCard = new AtomicBoolean(false);
 		scanSuccessful = new AtomicBoolean(false);
-		
+		tap = false;
 	}
 	
 	
@@ -107,25 +125,32 @@ public class UseMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		String type = data.getType();
-		
-		String[] memberCard = {"member", "Member"};
-		if((type.indexOf(memberCard[0]) > 0) || (type.indexOf(memberCard[1]) > 0) ) {
-			String cardNum = data.getNumber();
-			if(membershipCards.containsKey(cardNum) == true) {
-				scanSuccessful = new AtomicBoolean(true);
-				payment.membershipCardScanSuccessful();
+		if(tap == true) {
+			return;
+		}
+		if ((stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
+			String type = data.getType();
+			String[] memberCard = {"member", "Member"};
+			if(type.equals("Member") || type.equals("member")) {
+				String cardNum = data.getNumber();
+				if(memberData.getDatabase().containsKey(cardNum) == true) {
+					scanSuccessful = new AtomicBoolean(true);
+					stationData.setMembershipID(data.getNumber());
+					stationData.changeState(StationState.PAYMENT_AMOUNT_PROMPT);
+				}
+				else {
+					//membership number does not exist
+					stationData.changeState(StationState.BAD_MEMBERSHIP);
+					//paymentHandler.membershipScanUnsuccessful();
+				}
 			}
 			else {
-				//membership number does not exist
-				payment.membershipScanUnsuccessful();
+				//card not of type membership
+				stationData.changeState(StationState.BAD_MEMBERSHIP);
+				//paymentHandler.membershipScanUnsuccessful();	
 			}
 		}
-		else {
-			//card not of type membership
-			payment.membershipScanUnsuccessful();		}
-		
-	
+		reset();
 	}
 	
 	/**
@@ -136,7 +161,7 @@ public class UseMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardSwiped(CardReader reader) {
-		//checkout.setCardSwiped(true); //Inform checkout of swipe		//idk if this is still needed
+		
 	}
 	
 	/**
@@ -165,10 +190,12 @@ public class UseMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardInserted(CardReader reader) {
+		/*
 		if (scanMembershipCard == new AtomicBoolean(true)) {
 			scanSuccessful = new AtomicBoolean(false);
-			payment.membershipScanUnsuccessful();	//something to inform customer of unsuccessful scan
+			//paymentHandler.membershipScanUnsuccessful();	//something to inform customer of unsuccessful scan
 		}
+		*/
 	}
 
 	/**
@@ -190,13 +217,13 @@ public class UseMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardTapped(CardReader reader) {
+		/*
 		if (scanMembershipCard == new AtomicBoolean(true)) {
 			scanSuccessful = new AtomicBoolean(false);
-			payment.membershipScanUnsuccessful();	//something to inform customer of unsuccessful scan
-		}
+			//paymentHandler.membershipScanUnsuccessful();	//something to inform customer of unsuccessful scan
+			*/
+			tap = true;
+		
+		
 	}
-	
-
-
-
 }

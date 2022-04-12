@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.driver.SelfCheckoutData;
+import org.driver.SelfCheckoutData.StationState;
+import org.driver.SelfCheckoutSoftware;
+import org.driver.databases.GiftCardDatabase;
 import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.CardReader;
@@ -16,6 +20,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 //for payments involving a card (credit, debit, giftcard)
 public class PayWithCard implements CardReaderObserver {
 	
+	private SelfCheckoutData stationData;
+	private SelfCheckoutSoftware stationSoftware;
 	private SelfCheckoutStation station;
 	private CardData cardData;
 	private String cardType;
@@ -26,21 +32,13 @@ public class PayWithCard implements CardReaderObserver {
 	
 	protected BigDecimal paymentAmount = new BigDecimal("0");
 	protected BigDecimal paymentTotal = new BigDecimal("0");
-	private BigDecimal amountPaid = new BigDecimal(0);
 	
-	protected boolean useAllGiftCard = true;
+	protected boolean useAllGiftCard = false;
 	protected boolean checkGiftCardBalance = true;
 	
+	private boolean paymentSuccessful = false;
 	
-	//put Div's giftcard class into same branch, import!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//
-	
-	//FOR FULL PAYMENTS, MAKE THE PAYMENTAMOUNT THE TOTAL DISCOUNTED PAYMENT AMOUNT 
-	private Map<String, Double> giftCardsDatabase;
 	private GiftCardDatabase giftCards;
-	
-	private PaymentHandler payment;
 	
 	
 	//card issuers have unique card types that correspond with them (ex. "xxx company debit" or "a company visa credit")
@@ -48,13 +46,10 @@ public class PayWithCard implements CardReaderObserver {
 	
 	protected String memberNumber;
 	
-	//constructor
-	public PayWithCard(SelfCheckoutStation station, PaymentHandler pay) {
-		this.station = station;
-		station.cardReader.attach(this);
-		
-		this.payment = pay;
-		
+	public PayWithCard(SelfCheckoutData stationData, SelfCheckoutSoftware stationSoftware) {
+		this.stationData = stationData;
+		this.stationSoftware = stationSoftware;
+		this.station = stationData.getStationHardware();		
 	}
 	
 	//map card type to specific card issuer
@@ -64,27 +59,15 @@ public class PayWithCard implements CardReaderObserver {
 	}
 	
 	//set the giftcards database
-	public void addGiftCardDatabase() {
-		giftCards = new GiftCardDatabase();
-		giftCardsDatabase = giftCards.getDatabase();
+	public void addGiftCardDatabase(GiftCardDatabase database) {
+		giftCards = database;
 	}
 	
-	public Map<String, Double> getGiftCardsData() {
-		return giftCards.getDatabase();
+	public boolean getPaymentSuccessful() {
+		return paymentSuccessful;
 	}
 	
-	public void setPaymentTotal(BigDecimal total) {
-		paymentTotal = total;
-	}
 	
-	public void setCurrentPaymentAmount(BigDecimal amount) {
-		paymentAmount = amount;
-	}
-	
-	public void setUseAllGiftCard() {
-		useAllGiftCard = true;
-
-	}
 	
 	
 		/**
@@ -94,27 +77,16 @@ public class PayWithCard implements CardReaderObserver {
 	    * 			Debit card information
 	    */
 	public boolean payWithDebit(CardData cardData) {
-		boolean paymentSuccessful = false;
+		paymentSuccessful = false;
 		
 		String cardNum = cardData.getNumber();
-		int holdNum = cardIssuer.authorizeHold(cardNum, paymentAmount);
+		int holdNum = cardIssuer.authorizeHold(cardNum, stationData.getTransactionPaymentAmount());
 		if(holdNum == -1) {
 			return paymentSuccessful;
 		}
 		if(holdNum >= 0) {
-			//if payment amount inputed by customer is greater than amount left to pay
-			if(paymentAmount.compareTo((paymentTotal.subtract(payment.getAmountPaid()))) > 0) {
-				paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, paymentTotal.subtract(payment.getAmountPaid()));
-				payment.paid(paymentTotal);
-				amountPaid = paymentTotal;
-			
-			}
-			else {
-				paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, paymentAmount);
-				payment.paid(paymentAmount);
-				amountPaid = paymentAmount;
-			}
-			
+			paymentSuccessful = cardIssuer.postTransaction(cardNum, holdNum, stationData.getTransactionPaymentAmount());
+			paid(stationData.getTransactionPaymentAmount());
 		}
 		
 		return paymentSuccessful;
@@ -127,100 +99,20 @@ public class PayWithCard implements CardReaderObserver {
 	    * 			Credit card information
 	    */
 	public boolean payWithCredit(CardData cardData) {
-		boolean paymentSuccessful = false;
+		paymentSuccessful = false;
 		
 		String cardNum = cardData.getNumber();
-		//first check
-		int holdNum = cardIssuer.authorizeHold(cardNum, paymentAmount);
+		int holdNum = cardIssuer.authorizeHold(cardNum, stationData.getTransactionPaymentAmount());
 		if(holdNum == -1) {
 			return paymentSuccessful;
 		}
 		if(holdNum >= 0) {
-			//if payment amount inputed by customer is greater than amount left to pay
-			if(paymentAmount.compareTo((paymentTotal.subtract(payment.getAmountPaid()))) > 0) {
-				
-				paymentSuccessful = cardIssuer.releaseHold(cardNum, holdNum);
-				holdNum = cardIssuer.authorizeHold(cardNum, paymentTotal.subtract(payment.getAmountPaid()));
-				if(holdNum>=0) {
-					payment.paid(paymentTotal.subtract(payment.getAmountPaid()));
-					amountPaid = paymentTotal.subtract(payment.getAmountPaid());
-				}
-				else {
-					paymentSuccessful = false;
-					return paymentSuccessful;
-				}
-			
-			}
-			//payment inputed by customer is less than amount left to pay 
-			else {
-				paymentSuccessful = true;		//credit card transactions are not posted immediately?
-				payment.paid(paymentAmount);
-				amountPaid = paymentAmount;
-			}
-	
+			paymentSuccessful = true;		//credit card transactions are not posted immediately?
+			paid(stationData.getTransactionPaymentAmount());
 		}
 		return paymentSuccessful;		
 	}
 	
-	
-	public boolean payWithGiftCard(CardData data) {
-		boolean paymentSuccessful = false;
-		String cardNum = data.getNumber();
-	
-			
-		BigDecimal amountOnGiftCard = BigDecimal.valueOf(giftCardsDatabase.get(cardNum));
-		
-		//customer chooses to use entire giftcard
-		//does not matter if giftcard has 0 or not, will process it as successful
-		//(customer chooses to use entire giftcard, if $0, then customer chooses to use all of that :D
-		//there should be something before hand that informs customer of amount left on card!!
-		if(useAllGiftCard == true) {
-			//if amount left to pay is greater or equal to amount on gift card
-			if((paymentTotal.subtract(payment.getAmountPaid())).compareTo(amountOnGiftCard) >= 0) {
-				giftCards.updateGiftCard(cardNum, 0.00);
-				payment.paid(amountOnGiftCard);
-				paymentSuccessful = true;
-				amountPaid = amountOnGiftCard;
-			}
-			//if amount left to pay is less than amount on giftcard
-			else {
-				BigDecimal amountLeft =  amountOnGiftCard.subtract(paymentTotal.subtract(payment.getAmountPaid()));
-				giftCards.updateGiftCard(cardNum, amountLeft.doubleValue());
-				payment.paid(paymentTotal.subtract(payment.getAmountPaid()));
-				amountPaid = paymentTotal.subtract(payment.getAmountPaid());
-				paymentSuccessful = true;
-			}
-				
-		}
-		
-		//customer chooses certain amount of the giftcard to use
-		//paymentAmount is the amount inputed by customer to use
-		else {
-			//if amount on giftcard is greater than or equal to payment amount selected by customer
-			if(amountOnGiftCard.compareTo(paymentAmount) >= 0) {
-				amountOnGiftCard = amountOnGiftCard.subtract(paymentAmount);
-				giftCards.updateGiftCard(cardNum, amountOnGiftCard.doubleValue());
-				payment.paid(paymentAmount);
-				amountPaid = paymentAmount;
-				paymentSuccessful = true;
-
-			}
-			//if amount on giftcard is less than amount to pay selected by customer (uses all of giftcard)
-			else {
-				BigDecimal amountCanPay = amountOnGiftCard;
-				amountOnGiftCard = amountOnGiftCard.subtract(amountOnGiftCard);
-				giftCards.updateGiftCard(cardNum, amountOnGiftCard.doubleValue());
-				payment.paid(amountCanPay);
-				amountPaid = amountCanPay;
-				paymentSuccessful = true;
-
-				
-			}
-		}
-		
-		return paymentSuccessful;
-		
-	}
 	/**
 	    * Check if the customer has removed their card
 	    */
@@ -231,22 +123,10 @@ public class PayWithCard implements CardReaderObserver {
 			
 		}
 		
-		public void resetPayment() {
-			cardIssuer = null;
+		public void reset() {
 			cardData = null;
-			cardType = null;
 			success = false;
 			paymentAmount = new BigDecimal("0");
-		    useAllGiftCard = true;
-		    checkGiftCardBalance = true;
-		    amountPaid = new BigDecimal(0);
-			
-		}
-		
-		public void resetEntireTransaction() {
-			resetPayment();
-			paymentTotal = new BigDecimal(0);
-			memberNumber = null;
 		}
 	
 	@Override
@@ -275,77 +155,47 @@ public class PayWithCard implements CardReaderObserver {
 	}
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		cardIssuer = cardIssuers.get(cardType);
-		cardData = data;
-		cardType = data.getType();
-		String cardKind = findCardKind(cardType);
-		
-		if(cardIssuers.containsKey(cardType) == true) {
+		if (stationData.getCurrentState() == StationState.PAY_CREDIT 
+		    || stationData.getCurrentState() == StationState.PAY_DEBIT)
+		{
+			cardData = data;
+			cardType = data.getType();
 			cardIssuer = cardIssuers.get(cardType);
-		}
-		else if(cardKind == "Giftcard") {
-			if(checkGiftCardBalance == true) {
-				if(giftCards.getDatabase().containsKey(data.getNumber()) == true) {
-					BigDecimal balance = BigDecimal.valueOf(giftCards.getDatabase().get(data.getNumber()));
-					payment.getGiftCardBalance(balance, true);
-					//no longer in checking balance phase
-					checkGiftCardBalance = false;
-					return;
-				}
-				else {
-					payment.getGiftCardBalance(new BigDecimal(0), false);
-					checkGiftCardBalance = false;
-					return;
-				}
-			}
-			else if(giftCards.getDatabase().containsKey(data.getNumber()) == true) {
-				success = payWithGiftCard(cardData);
-				if(success == true) {
-					payment.giftCardPaymentSuccessful(amountPaid);
-				}
-				else {
-					payment.giftCardPaymentUnsuccessful();
-					
-				}
-			}
-			else {
-				success = false;
-				paymentUnsuccessful();
-			}
-		}
-		else {
-			paymentUnsuccessful();
-			//if a membership card, should not be a part of cardIssuers available
-			//thus, payment with membership card is not possible
-		}
-		
 
-	
-		switch(cardKind) {
-		case "Debit":
-			success = payWithDebit(cardData);
-			if(success == true) {
-				payment.debitPaymentSuccessful(amountPaid);
+			if(cardIssuers.containsKey(cardType) == true) {
+				cardIssuer = cardIssuers.get(cardType);
 			}
 			else {
-				payment.debitPaymentUnsuccessful();
+				paymentUnsuccessful();
+				return;
+				//if a membership card, should not be a part of cardIssuers available
+				//thus, payment with membership card is not possible
 			}
-			break;
 			
-		case "Credit":
-			success = payWithCredit(cardData);
-			if(success == true) {
-				payment.creditPaymentSuccessful(amountPaid);
+			switch(cardType) {
+			case "Debit":
+				success = payWithDebit(cardData);
+				if(success == true) {
+					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+				}
+				else {
+					stationData.changeState(StationState.BAD_CARD);
+				}
+				break;
+				
+			case "Credit":
+				success = payWithCredit(cardData);
+				if(success == true) {
+					stationData.changeState(StationState.PRINT_RECEIPT_PROMPT);
+				}
+				else {
+					stationData.changeState(StationState.BAD_CARD);
+				}
+				break;
 			}
-			else {
-				payment.creditPaymentUnsuccessful();
-			}
-			break;
+			checkCardRemoved();
+			reset();
 		}
-		
-		checkCardRemoved();
-		resetPayment();
-		
 	}
 	
 	public String findCardKind(String cardType) {
@@ -373,6 +223,11 @@ public class PayWithCard implements CardReaderObserver {
 		return kind;
 		
 	}
+	
+	public void paid(BigDecimal paid) {
+		stationData.addToTotalPaid(paid);
+	}
+	
 	public void paymentUnsuccessful() {
 		
 	}
