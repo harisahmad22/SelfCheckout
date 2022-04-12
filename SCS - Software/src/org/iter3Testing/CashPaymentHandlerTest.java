@@ -79,6 +79,7 @@ public class CashPaymentHandlerTest {
     public void testValidBanknoteDetected() throws DisabledException, OverloadException {
     	
     	stationData.addToTotalCost(new BigDecimal(fiveDollarBanknote.getValue())); //Add $5 to bill
+    	stationData.changeState(StationState.PAY_CASH);
     	stationHardware.banknoteInput.accept(fiveDollarBanknote); 			//Try inserting $5 bill 
     	Assert.assertTrue(stationData.compareTotals() == 1);	//Check if total cost = total paid
 	    
