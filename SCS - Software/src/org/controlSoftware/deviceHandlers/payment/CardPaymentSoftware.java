@@ -38,13 +38,10 @@ public class CardPaymentSoftware {
 	
 	
 	public CardPaymentSoftware(SelfCheckoutData stationData, 
-//			PayWithCard cardPaymentHandler, 
 			ScansMembershipCard memberCardHandler) 
 	{
 		this.stationData = stationData;
 		this.station = stationData.getStationHardware();
-//		this.checkoutHandler = stationData.getStationSoftware().getCheckoutHandler();
-		this.cardPaymentHandler = cardPaymentHandler;
 		this.memberCardHandler = memberCardHandler;
 	}
 	
@@ -67,18 +64,18 @@ public class CardPaymentSoftware {
 	 */
 	public void useMembershipCard() {
 		station.cardReader.enable();
-		memberCardHandler.wantToScan();
+//		memberCardHandler.wantToScan();
 	}
 	
 	public void membershipCardScanSuccessful(int discountPercent) {
 		validMember = new AtomicBoolean(true); 
 		discount = discountPercent;
-		memberCardHandler.disableMemberScan();
+//		memberCardHandler.disableMemberScan();
 	}
 	
 	public void membershipScanUnsuccessful() {
 		validMember = new AtomicBoolean(false); 
-		memberCardHandler.disableMemberScan();
+//		memberCardHandler.disableMemberScan();
 	}
 	
 	public void getGiftCardBalance(BigDecimal balance, boolean cardExists) {

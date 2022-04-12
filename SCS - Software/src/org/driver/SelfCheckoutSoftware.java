@@ -47,9 +47,7 @@ public class SelfCheckoutSoftware {
 	public ReceiptHandler receiptHandler;
 	
 	private ScansMembershipCard membershipCardHandler;
-	 
-	
-	
+
 	private AtomicBoolean weightIssueHandlerRunning = new AtomicBoolean(false);
 	
 	ScheduledExecutorService blockedStateChecker = Executors.newScheduledThreadPool(1);
@@ -144,6 +142,9 @@ public class SelfCheckoutSoftware {
 		return weightIssueHandlerRunning.get();
 	}
 
+	public ScansMembershipCard getMembershipCardHandler() {
+		return membershipCardHandler;
+	}
 	
 	public void startupStation()
 	{

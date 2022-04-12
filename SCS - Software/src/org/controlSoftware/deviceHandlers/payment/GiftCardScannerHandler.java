@@ -110,7 +110,7 @@ public class GiftCardScannerHandler implements CardReaderObserver
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
-		if (stationData.getCardSwiped() && (data.getType() == "GiftCard") && (stationData.getCurrentState() == StationState.PAY_GIFTCARD)) 
+		if ((data.getType() == "GiftCard") && (stationData.getCurrentState() == StationState.PAY_GIFTCARD)) 
 		{
 			String GiftCardNumber = data.getNumber();
 			stationData.setGiftCardNo(GiftCardNumber);

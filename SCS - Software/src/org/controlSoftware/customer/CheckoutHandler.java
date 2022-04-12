@@ -95,8 +95,8 @@ public class CheckoutHandler {
 			}
 		}//Otherwise change is defaulted to 0 when a partial payment is completed
 	
-		stationSoftware.getReceiptHandler().setFinalTotal(stationData.getTotalDue().toString());
-		stationSoftware.getReceiptHandler().setMoneyPaid(stationData.getTotalMoneyPaid().toString());
+		stationSoftware.getReceiptHandler().setFinalTotal(stationData.getTotalDue());
+		stationSoftware.getReceiptHandler().setMoneyPaid(stationData.getTotalMoneyPaid());
 		stationSoftware.getReceiptHandler().setFinalChange(changeAmount.toString());
 	
 	}

@@ -533,11 +533,14 @@ public class SelfCheckoutGUIWelcome {
 		l2.setBounds(0, 150, 1000, 150);
 		frame.getContentPane().add(l2);
 		
+		stationData.getStationSoftware().getMembershipCardHandler().applyMembershipBenefits(stationData.getMembershipID(), stationData.getTotalPaidThisTransaction());
+		
 //		Check if more money needs to be paid 
 		if (stationData.getTotalMoneyPaid().compareTo(stationData.getTotalDue()) < 0)
 		{
 			stationData.resetTotalPaidThisTransaction();
 			stationData.changeState(StationState.NORMAL);
+			stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 		}
 		else
 		{

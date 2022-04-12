@@ -1,6 +1,7 @@
 package org.controlSoftware.deviceHandlers;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -113,7 +114,8 @@ public class ReceiptHandler implements ReceiptPrinterObserver {
 		return this.finalTotal;
 	}
 	public void setFinalTotal(BigDecimal total) {
-		this.finalTotal = "$" + total.toString() + "\n";
+		DecimalFormat decimalFormat = new DecimalFormat("0.##");
+		this.finalTotal = "$" + decimalFormat.format(total) + "\n";
 	}
 	public void setFinalTotal(String total) {
 		this.finalTotal = "$" + total + "\n";
@@ -130,8 +132,9 @@ public class ReceiptHandler implements ReceiptPrinterObserver {
 		this.finalChange = "$" + change + "\n";
 	}
 
-	public void setMoneyPaid(String paid) {
-		this.moneyPaid = "$" + paid + "\n";
+	public void setMoneyPaid(BigDecimal paid) {
+		DecimalFormat decimalFormat = new DecimalFormat("0.##");
+		this.moneyPaid = "$" + decimalFormat.format(paid) + "\n";
 	}
 
 	@Override

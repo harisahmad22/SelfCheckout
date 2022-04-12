@@ -29,7 +29,7 @@ public class ScansMembershipCard implements CardReaderObserver{
 	
 	private boolean tap = false;
 	
-	private int pointsPerDollar = 0;
+	private int pointsPerDollar = 1;
 	private int discountPercentage = 0;
 
 	
@@ -129,7 +129,7 @@ public class ScansMembershipCard implements CardReaderObserver{
 			data = null;
 			return;
 		}
-		if ((stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
+		if (((data.getType() == "member") || (data.getType() == "Member")) && (stationData.getCurrentState() == StationState.SWIPE_MEMBERSHIP)) {
 			String type = data.getType();
 			String[] memberCard = {"member", "Member"};
 			if(type.equals("Member") || type.equals("member")) {
@@ -162,7 +162,6 @@ public class ScansMembershipCard implements CardReaderObserver{
 	 */
 	@Override
 	public void cardSwiped(CardReader reader) {
-		 stationData.changeState(StationState.SWIPE_MEMBERSHIP);
 	}
 	
 	/**
