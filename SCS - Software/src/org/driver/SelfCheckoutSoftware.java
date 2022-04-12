@@ -347,6 +347,13 @@ public class SelfCheckoutSoftware {
 		return cardPaymentSoftware;
 	}
 
+	public ScansMembershipCard getMembershipCardHandler() {
+		return membershipCardHandler;
+	}
+	
+	public PayWithCard getCardPaymentHandler() {
+		return cardPaymentHandler;
+	}
 	
 	public void manualMembershipCheck(String membershipID)
 	{
