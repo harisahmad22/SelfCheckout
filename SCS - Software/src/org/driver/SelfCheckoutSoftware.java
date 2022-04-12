@@ -346,10 +346,6 @@ public class SelfCheckoutSoftware {
 	public CardPaymentSoftware getCardPaymentSoftware() {
 		return cardPaymentSoftware;
 	}
-
-	public ScansMembershipCard getMembershipCardHandler() {
-		return membershipCardHandler;
-	}
 	
 	public PayWithCard getCardPaymentHandler() {
 		return cardPaymentHandler;
